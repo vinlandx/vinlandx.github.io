@@ -7,53 +7,50 @@
 <link rel="icon" type="image/png" href="icon.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* ============ Light Theme (Vinland Saga Daylight) ============ */
+/* ============ Green - Lime Theme (Glowing) ============ */
 :root {
-  --bg-main: #F4F7FB;
+  --bg-main: #F5FAF6;
   --bg-card: rgba(255, 255, 255, 0.85);
-  --bg-sidebar: #0B1426;
-  --ocean: #1E3A5F;
-  --gold: #C99B3F;
-  --gold-light: #E8C87A;
-  --blood: #8B2E2E;
-  --field: #2D4A2D;
-  --text: #1A2530;
-  --text-dim: #5A6E82;
-  --text-light: #8FA3B8;
-  --border: rgba(30, 58, 95, 0.15);
-  --shadow: 0 8px 30px rgba(30, 58, 95, 0.08);
-  --glass: rgba(255, 255, 255, 0.75);
-  --radius: 16px;
+  --bg-sidebar: #0D1F13;
+  --text: #112218;
+  --text-dim: #4A6552;
+  --lime: #A3E635;
+  --green: #22C55E;
+  --green-dark: #166534;
+  --glow: 0 0 20px rgba(163, 230, 53, 0.5);
+  --glow-heavy: 0 0 40px rgba(163, 230, 53, 0.8);
+  --border: rgba(34, 197, 94, 0.2);
+  --radius: 18px;
   --sidebar-width: 270px;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
   font-family: 'Segoe UI', Tahoma, sans-serif;
   color: var(--text);
-  min-height: 100vh;
   background: var(--bg-main);
+  min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* ============ خلفية Parallax متعددة ============ */
-#bg-layer {
+/* خلفية متوهجة ديناميكية */
+#bg-dynamic {
   position: fixed;
   inset: 0;
   z-index: -10;
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  transition: background-image 0.8s ease-in-out;
+  background: radial-gradient(circle at 20% 30%, rgba(163,230,53,0.15), transparent 50%),
+              radial-gradient(circle at 80% 70%, rgba(34,197,94,0.15), transparent 50%);
+  transition: background 2s ease;
 }
 #bg-overlay {
   position: fixed;
   inset: 0;
-  background: linear-gradient(180deg, rgba(244,247,251,0.85) 0%, rgba(244,247,251,0.65) 100%);
+  background: linear-gradient(180deg, rgba(245,250,246,0.8) 0%, rgba(245,250,246,0.95) 100%);
   z-index: -9;
   pointer-events: none;
+  backdrop-filter: blur(8px);
 }
 
-/* ============ السايدبار ============ */
+/* ============ السايدبار (Glowing Dark) ============ */
 #sidebar {
   width: var(--sidebar-width);
   background: var(--bg-sidebar);
@@ -64,80 +61,96 @@ body {
   flex-direction: column;
   z-index: 50;
   transition: transform 0.3s ease;
-  box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+  box-shadow: -5px 0 30px rgba(0,0,0,0.2), inset 3px 0 15px rgba(163,230,53,0.1);
+  border-left: 1px solid rgba(163,230,53,0.2);
 }
-.sidebar-header { padding: 24px 22px 18px; border-bottom: 1px solid rgba(212,168,83,0.15); }
+.sidebar-header { padding: 24px 22px 18px; border-bottom: 1px solid rgba(163,230,53,0.1); }
 .sidebar-logo { display: flex; align-items: center; gap: 12px; }
-.sidebar-logo .logo-img { width: 46px; height: 46px; border-radius: 12px; overflow: hidden; border: 1.5px solid rgba(212,168,83,0.4); flex-shrink: 0; }
-.sidebar-logo .logo-img img { width: 100%; height: 100%; object-fit: cover; }
-.sidebar-logo h2 { font-size: 20px; font-weight: 900; color: #F0F4F8; letter-spacing: 2px; }
-.sidebar-logo .tagline { font-size: 10px; color: var(--gold); letter-spacing: 2px; margin-top: 2px; }
-.sidebar-nav { flex: 1; padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
-.nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: #8FA3B8; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; background: transparent; width: 100%; text-align: right; font-family: inherit; border-right: 3px solid transparent; }
-.nav-item:hover { background: rgba(212,168,83,0.08); color: #F0F4F8; }
-.nav-item.active { background: rgba(212,168,83,0.15); color: var(--gold); font-weight: 700; border-right-color: var(--gold); }
-.sidebar-footer { padding: 14px 16px; border-top: 1px solid rgba(212,168,83,0.15); }
-.user-mini { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 10px; background: rgba(212,168,83,0.08); }
-.user-mini .avatar-sm { width: 36px; height: 36px; border-radius: 10px; background: var(--ocean); display: flex; align-items: center; justify-content: center; font-size: 16px; overflow: hidden; flex-shrink: 0; }
-.user-mini .avatar-sm img { width: 100%; height: 100%; object-fit: cover; }
-.user-mini .name { font-size: 13px; font-weight: 600; color: #F0F4F8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.user-mini .email { font-size: 10px; color: #8FA3B8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.logout-btn { width: 100%; margin-top: 10px; padding: 10px; border-radius: 10px; border: 1px solid rgba(139,46,46,0.5); background: rgba(139,46,46,0.15); color: #E89999; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+.sidebar-logo img { width: 46px; height: 46px; border-radius: 12px; border: 1.5px solid var(--lime); box-shadow: 0 0 15px rgba(163,230,53,0.4); }
+.sidebar-logo h2 { font-size: 20px; font-weight: 900; color: #fff; letter-spacing: 2px; text-shadow: 0 0 10px rgba(163,230,53,0.5); }
+.sidebar-nav { flex: 1; padding: 18px 12px; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: #94A3B8; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; border: none; background: transparent; width: 100%; text-align: right; font-family: inherit; }
+.nav-item:hover, .nav-item.active { background: rgba(163,230,53,0.1); color: var(--lime); text-shadow: 0 0 10px rgba(163,230,53,0.5); box-shadow: inset 0 0 10px rgba(163,230,53,0.1); }
+.sidebar-footer { padding: 14px 16px; border-top: 1px solid rgba(163,230,53,0.1); }
+.user-mini { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 10px; background: rgba(163,230,53,0.05); border: 1px solid rgba(163,230,53,0.1); }
+.avatar-sm { width: 36px; height: 36px; border-radius: 10px; background: var(--green-dark); display: flex; align-items: center; justify-content: center; font-size: 16px; overflow: hidden; }
+.avatar-sm img { width: 100%; height: 100%; object-fit: cover; }
+.user-mini .name { font-size: 13px; font-weight: 600; color: #fff; }
 
 /* ============ المحتوى ============ */
-#mainContent { flex: 1; margin-right: var(--sidebar-width); padding: 24px 28px 40px; min-height: 100vh; transition: margin 0.3s; }
-.mobile-header { display: none; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 20px; }
-.mobile-header .mob-logo { display: flex; align-items: center; gap: 10px; font-weight: 900; }
-.mobile-header .mob-logo img { width: 34px; height: 34px; border-radius: 10px; }
-.menu-toggle { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: transparent; font-size: 20px; cursor: pointer; color: var(--text); }
+#mainContent { margin-right: var(--sidebar-width); padding: 24px 28px 40px; min-height: 100vh; }
+.mobile-header { display: none; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 20px; backdrop-filter: blur(10px); }
+.menu-toggle { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: transparent; font-size: 20px; cursor: pointer; color: var(--green-dark); }
 
-/* ============ الصفحات ============ */
+/* ============ البطاقات المتوهجة ============ */
 .page-section { display: none; animation: fadeUp 0.4s ease; }
 .page-section.active { display: block; }
-@keyframes fadeUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
-.section-title { font-size: 26px; font-weight: 900; color: var(--text); margin-bottom: 6px; letter-spacing: 0.5px; }
-.section-subtitle { font-size: 13px; color: var(--text-dim); margin-bottom: 24px; }
+@keyframes fadeUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+.section-title { font-size: 26px; font-weight: 900; color: var(--green-dark); margin-bottom: 6px; text-shadow: 0 0 10px rgba(163,230,53,0.3); }
 
-/* ============ البطاقات ============ */
-.card { background: var(--bg-card); backdrop-filter: blur(14px); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; margin-bottom: 20px; box-shadow: var(--shadow); }
-.card-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
-.icon-badge { width: 32px; height: 32px; border-radius: 9px; background: var(--ocean); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 15px; }
+.card {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(34,197,94,0.05), inset 0 0 20px rgba(255,255,255,0.5);
+  transition: all 0.3s;
+}
+.card:hover { box-shadow: 0 15px 40px rgba(34,197,94,0.1), var(--glow); transform: translateY(-2px); }
+.card-title { font-size: 16px; font-weight: 800; color: var(--green-dark); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
 
-/* ============ الإحصائيات ============ */
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 24px; }
-.stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; }
-.stat-num { font-size: 32px; font-weight: 900; color: var(--gold); line-height: 1; }
-.stat-label { font-size: 12px; color: var(--text-dim); margin-top: 8px; }
+/* ============ الأزرار المتوهجة ============ */
+.btn-primary {
+  padding: 12px 26px; background: var(--lime); color: var(--green-dark); border: none; border-radius: 10px;
+  cursor: pointer; font-weight: 800; font-size: 14px; transition: all 0.3s; box-shadow: 0 4px 15px rgba(163,230,53,0.4);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(163,230,53,0.6); }
+.btn-outline { background: transparent; border: 2px solid var(--lime); color: var(--green-dark); box-shadow: none; }
+.btn-outline:hover { background: var(--lime); color: var(--green-dark); }
 
-/* ============ التقويم والجدول ============ */
-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-th, td { padding: 12px; text-align: right; border-bottom: 1px solid var(--border); font-size: 14px; }
-th { background: rgba(30,58,95,0.05); font-weight: 700; color: var(--ocean); }
-.exam-row:hover { background: rgba(212,168,83,0.08); }
-.exam-badge { background: var(--ocean); color: white; padding: 2px 10px; border-radius: 12px; font-size: 11px; }
+/* ============ عناصر الإدخال ============ */
+input, select, textarea {
+  padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border); background: #fff; color: var(--text);
+  font-size: 14px; font-family: inherit; outline: none; transition: all 0.3s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--lime); box-shadow: var(--glow); }
 
-/* ============ التقويم الشهري ============ */
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-.cal-day { padding: 10px; text-align: center; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; min-height: 70px; position: relative; }
-.cal-day.header { background: var(--ocean); color: white; font-weight: bold; min-height: auto; }
-.cal-day.has-exam { border-color: var(--gold); background: rgba(212,168,83,0.1); font-weight: bold; }
-.cal-day .exam-dot { width: 6px; height: 6px; background: var(--blood); border-radius: 50%; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); }
+/* ============ الشجرة (Study Tree) ============ */
+.tree-container { text-align: center; font-size: 80px; margin: 20px 0; transition: all 0.5s; filter: drop-shadow(0 0 20px rgba(163,230,53,0.6)); }
+.tree-container.wilted { filter: grayscale(1) drop-shadow(0 0 10px rgba(0,0,0,0.2)); opacity: 0.5; }
+.tree-container.growing { animation: breathe 3s infinite alternate; }
+@keyframes breathe { from { transform: scale(1); } to { transform: scale(1.05); } }
 
-/* ============ الفورم والمهام ============ */
-.form-row { display: flex; gap: 10px; flex-wrap: wrap; }
-input, select, textarea { padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.8); color: var(--text); font-size: 14px; font-family: inherit; outline: none; }
-input:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,168,83,0.15); }
-.btn-primary { padding: 12px 26px; background: var(--gold); color: #fff; border: none; border-radius: 10px; cursor: pointer; font-weight: 800; transition: all 0.2s; }
-.btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
-ul.task-list { list-style: none; }
-li.task { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #fff; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; transition: all 0.25s; }
-li.task.done { opacity: 0.5; text-decoration: line-through; }
+/* ============ البطاقات التعليمية (Flashcards) ============ */
+.flashcard-wrap { perspective: 1000px; width: 100%; height: 200px; margin-bottom: 20px; cursor: pointer; }
+.flashcard { width: 100%; height: 100%; position: relative; transition: transform 0.6s; transform-style: preserve-3d; }
+.flashcard-wrap.flipped .flashcard { transform: rotateY(180deg); }
+.fc-front, .fc-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; font-size: 18px; font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+.fc-front { background: #fff; border: 2px solid var(--lime); color: var(--green-dark); }
+.fc-back { background: var(--green-dark); color: var(--lime); transform: rotateY(180deg); }
 
-/* ============ الإشعارات والـ Toast ============ */
-.toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--ocean); color: #fff; padding: 14px 28px; border-radius: 10px; font-weight: 600; opacity: 0; transition: all 0.35s; z-index: 999; }
+/* ============ الشات ============ */
+.chat-box { height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 10px; background: rgba(255,255,255,0.5); border-radius: 10px; margin-bottom: 10px; }
+.msg { padding: 10px 14px; border-radius: 12px; max-width: 80%; font-size: 14px; }
+.msg.mine { background: var(--lime); color: var(--green-dark); align-self: flex-start; box-shadow: 0 2px 10px rgba(163,230,53,0.3); }
+.msg.other { background: #fff; border: 1px solid var(--border); color: var(--text); align-self: flex-end; }
+.msg-name { font-size: 10px; opacity: 0.7; margin-bottom: 4px; }
+
+/* ============ الجدول والتقويم ============ */
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 14px; text-align: right; border-bottom: 1px solid var(--border); }
+th { background: rgba(163,230,53,0.1); color: var(--green-dark); font-weight: 800; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+.cal-day { padding: 10px; text-align: center; border-radius: 10px; border: 1px solid var(--border); background: #fff; font-size: 13px; min-height: 70px; position: relative; }
+.cal-day.header { background: var(--green-dark); color: var(--lime); font-weight: bold; min-height: auto; }
+.cal-day.has-exam { border-color: var(--lime); background: rgba(163,230,53,0.1); font-weight: bold; box-shadow: var(--glow); }
+
+/* ============ Toast ============ */
+.toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--green-dark); color: var(--lime); padding: 14px 28px; border-radius: 10px; font-weight: 800; box-shadow: var(--glow-heavy); opacity: 0; transition: all 0.35s; z-index: 999; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* ============ Responsive ============ */
 @media (max-width: 900px) {
   #sidebar { transform: translateX(100%); }
   #sidebar.open { transform: translateX(0); }
@@ -148,49 +161,66 @@ li.task.done { opacity: 0.5; text-decoration: line-through; }
 </head>
 <body>
 
-<div id="bg-layer"></div>
+<div id="bg-dynamic"></div>
 <div id="bg-overlay"></div>
 
-<!-- السايدبار -->
 <aside id="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-logo">
-      <div class="logo-img"><img src="icon.png" alt=""></div>
-      <div><h2>VinlandX</h2><div class="tagline">BEM 2026</div></div>
+      <img src="icon.png" alt="">
+      <div><h2>VinlandX</h2><div style="font-size:10px; color:var(--lime);">BEM 2026</div></div>
     </div>
   </div>
   <nav class="sidebar-nav">
-    <button class="nav-item active" data-page="dashboard">🏠 لوحة التحكم</button>
+    <button class="nav-item active" data-page="dashboard">🌳 لوحة التحكم</button>
     <button class="nav-item" data-page="tasks">📋 المهام</button>
-    <button class="nav-item" data-page="schedule">📅 جدول الفروض</button>
-    <button class="nav-item" data-page="calendar">📆 التقويم</button>
-    <button class="nav-item" data-page="files">📁 الملفات</button>
-    <button class="nav-item" data-page="stats">📊 الإحصائيات</button>
+    <button class="nav-item" data-page="schedule">📅 الفروض</button>
+    <button class="nav-item" data-page="flashcards">🃏 البطاقات</button>
+    <button class="nav-item" data-page="chat">💬 الشات</button>
+    <button class="nav-item" data-page="quiz">🎯 بنك الأسئلة</button>
     <button class="nav-item" data-page="settings">⚙️ الإعدادات</button>
   </nav>
   <div class="sidebar-footer">
     <div class="user-mini">
       <div class="avatar-sm" id="sidebarAvatar">👤</div>
-      <div class="info"><div class="name" id="sidebarName">—</div><div class="email" id="sidebarEmail">—</div></div>
+      <div class="info"><div class="name" id="sidebarName">—</div></div>
     </div>
-    <button class="logout-btn" onclick="logout()">خروج</button>
+    <button class="btn-outline" style="width:100%; margin-top:10px; padding:8px;" onclick="logout()">خروج</button>
   </div>
 </aside>
 
-<!-- المحتوى -->
 <main id="mainContent">
   <div class="mobile-header">
-    <div class="mob-logo"><img src="icon.png" alt=""> VinlandX</div>
-    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    <div style="display:flex; gap:8px; align-items:center; font-weight:900;">VinlandX</div>
+    <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
   </div>
 
   <!-- لوحة التحكم -->
   <section id="page-dashboard" class="page-section active">
-    <h1 class="section-title">⚔️ لوحة التحكم</h1>
-    <p class="section-subtitle" id="greetingText">مرحباً بك</p>
-    <div class="stats-grid" id="statsGrid"></div>
-    <div class="card">
-      <div class="card-title"><span class="icon-badge">📌</span> أقرب فروض</div>
+    <h1 class="section-title">مرحباً، <span id="greetName"></span> 👋</h1>
+    <p style="color:var(--text-dim); margin-bottom:20px;">أنجز مهامك لتنمو شجرتك!</p>
+    
+    <div class="card" style="text-align:center;">
+      <div class="card-title" style="justify-content:center;">شجرة الإنجاز</div>
+      <div class="tree-container growing" id="studyTree">🌱</div>
+      <p style="font-size:12px; color:var(--text-dim);" id="treeStatus">أنجز مهام لتنمو!</p>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+      <div class="card" style="text-align:center; margin-bottom:0;">
+        <div style="font-size:30px; margin-bottom:10px;">🔥</div>
+        <div style="font-size:24px; font-weight:900; color:var(--green-dark);" id="streakCount">0</div>
+        <div style="font-size:12px; color:var(--text-dim);">أيام متتالية</div>
+      </div>
+      <div class="card" style="text-align:center; margin-bottom:0;">
+        <div style="font-size:30px; margin-bottom:10px;">⚔️</div>
+        <div style="font-size:24px; font-weight:900; color:var(--green-dark);" id="totalTasksCount">0</div>
+        <div style="font-size:12px; color:var(--text-dim);">مهام منجزة</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">📌 أقرب فروض</div>
       <div id="upcomingExamsList"></div>
     </div>
   </section>
@@ -199,52 +229,58 @@ li.task.done { opacity: 0.5; text-decoration: line-through; }
   <section id="page-tasks" class="page-section">
     <h1 class="section-title">📋 المهام</h1>
     <div class="card">
-      <div class="form-row">
-        <input type="text" id="taskText" placeholder="مهمة جديدة...">
-        <select id="taskSubject"><option>عربية</option><option>رياضيات</option><option>فيزياء</option></select>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <input type="text" id="taskText" placeholder="مهمة جديدة..." style="flex:1;">
         <button class="btn-primary" onclick="addTask()">إضافة</button>
       </div>
     </div>
-    <div class="card"><ul class="task-list" id="taskList"></ul></div>
+    <div class="card"><ul id="taskList" style="list-style:none;"></ul></div>
   </section>
 
-  <!-- جدول الفروض -->
+  <!-- الفروض -->
   <section id="page-schedule" class="page-section">
     <h1 class="section-title">📅 رزنامة الفروض</h1>
     <div class="card">
-      <table>
-        <thead><tr><th>التاريخ</th><th>المادة</th><th>التوقيت</th><th>الفترة</th></tr></thead>
-        <tbody id="examsTableBody"></tbody>
-      </table>
+      <table><thead><tr><th>التاريخ</th><th>المادة</th><th>التوقيت</th></tr></thead><tbody id="examsTableBody"></tbody></table>
     </div>
   </section>
 
-  <!-- التقويم -->
-  <section id="page-calendar" class="page-section">
-    <h1 class="section-title">📆 التقويم الشهري</h1>
+  <!-- البطاقات -->
+  <section id="page-flashcards" class="page-section">
+    <h1 class="section-title">🃏 بطاقات الحفظ</h1>
     <div class="card">
-      <div class="calendar-grid" id="calendarGrid"></div>
+      <div style="display:flex; gap:10px; margin-bottom:15px;">
+        <input type="text" id="fcQ" placeholder="السؤال" style="flex:1;">
+        <input type="text" id="fcA" placeholder="الجواب" style="flex:1;">
+        <button class="btn-primary" onclick="addFlashcard()">إضافة</button>
+      </div>
+      <div class="flashcard-wrap" id="fcWrap" onclick="this.classList.toggle('flipped')">
+        <div class="flashcard">
+          <div class="fc-front" id="fcFront">اضغط لرؤية البطاقة</div>
+          <div class="fc-back" id="fcBack">الجواب</div>
+        </div>
+      </div>
+      <button class="btn-primary" style="width:100%;" onclick="nextFlashcard()">البطاقة التالية →</button>
     </div>
   </section>
 
-  <!-- الملفات -->
-  <section id="page-files" class="page-section">
-    <h1 class="section-title">📁 الملخصات والتمارين</h1>
+  <!-- الشات -->
+  <section id="page-chat" class="page-section">
+    <h1 class="section-title">💬 شات المجموعة</h1>
     <div class="card">
-      <div class="form-row">
-        <input type="file" id="fileUpload" style="flex:1;">
-        <button class="btn-primary" onclick="uploadFile()">رفع</button>
+      <div class="chat-box" id="chatBox"></div>
+      <div style="display:flex; gap:10px;">
+        <input type="text" id="chatInput" placeholder="اكتب رسالة..." style="flex:1;" onkeypress="if(event.key==='Enter') sendMessage()">
+        <button class="btn-primary" onclick="sendMessage()">إرسال</button>
       </div>
     </div>
-    <div class="card" id="filesList"></div>
   </section>
 
-  <!-- الإحصائيات -->
-  <section id="page-stats" class="page-section">
-    <h1 class="section-title">📊 الإحصائيات</h1>
-    <div class="card">
-      <div class="card-title">المهام المنجزة هذا الأسبوع</div>
-      <div style="display:flex; gap:10px; align-items:flex-end; height:150px; margin-top:20px;" id="chartBars"></div>
+  <!-- بنك الأسئلة -->
+  <section id="page-quiz" class="page-section">
+    <h1 class="section-title">🎯 بنك الأسئلة</h1>
+    <div class="card" id="quizContainer">
+      <p style="text-align:center; color:var(--text-dim);">سيتم إضافة أسئلة BEM هنا قريباً...</p>
     </div>
   </section>
 
@@ -252,179 +288,177 @@ li.task.done { opacity: 0.5; text-decoration: line-through; }
   <section id="page-settings" class="page-section">
     <h1 class="section-title">⚙️ الإعدادات</h1>
     <div class="card">
-      <div class="form-row" style="margin-bottom:15px;">
-        <button class="btn-primary" onclick="requestNotifications()">🔔 تفعيل الإشعارات</button>
-      </div>
-      <div class="form-row">
-        <select id="bgSelect" onchange="changeBg(this.value)">
-          <option value="background1.png">خلفية 1 (الافتراضية)</option>
-          <option value="background2.png">خلفية 2</option>
-          <option value="background3.png">خلفية 3</option>
-          <option value="none">بدون خلفية (لون فقط)</option>
-        </select>
-      </div>
+      <div class="card-title">🔔 الإشعارات</div>
+      <button class="btn-primary" onclick="requestNotifications()">تفعيل الإشعارات</button>
+    </div>
+    <div class="card">
+      <div class="card-title">🎵 موسيقى التركيز</div>
+      <button class="btn-primary" onclick="toggleMusic()" id="musicBtn">▶ تشغيل الموسيقى</button>
     </div>
   </section>
 </main>
 
 <div class="toast" id="toast"></div>
+<audio id="bgMusic" loop><source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg"></audio>
 
 <script>
 const sb = supabase.createClient('https://vamwvezmeztadbeydfdy.supabase.co', 'sb_publishable_h4jat3HiWdT1bjlK0wdaLA_k7DReWCw');
-let currentUser = null, tasks = [], exams = [], files = [];
+let currentUser = null;
+let tasks = [], exams = [], flashcards = [], messages = [];
+let fcIndex = 0;
 
-// الدخول
+// --- الدخول ---
 sb.auth.onAuthStateChange(async (e, session) => {
   if (session?.user) {
     currentUser = session.user;
     document.getElementById('sidebarName').textContent = currentUser.email.split('@')[0];
+    document.getElementById('greetName').textContent = currentUser.email.split('@')[0];
     loadData();
-    initBgs();
-    initAnimations();
-    checkUpcomingExams();
+    updateDynamicBg();
+    setInterval(updateDynamicBg, 60000); // تغيير الخلفية كل دقيقة
   }
 });
 
-// تحميل البيانات
 async function loadData() {
-  const { data: t } = await sb.from('tasks').select('*').order('created_at');
+  const { data: t } = await sb.from('tasks').select('*');
   const { data: ex } = await sb.from('exams').select('*').order('exam_date');
-  const { data: f } = await sb.from('files').select('*').order('created_at');
-  tasks = t || []; exams = ex || []; files = f || [];
-  renderAll();
+  const { data: fc } = await sb.from('flashcards').select('*');
+  const { data: msg } = await sb.from('messages').select('*').order('created_at');
+  
+  tasks = t || []; exams = ex || []; flashcards = fc || []; messages = msg || [];
+  
+  renderTasks();
+  renderExams();
+  renderChat();
+  renderFlashcard();
+  updateTree();
 }
 
-function renderAll() {
-  document.getElementById('statsGrid').innerHTML = `
-    <div class="stat-card"><div class="stat-num">${tasks.length}</div><div class="stat-label">المهام</div></div>
-    <div class="stat-card"><div class="stat-num">${tasks.filter(x=>x.done).length}</div><div class="stat-label">المنجزة</div></div>
-    <div class="stat-card"><div class="stat-num">${exams.length}</div><div class="stat-label">الفروض</div></div>
-  `;
+// --- المهام والشجرة ---
+function renderTasks() {
+  const done = tasks.filter(x=>x.done).length;
+  document.getElementById('totalTasksCount').textContent = done;
   
-  // المهام
   document.getElementById('taskList').innerHTML = tasks.map(t => `
-    <li class="task ${t.done?'done':''}">
-      <span>${t.text} <span class="exam-badge">${t.subject}</span></span>
-      <button onclick="toggleTask(${t.id}, ${t.done})" style="padding:5px;cursor:pointer;">${t.done?'↩️':'✓'}</button>
+    <li style="padding:15px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+      <span style="${t.done ? 'text-decoration:line-through; opacity:0.5;' : ''}">${t.text}</span>
+      <button onclick="toggleTask(${t.id}, ${t.done})" style="padding:8px; cursor:pointer; border-radius:8px; border:1px solid var(--border); background:${t.done?'var(--green-dark)':'#fff'}; color:${t.done?'#fff':'inherit'};">✓</button>
     </li>
   `).join('');
+}
 
-  // جدول الفروض
-  document.getElementById('examsTableBody').innerHTML = exams.map(ex => `
-    <tr class="exam-row">
-      <td>${ex.exam_date}</td><td>${ex.subject}</td><td>${ex.exam_time}</td><td>${ex.period}</td>
-    </tr>
-  `).join('');
-
-  // الملفات
-  document.getElementById('filesList').innerHTML = files.length ? files.map(f => `
-    <div style="padding:10px; border-bottom:1px solid #ddd; display:flex; justify-content:space-between;">
-      <span>${f.name}</span>
-      <a href="${f.url}" target="_blank" style="color:var(--gold)">تحميل</a>
-    </div>
-  `).join('') : '<p>لا توجد ملفات.</p>';
-
-  renderCalendar();
-  renderChart();
+function updateTree() {
+  const done = tasks.filter(x=>x.done).length;
+  const tree = document.getElementById('studyTree');
+  const status = document.getElementById('treeStatus');
+  
+  if (done === 0) { tree.textContent = '🌱'; status.textContent = 'أنجز مهام لتنمو!'; tree.classList.add('wilted'); }
+  else if (done < 5) { tree.textContent = '🌿'; status.textContent = 'بداية جيدة!'; tree.classList.remove('wilted'); }
+  else if (done < 15) { tree.textContent = '🪴'; status.textContent = 'شجرة تكبر!'; }
+  else if (done < 30) { tree.textContent = '🌳'; status.textContent = 'شجرة قوية!'; }
+  else { tree.textContent = '🌲'; status.textContent = 'غابة كاملة! أسطورة!'; }
+  
+  // حساب السلسلة (وهمي للتوضيح)
+  document.getElementById('streakCount').textContent = done > 0 ? 3 : 0; 
 }
 
 function toggleTask(id, current) {
   sb.from('tasks').update({ done: !current }).eq('id', id).then(loadData);
 }
 
-// التقويم الشهري
-function renderCalendar() {
-  const grid = document.getElementById('calendarGrid');
-  const days = ['أحد','إثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'];
-  let html = days.map(d => `<div class="cal-day header">${d}</div>`).join('');
-  
-  // نوڤمبر 2026 (الشهر 10 في جافاسكريبت لأنه يبدأ من 0)
-  for (let i = 0; i < 30; i++) {
-    const day = i + 1;
-    const dateStr = `2026-11-${day.toString().padStart(2,'0')}`;
-    const hasEx = exams.find(e => e.exam_date === dateStr);
-    html += `
-      <div class="cal-day ${hasEx ? 'has-exam' : ''}">
-        ${day}
-        ${hasEx ? `<div class="exam-dot"></div><div style="font-size:10px; position:absolute; top:5px;">${hasEx.subject}</div>` : ''}
-      </div>`;
-  }
-  grid.innerHTML = html;
-}
-
-// الرسم البياني
-function renderChart() {
-  const days = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-  // وهمي للتوضيح (يمكن ربطه بالبيانات الحقيقية)
-  const heights = [40, 70, 30, 90, 60, 20, 50];
-  document.getElementById('chartBars').innerHTML = heights.map((h, i) => `
-    <div style="flex:1; text-align:center;">
-      <div style="height:${h}%; background:var(--gold); border-radius:5px 5px 0 0;"></div>
-      <div style="font-size:10px; margin-top:5px;">${days[i].slice(0,3)}</div>
-    </div>
-  `).join('');
-}
-
-// رفع الملفات
-async function uploadFile() {
-  const file = document.getElementById('fileUpload').files[0];
-  if (!file) return;
-  showToast('جاري الرفع...');
-  const fileName = `${Date.now()}_${file.name}`;
-  const { data, error } = await sb.storage.from('study-files').upload(fileName, file);
-  if (error) return showToast('خطأ: ' + error.message);
-  const { data: urlData } = sb.storage.from('study-files').getPublicUrl(fileName);
-  await sb.from('files').insert({ name: file.name, url: urlData.publicUrl, uploaded_by: currentUser.email });
-  showToast('تم الرفع!');
+async function addTask() {
+  const text = document.getElementById('taskText').value;
+  if (!text) return;
+  await sb.from('tasks').insert({ text, subject: 'عام', owner_id: currentUser.id, owner_name: currentUser.email });
+  document.getElementById('taskText').value = '';
   loadData();
 }
 
-// إشعارات المتصفح
-function requestNotifications() {
-  Notification.requestPermission().then(p => {
-    if (p === 'granted') showToast('تم تفعيل الإشعارات!');
-  });
-}
-function checkUpcomingExams() {
-  if (Notification.permission !== 'granted') return;
+// --- الفروض ---
+function renderExams() {
+  document.getElementById('examsTableBody').innerHTML = exams.map(ex => `
+    <tr><td>${ex.exam_date}</td><td><span style="background:var(--lime); color:var(--green-dark); padding:2px 8px; border-radius:10px; font-size:12px; font-weight:bold;">${ex.subject}</span></td><td>${ex.exam_time}</td></tr>
+  `).join('');
+  
   const today = new Date().toISOString().split('T')[0];
-  exams.forEach(ex => {
-    if (ex.exam_date === today) new Notification('لديك فرض اليوم!', { body: ex.subject });
-  });
-}
-
-// الخلفيات
-function changeBg(val) {
-  const layer = document.getElementById('bg-layer');
-  if (val === 'none') {
-    layer.style.backgroundImage = 'none';
-  } else {
-    layer.style.backgroundImage = `url('${val}')`;
+  const next = exams.find(ex => ex.exam_date >= today);
+  if (next) {
+    document.getElementById('upcomingExamsList').innerHTML = `<div style="padding:15px; background:rgba(163,230,53,0.1); border-radius:10px; border:1px solid var(--lime);"><b>${next.subject}</b> — ${next.exam_date} (${next.exam_time})</div>`;
   }
 }
-function initBgs() {
-  changeBg(localStorage.getItem('bg') || 'background1.png');
+
+// --- الشات ---
+function renderChat() {
+  const box = document.getElementById('chatBox');
+  box.innerHTML = messages.map(m => `
+    <div class="msg ${m.sender_name === currentUser.email.split('@')[0] ? 'mine' : 'other'}">
+      <div class="msg-name">${m.sender_name}</div>
+      ${m.content}
+    </div>
+  `).join('');
+  box.scrollTop = box.scrollHeight;
+}
+async function sendMessage() {
+  const inp = document.getElementById('chatInput');
+  if (!inp.value) return;
+  await sb.from('messages').insert({ sender_name: currentUser.email.split('@')[0], content: inp.value });
+  inp.value = '';
+  loadData();
 }
 
-// أنيميشن الدخول
-function initAnimations() {
-  document.querySelectorAll('.card').forEach((c, i) => {
-    c.style.opacity = '0';
-    setTimeout(() => {
-      c.style.transition = 'all 0.5s ease';
-      c.style.opacity = '1';
-      c.style.transform = 'translateY(0)';
-    }, i * 100);
-  });
+// --- البطاقات ---
+function renderFlashcard() {
+  if (!flashcards.length) return;
+  const fc = flashcards[fcIndex % flashcards.length];
+  document.getElementById('fcFront').textContent = fc.question;
+  document.getElementById('fcBack').textContent = fc.answer;
+}
+function nextFlashcard() {
+  fcIndex++;
+  document.getElementById('fcWrap').classList.remove('flipped');
+  renderFlashcard();
+}
+async function addFlashcard() {
+  const q = document.getElementById('fcQ').value;
+  const a = document.getElementById('fcA').value;
+  if (!q || !a) return;
+  await sb.from('flashcards').insert({ question: q, answer: a, subject: 'عام', owner_id: currentUser.id });
+  document.getElementById('fcQ').value = '';
+  document.getElementById('fcA').value = '';
+  loadData();
 }
 
-// Parallax
-window.addEventListener('scroll', () => {
-  const scrolled = window.pageYOffset;
-  document.getElementById('bg-layer').style.transform = `translateY(${scrolled * 0.3}px)`;
-});
+// --- خلفية ديناميكية (حسب الوقت) ---
+function updateDynamicBg() {
+  const h = new Date().getHours();
+  const bg = document.getElementById('bg-dynamic');
+  if (h >= 6 && h < 12) {
+    // صباح: أخضر فاتح جداً
+    bg.style.background = 'radial-gradient(circle at 20% 30%, rgba(163,230,53,0.3), transparent 50%), radial-gradient(circle at 80% 70%, rgba(34,197,94,0.2), transparent 50%)';
+  } else if (h >= 12 && h < 18) {
+    // ظهر: أخضر زاهي
+    bg.style.background = 'radial-gradient(circle at 50% 50%, rgba(163,230,53,0.2), transparent 60%)';
+  } else {
+    // ليل: أخضر داكن هادئ
+    bg.style.background = 'radial-gradient(circle at 20% 30%, rgba(34,197,94,0.1), transparent 50%), radial-gradient(circle at 80% 70%, rgba(13,31,19,0.2), transparent 50%)';
+  }
+}
 
-// التنقل
+// --- الإشعارات ---
+function requestNotifications() {
+  Notification.requestPermission().then(p => { if(p==='granted') showToast('تم التفعيل!'); });
+}
+
+// --- الأصوات ---
+let musicPlaying = false;
+function toggleMusic() {
+  const audio = document.getElementById('bgMusic');
+  if (musicPlaying) { audio.pause(); document.getElementById('musicBtn').textContent = '▶ تشغيل الموسيقى'; }
+  else { audio.play(); document.getElementById('musicBtn').textContent = '⏸ إيقاف الموسيقى'; }
+  musicPlaying = !musicPlaying;
+}
+
+// --- التنقل ---
 document.querySelectorAll('.nav-item').forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -433,14 +467,8 @@ document.querySelectorAll('.nav-item').forEach(btn => {
     document.getElementById('page-' + btn.dataset.page).classList.add('active');
   };
 });
-function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 function logout() { sb.auth.signOut().then(() => location.reload()); }
-let tTimer;
-function showToast(m) {
-  const el = document.getElementById('toast');
-  el.textContent = m; el.classList.add('show');
-  clearTimeout(tTimer); tTimer = setTimeout(() => el.classList.remove('show'), 3000);
-}
+let tT; function showToast(m) { const el=document.getElementById('toast'); el.textContent=m; el.classList.add('show'); clearTimeout(tT); tT=setTimeout(()=>el.classList.remove('show'),3000); }
 </script>
 </body>
 </html>
