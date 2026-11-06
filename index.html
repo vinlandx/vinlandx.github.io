@@ -5,52 +5,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VinlandX — رفيقك للنجاح</title>
 <link rel="icon" type="image/png" href="icon.png">
+<!-- خط Cairo المريح للعين -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* ============ Green - Lime Theme (Glowing) ============ */
+/* ============ ثيم Sage & Emerald (مريح للعين) ============ */
 :root {
-  --bg-main: #F5FAF6;
-  --bg-card: rgba(255, 255, 255, 0.85);
-  --bg-sidebar: #0D1F13;
-  --text: #112218;
-  --text-dim: #4A6552;
-  --lime: #A3E635;
-  --green: #22C55E;
-  --green-dark: #166534;
-  --glow: 0 0 20px rgba(163, 230, 53, 0.5);
-  --glow-heavy: 0 0 40px rgba(163, 230, 53, 0.8);
-  --border: rgba(34, 197, 94, 0.2);
-  --radius: 18px;
-  --sidebar-width: 270px;
+  --bg-main: #F3F7F4;
+  --bg-card: rgba(255, 255, 255, 0.92);
+  --bg-sidebar: #1F2D27;
+  --text-main: #2D3732;
+  --text-dim: #6B7C74;
+  --accent: #3B825B;       /* أخضر زمردي هادئ */
+  --accent-light: #E4EFE8; /* أخضر فاتح جداً */
+  --accent-hover: #2E6B49;
+  --border: rgba(59, 130, 91, 0.15);
+  --shadow: 0 4px 20px rgba(45, 55, 50, 0.05);
+  --shadow-hover: 0 8px 30px rgba(59, 130, 91, 0.12);
+  --radius: 16px;
+  --sidebar-width: 260px;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
+* { margin:0; padding:0; box-sizing:border-box; font-family: 'Cairo', sans-serif; }
 body {
-  font-family: 'Segoe UI', Tahoma, sans-serif;
-  color: var(--text);
+  color: var(--text-main);
   background: var(--bg-main);
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* خلفية متوهجة ديناميكية */
-#bg-dynamic {
+/* ============ الخلفيات ============ */
+#bg-layer {
   position: fixed;
   inset: 0;
   z-index: -10;
-  background: radial-gradient(circle at 20% 30%, rgba(163,230,53,0.15), transparent 50%),
-              radial-gradient(circle at 80% 70%, rgba(34,197,94,0.15), transparent 50%);
-  transition: background 2s ease;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  transition: background-image 0.8s ease-in-out;
 }
 #bg-overlay {
   position: fixed;
   inset: 0;
-  background: linear-gradient(180deg, rgba(245,250,246,0.8) 0%, rgba(245,250,246,0.95) 100%);
+  background: linear-gradient(180deg, rgba(243, 247, 244, 0.88) 0%, rgba(243, 247, 244, 0.96) 100%);
   z-index: -9;
   pointer-events: none;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(4px);
 }
 
-/* ============ السايدبار (Glowing Dark) ============ */
+/* ============ السايدبار ============ */
 #sidebar {
   width: var(--sidebar-width);
   background: var(--bg-sidebar);
@@ -61,185 +65,275 @@ body {
   flex-direction: column;
   z-index: 50;
   transition: transform 0.3s ease;
-  box-shadow: -5px 0 30px rgba(0,0,0,0.2), inset 3px 0 15px rgba(163,230,53,0.1);
-  border-left: 1px solid rgba(163,230,53,0.2);
+  box-shadow: -4px 0 24px rgba(0,0,0,0.1);
 }
-.sidebar-header { padding: 24px 22px 18px; border-bottom: 1px solid rgba(163,230,53,0.1); }
+.sidebar-header { padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
 .sidebar-logo { display: flex; align-items: center; gap: 12px; }
-.sidebar-logo img { width: 46px; height: 46px; border-radius: 12px; border: 1.5px solid var(--lime); box-shadow: 0 0 15px rgba(163,230,53,0.4); }
-.sidebar-logo h2 { font-size: 20px; font-weight: 900; color: #fff; letter-spacing: 2px; text-shadow: 0 0 10px rgba(163,230,53,0.5); }
-.sidebar-nav { flex: 1; padding: 18px 12px; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
-.nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: #94A3B8; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; border: none; background: transparent; width: 100%; text-align: right; font-family: inherit; }
-.nav-item:hover, .nav-item.active { background: rgba(163,230,53,0.1); color: var(--lime); text-shadow: 0 0 10px rgba(163,230,53,0.5); box-shadow: inset 0 0 10px rgba(163,230,53,0.1); }
-.sidebar-footer { padding: 14px 16px; border-top: 1px solid rgba(163,230,53,0.1); }
-.user-mini { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 10px; background: rgba(163,230,53,0.05); border: 1px solid rgba(163,230,53,0.1); }
-.avatar-sm { width: 36px; height: 36px; border-radius: 10px; background: var(--green-dark); display: flex; align-items: center; justify-content: center; font-size: 16px; overflow: hidden; }
+.sidebar-logo img { width: 42px; height: 42px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
+.sidebar-logo h2 { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: 1px; }
+.sidebar-logo .tagline { font-size: 11px; color: #8CA396; font-weight: 600; }
+
+.sidebar-nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-radius: 12px;
+  color: #8CA396; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+  border: none; background: transparent; width: 100%; text-align: right;
+}
+.nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+.nav-item.active { background: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(59,130,91,0.3); }
+.nav-item svg { width: 20px; height: 20px; fill: currentColor; }
+
+.sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.05); }
+.user-mini { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.avatar-sm { width: 36px; height: 36px; border-radius: 10px; background: var(--accent); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; overflow: hidden; }
 .avatar-sm img { width: 100%; height: 100%; object-fit: cover; }
-.user-mini .name { font-size: 13px; font-weight: 600; color: #fff; }
+.user-mini .name { font-size: 14px; font-weight: 700; color: #fff; }
+.user-mini .email { font-size: 11px; color: #8CA396; }
+.logout-btn {
+  width: 100%; padding: 10px; border-radius: 10px;
+  background: rgba(220, 38, 38, 0.1); color: #F87171;
+  border: 1px solid rgba(220, 38, 38, 0.2); font-weight: bold; cursor: pointer; transition: 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.logout-btn:hover { background: #DC2626; color: #fff; }
 
-/* ============ المحتوى ============ */
-#mainContent { margin-right: var(--sidebar-width); padding: 24px 28px 40px; min-height: 100vh; }
-.mobile-header { display: none; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 20px; backdrop-filter: blur(10px); }
-.menu-toggle { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: transparent; font-size: 20px; cursor: pointer; color: var(--green-dark); }
+/* ============ المحتوى الرئيسي ============ */
+#mainContent { margin-right: var(--sidebar-width); padding: 24px 28px 40px; min-height: 100vh; transition: margin 0.3s; }
+.mobile-header { display: none; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; }
+.menu-toggle { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--accent); display: flex; align-items: center; justify-content: center; }
 
-/* ============ البطاقات المتوهجة ============ */
-.page-section { display: none; animation: fadeUp 0.4s ease; }
+/* ============ الصفحات ============ */
+.page-section { display: none; animation: fadeIn 0.4s ease; }
 .page-section.active { display: block; }
-@keyframes fadeUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
-.section-title { font-size: 26px; font-weight: 900; color: var(--green-dark); margin-bottom: 6px; text-shadow: 0 0 10px rgba(163,230,53,0.3); }
+@keyframes fadeIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+.section-title { font-size: 24px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+.section-title svg { width: 28px; height: 28px; fill: var(--accent); }
+.section-subtitle { font-size: 14px; color: var(--text-dim); margin-bottom: 24px; font-weight: 600; }
 
+/* ============ البطاقات ============ */
 .card {
   background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 24px;
   margin-bottom: 20px;
-  box-shadow: 0 10px 30px rgba(34,197,94,0.05), inset 0 0 20px rgba(255,255,255,0.5);
+  box-shadow: var(--shadow);
   transition: all 0.3s;
 }
-.card:hover { box-shadow: 0 15px 40px rgba(34,197,94,0.1), var(--glow); transform: translateY(-2px); }
-.card-title { font-size: 16px; font-weight: 800; color: var(--green-dark); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+.card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+.card-title { font-size: 16px; font-weight: 800; color: var(--accent); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+.card-title svg { width: 20px; height: 20px; fill: var(--accent); }
 
-/* ============ الأزرار المتوهجة ============ */
-.btn-primary {
-  padding: 12px 26px; background: var(--lime); color: var(--green-dark); border: none; border-radius: 10px;
-  cursor: pointer; font-weight: 800; font-size: 14px; transition: all 0.3s; box-shadow: 0 4px 15px rgba(163,230,53,0.4);
+/* ============ الإحصائيات ============ */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; box-shadow: var(--shadow); }
+.stat-num { font-size: 32px; font-weight: 800; color: var(--accent); line-height: 1.2; }
+.stat-label { font-size: 13px; color: var(--text-dim); font-weight: 600; margin-top: 4px; }
+
+/* ============ الجدول ============ */
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { padding: 14px 12px; text-align: right; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 600; }
+th { background: var(--accent-light); color: var(--accent); font-weight: 800; }
+tr:hover td { background: rgba(228, 239, 232, 0.4); }
+
+/* ============ المهام ============ */
+ul { list-style: none; }
+li.task {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px; background: #fff; border: 1px solid var(--border);
+  border-radius: 12px; margin-bottom: 10px; transition: 0.2s;
 }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(163,230,53,0.6); }
-.btn-outline { background: transparent; border: 2px solid var(--lime); color: var(--green-dark); box-shadow: none; }
-.btn-outline:hover { background: var(--lime); color: var(--green-dark); }
+li.task:hover { border-color: var(--accent); }
+li.task.done { opacity: 0.6; background: var(--accent-light); }
+li.task.done .task-text { text-decoration: line-through; color: var(--text-dim); }
+.task-text { font-weight: 700; font-size: 15px; }
+.task-actions { display: flex; gap: 8px; }
+.btn-icon {
+  width: 34px; height: 34px; border-radius: 8px; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: 0.2s;
+}
+.btn-icon svg { width: 18px; height: 18px; fill: currentColor; }
+.btn-check { background: var(--accent-light); color: var(--accent); }
+.btn-check:hover { background: var(--accent); color: #fff; }
+.btn-del { background: #FEE2E2; color: #DC2626; }
+.btn-del:hover { background: #DC2626; color: #fff; }
 
-/* ============ عناصر الإدخال ============ */
+/* ============ الفورم والأزرار ============ */
 input, select, textarea {
-  padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border); background: #fff; color: var(--text);
-  font-size: 14px; font-family: inherit; outline: none; transition: all 0.3s;
+  padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border);
+  background: #fff; color: var(--text-main); font-size: 14px; font-weight: 600;
+  outline: none; transition: 0.2s;
 }
-input:focus, select:focus, textarea:focus { border-color: var(--lime); box-shadow: var(--glow); }
+input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+.btn-primary {
+  padding: 12px 24px; background: var(--accent); color: #fff;
+  border: none; border-radius: 12px; cursor: pointer; font-weight: 800; font-size: 14px;
+  transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,91,0.2); }
+.btn-primary svg { width: 18px; height: 18px; fill: currentColor; }
+.btn-outline { background: transparent; border: 2px solid var(--accent); color: var(--accent); }
+.btn-outline:hover { background: var(--accent); color: #fff; }
 
-/* ============ الشجرة (Study Tree) ============ */
-.tree-container { text-align: center; font-size: 80px; margin: 20px 0; transition: all 0.5s; filter: drop-shadow(0 0 20px rgba(163,230,53,0.6)); }
-.tree-container.wilted { filter: grayscale(1) drop-shadow(0 0 10px rgba(0,0,0,0.2)); opacity: 0.5; }
-.tree-container.growing { animation: breathe 3s infinite alternate; }
-@keyframes breathe { from { transform: scale(1); } to { transform: scale(1.05); } }
+/* ============ الشجرة ============ */
+.tree-container { text-align: center; font-size: 90px; margin: 20px 0; transition: 0.5s; }
+.tree-container svg { width: 100px; height: 100px; fill: var(--accent); filter: drop-shadow(0 10px 15px rgba(59,130,91,0.3)); }
+.tree-container.wilted svg { fill: #D1D5DB; filter: none; }
 
-/* ============ البطاقات التعليمية (Flashcards) ============ */
-.flashcard-wrap { perspective: 1000px; width: 100%; height: 200px; margin-bottom: 20px; cursor: pointer; }
+/* ============ البطاقات (Flashcards) ============ */
+.flashcard-wrap { perspective: 1000px; width: 100%; height: 220px; margin-bottom: 20px; cursor: pointer; }
 .flashcard { width: 100%; height: 100%; position: relative; transition: transform 0.6s; transform-style: preserve-3d; }
 .flashcard-wrap.flipped .flashcard { transform: rotateY(180deg); }
-.fc-front, .fc-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; font-size: 18px; font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-.fc-front { background: #fff; border: 2px solid var(--lime); color: var(--green-dark); }
-.fc-back { background: var(--green-dark); color: var(--lime); transform: rotateY(180deg); }
+.fc-front, .fc-back {
+  position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+  border-radius: var(--radius); display: flex; align-items: center; justify-content: center;
+  padding: 20px; text-align: center; font-size: 20px; font-weight: 800;
+  box-shadow: var(--shadow);
+}
+.fc-front { background: #fff; border: 2px solid var(--accent); color: var(--accent); }
+.fc-back { background: var(--accent); color: #fff; transform: rotateY(180deg); }
 
 /* ============ الشات ============ */
-.chat-box { height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 10px; background: rgba(255,255,255,0.5); border-radius: 10px; margin-bottom: 10px; }
-.msg { padding: 10px 14px; border-radius: 12px; max-width: 80%; font-size: 14px; }
-.msg.mine { background: var(--lime); color: var(--green-dark); align-self: flex-start; box-shadow: 0 2px 10px rgba(163,230,53,0.3); }
-.msg.other { background: #fff; border: 1px solid var(--border); color: var(--text); align-self: flex-end; }
-.msg-name { font-size: 10px; opacity: 0.7; margin-bottom: 4px; }
+.chat-box { height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 15px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 15px; }
+.msg { padding: 12px 16px; border-radius: 14px; max-width: 80%; font-size: 14px; font-weight: 600; line-height: 1.5; }
+.msg.mine { background: var(--accent); color: #fff; align-self: flex-start; border-bottom-right-radius: 4px; }
+.msg.other { background: var(--accent-light); color: var(--text-main); align-self: flex-end; border-bottom-left-radius: 4px; }
+.msg-name { font-size: 11px; opacity: 0.7; margin-bottom: 4px; font-weight: 700; }
 
-/* ============ الجدول والتقويم ============ */
-table { width: 100%; border-collapse: collapse; }
-th, td { padding: 14px; text-align: right; border-bottom: 1px solid var(--border); }
-th { background: rgba(163,230,53,0.1); color: var(--green-dark); font-weight: 800; }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-.cal-day { padding: 10px; text-align: center; border-radius: 10px; border: 1px solid var(--border); background: #fff; font-size: 13px; min-height: 70px; position: relative; }
-.cal-day.header { background: var(--green-dark); color: var(--lime); font-weight: bold; min-height: auto; }
-.cal-day.has-exam { border-color: var(--lime); background: rgba(163,230,53,0.1); font-weight: bold; box-shadow: var(--glow); }
+/* ============ التقويم ============ */
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 10px; }
+.cal-day { padding: 12px; text-align: center; border-radius: 10px; border: 1px solid var(--border); font-size: 13px; font-weight: 600; min-height: 80px; position: relative; background: #fff; }
+.cal-day.header { background: var(--accent); color: #fff; font-weight: 800; min-height: auto; padding: 10px; border: none; }
+.cal-day.has-exam { border-color: var(--accent); background: var(--accent-light); font-weight: 800; }
+.cal-day .exam-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); }
 
 /* ============ Toast ============ */
-.toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--green-dark); color: var(--lime); padding: 14px 28px; border-radius: 10px; font-weight: 800; box-shadow: var(--glow-heavy); opacity: 0; transition: all 0.35s; z-index: 999; }
+.toast {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--text-main); color: #fff; padding: 14px 28px; border-radius: 12px;
+  font-weight: 700; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0;
+  transition: all 0.35s cubic-bezier(.4,0,.2,1); z-index: 999;
+}
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+/* ============ Responsive ============ */
 @media (max-width: 900px) {
   #sidebar { transform: translateX(100%); }
   #sidebar.open { transform: translateX(0); }
-  #mainContent { margin-right: 0; }
+  #mainContent { margin-right: 0; padding: 16px; }
   .mobile-header { display: flex; }
 }
 </style>
 </head>
 <body>
 
-<div id="bg-dynamic"></div>
+<!-- خلفية قابلة للتغيير -->
+<div id="bg-layer"></div>
 <div id="bg-overlay"></div>
 
+<!-- السايدبار -->
 <aside id="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-logo">
-      <img src="icon.png" alt="">
-      <div><h2>VinlandX</h2><div style="font-size:10px; color:var(--lime);">BEM 2026</div></div>
+      <img src="icon.png" alt="Logo">
+      <div><h2>VinlandX</h2><div class="tagline">BEM 2026</div></div>
     </div>
   </div>
   <nav class="sidebar-nav">
-    <button class="nav-item active" data-page="dashboard">🌳 لوحة التحكم</button>
-    <button class="nav-item" data-page="tasks">📋 المهام</button>
-    <button class="nav-item" data-page="schedule">📅 الفروض</button>
-    <button class="nav-item" data-page="flashcards">🃏 البطاقات</button>
-    <button class="nav-item" data-page="chat">💬 الشات</button>
-    <button class="nav-item" data-page="quiz">🎯 بنك الأسئلة</button>
-    <button class="nav-item" data-page="settings">⚙️ الإعدادات</button>
+    <button class="nav-item active" data-page="dashboard">
+      <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> لوحة التحكم
+    </button>
+    <button class="nav-item" data-page="tasks">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> المهام
+    </button>
+    <button class="nav-item" data-page="schedule">
+      <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg> الفروض
+    </button>
+    <button class="nav-item" data-page="flashcards">
+      <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> البطاقات
+    </button>
+    <button class="nav-item" data-page="chat">
+      <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg> الشات
+    </button>
+    <button class="nav-item" data-page="settings">
+      <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg> الإعدادات
+    </button>
   </nav>
   <div class="sidebar-footer">
     <div class="user-mini">
-      <div class="avatar-sm" id="sidebarAvatar">👤</div>
-      <div class="info"><div class="name" id="sidebarName">—</div></div>
+      <div class="avatar-sm" id="sidebarAvatar">V</div>
+      <div><div class="name" id="sidebarName">مستخدم</div><div class="email" id="sidebarEmail">—</div></div>
     </div>
-    <button class="btn-outline" style="width:100%; margin-top:10px; padding:8px;" onclick="logout()">خروج</button>
+    <button class="logout-btn" onclick="logout()">
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+      خروج
+    </button>
   </div>
 </aside>
 
+<!-- المحتوى -->
 <main id="mainContent">
   <div class="mobile-header">
-    <div style="display:flex; gap:8px; align-items:center; font-weight:900;">VinlandX</div>
-    <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+    <div style="display:flex; gap:8px; align-items:center; font-weight:900; color:var(--accent);">VinlandX</div>
+    <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+      <svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:currentColor;"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+    </button>
   </div>
 
   <!-- لوحة التحكم -->
   <section id="page-dashboard" class="page-section active">
-    <h1 class="section-title">مرحباً، <span id="greetName"></span> 👋</h1>
-    <p style="color:var(--text-dim); margin-bottom:20px;">أنجز مهامك لتنمو شجرتك!</p>
+    <h1 class="section-title">مرحباً، <span id="greetName"></span></h1>
+    <p class="section-subtitle">أنجز مهامك لتنمو شجرتك!</p>
     
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num" id="totalTasksCount">0</div>
+        <div class="stat-label">مهام منجزة</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="streakCount">0</div>
+        <div class="stat-label">أيام متتالية</div>
+      </div>
+    </div>
+
     <div class="card" style="text-align:center;">
       <div class="card-title" style="justify-content:center;">شجرة الإنجاز</div>
-      <div class="tree-container growing" id="studyTree">🌱</div>
-      <p style="font-size:12px; color:var(--text-dim);" id="treeStatus">أنجز مهام لتنمو!</p>
+      <div class="tree-container" id="studyTree">
+        <!-- شجرة SVG -->
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+      </div>
+      <p style="font-size:13px; color:var(--text-dim); font-weight:600;" id="treeStatus">أنجز مهام لتنمو!</p>
     </div>
 
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-      <div class="card" style="text-align:center; margin-bottom:0;">
-        <div style="font-size:30px; margin-bottom:10px;">🔥</div>
-        <div style="font-size:24px; font-weight:900; color:var(--green-dark);" id="streakCount">0</div>
-        <div style="font-size:12px; color:var(--text-dim);">أيام متتالية</div>
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+        أقرب فروض
       </div>
-      <div class="card" style="text-align:center; margin-bottom:0;">
-        <div style="font-size:30px; margin-bottom:10px;">⚔️</div>
-        <div style="font-size:24px; font-weight:900; color:var(--green-dark);" id="totalTasksCount">0</div>
-        <div style="font-size:12px; color:var(--text-dim);">مهام منجزة</div>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:20px;">
-      <div class="card-title">📌 أقرب فروض</div>
       <div id="upcomingExamsList"></div>
     </div>
   </section>
 
   <!-- المهام -->
   <section id="page-tasks" class="page-section">
-    <h1 class="section-title">📋 المهام</h1>
+    <h1 class="section-title">المهام</h1>
     <div class="card">
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <input type="text" id="taskText" placeholder="مهمة جديدة..." style="flex:1;">
-        <button class="btn-primary" onclick="addTask()">إضافة</button>
+        <button class="btn-primary" onclick="addTask()">
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> إضافة
+        </button>
       </div>
     </div>
-    <div class="card"><ul id="taskList" style="list-style:none;"></ul></div>
+    <div class="card"><ul id="taskList"></ul></div>
   </section>
 
   <!-- الفروض -->
   <section id="page-schedule" class="page-section">
-    <h1 class="section-title">📅 رزنامة الفروض</h1>
+    <h1 class="section-title">رزنامة الفروض</h1>
     <div class="card">
       <table><thead><tr><th>التاريخ</th><th>المادة</th><th>التوقيت</th></tr></thead><tbody id="examsTableBody"></tbody></table>
     </div>
@@ -247,9 +341,9 @@ th { background: rgba(163,230,53,0.1); color: var(--green-dark); font-weight: 80
 
   <!-- البطاقات -->
   <section id="page-flashcards" class="page-section">
-    <h1 class="section-title">🃏 بطاقات الحفظ</h1>
+    <h1 class="section-title">بطاقات الحفظ</h1>
     <div class="card">
-      <div style="display:flex; gap:10px; margin-bottom:15px;">
+      <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
         <input type="text" id="fcQ" placeholder="السؤال" style="flex:1;">
         <input type="text" id="fcA" placeholder="الجواب" style="flex:1;">
         <button class="btn-primary" onclick="addFlashcard()">إضافة</button>
@@ -266,34 +360,36 @@ th { background: rgba(163,230,53,0.1); color: var(--green-dark); font-weight: 80
 
   <!-- الشات -->
   <section id="page-chat" class="page-section">
-    <h1 class="section-title">💬 شات المجموعة</h1>
+    <h1 class="section-title">شات المجموعة</h1>
     <div class="card">
       <div class="chat-box" id="chatBox"></div>
       <div style="display:flex; gap:10px;">
         <input type="text" id="chatInput" placeholder="اكتب رسالة..." style="flex:1;" onkeypress="if(event.key==='Enter') sendMessage()">
-        <button class="btn-primary" onclick="sendMessage()">إرسال</button>
+        <button class="btn-primary" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
       </div>
-    </div>
-  </section>
-
-  <!-- بنك الأسئلة -->
-  <section id="page-quiz" class="page-section">
-    <h1 class="section-title">🎯 بنك الأسئلة</h1>
-    <div class="card" id="quizContainer">
-      <p style="text-align:center; color:var(--text-dim);">سيتم إضافة أسئلة BEM هنا قريباً...</p>
     </div>
   </section>
 
   <!-- الإعدادات -->
   <section id="page-settings" class="page-section">
-    <h1 class="section-title">⚙️ الإعدادات</h1>
+    <h1 class="section-title">الإعدادات</h1>
     <div class="card">
-      <div class="card-title">🔔 الإشعارات</div>
-      <button class="btn-primary" onclick="requestNotifications()">تفعيل الإشعارات</button>
+      <div class="card-title">الخلفية</div>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px;">
+        <button class="btn-primary btn-outline" onclick="changeBg('background1.png')">خلفية 1</button>
+        <button class="btn-primary btn-outline" onclick="changeBg('background2.png')">خلفية 2</button>
+        <button class="btn-primary btn-outline" onclick="changeBg('background3.png')">خلفية 3</button>
+      </div>
     </div>
     <div class="card">
-      <div class="card-title">🎵 موسيقى التركيز</div>
-      <button class="btn-primary" onclick="toggleMusic()" id="musicBtn">▶ تشغيل الموسيقى</button>
+      <div class="card-title">الإشعارات</div>
+      <button class="btn-primary" onclick="requestNotifications()">تفعيل إشعارات المتصفح</button>
+    </div>
+    <div class="card">
+      <div class="card-title">موسيقى التركيز</div>
+      <button class="btn-primary" onclick="toggleMusic()" id="musicBtn">▶ تشغيل</button>
     </div>
   </section>
 </main>
@@ -307,15 +403,13 @@ let currentUser = null;
 let tasks = [], exams = [], flashcards = [], messages = [];
 let fcIndex = 0;
 
-// --- الدخول ---
 sb.auth.onAuthStateChange(async (e, session) => {
   if (session?.user) {
     currentUser = session.user;
     document.getElementById('sidebarName').textContent = currentUser.email.split('@')[0];
     document.getElementById('greetName').textContent = currentUser.email.split('@')[0];
     loadData();
-    updateDynamicBg();
-    setInterval(updateDynamicBg, 60000); // تغيير الخلفية كل دقيقة
+    initBg();
   }
 });
 
@@ -338,11 +432,17 @@ async function loadData() {
 function renderTasks() {
   const done = tasks.filter(x=>x.done).length;
   document.getElementById('totalTasksCount').textContent = done;
-  
   document.getElementById('taskList').innerHTML = tasks.map(t => `
-    <li style="padding:15px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-      <span style="${t.done ? 'text-decoration:line-through; opacity:0.5;' : ''}">${t.text}</span>
-      <button onclick="toggleTask(${t.id}, ${t.done})" style="padding:8px; cursor:pointer; border-radius:8px; border:1px solid var(--border); background:${t.done?'var(--green-dark)':'#fff'}; color:${t.done?'#fff':'inherit'};">✓</button>
+    <li class="task ${t.done ? 'done' : ''}">
+      <span class="task-text">${t.text}</span>
+      <div class="task-actions">
+        <button class="btn-icon btn-check" onclick="toggleTask(${t.id}, ${t.done})">
+          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </button>
+        <button class="btn-icon btn-del" onclick="deleteTask(${t.id})">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </button>
+      </div>
     </li>
   `).join('');
 }
@@ -352,20 +452,17 @@ function updateTree() {
   const tree = document.getElementById('studyTree');
   const status = document.getElementById('treeStatus');
   
-  if (done === 0) { tree.textContent = '🌱'; status.textContent = 'أنجز مهام لتنمو!'; tree.classList.add('wilted'); }
-  else if (done < 5) { tree.textContent = '🌿'; status.textContent = 'بداية جيدة!'; tree.classList.remove('wilted'); }
-  else if (done < 15) { tree.textContent = '🪴'; status.textContent = 'شجرة تكبر!'; }
-  else if (done < 30) { tree.textContent = '🌳'; status.textContent = 'شجرة قوية!'; }
-  else { tree.textContent = '🌲'; status.textContent = 'غابة كاملة! أسطورة!'; }
+  if (done === 0) { tree.classList.add('wilted'); status.textContent = 'أنجز مهام لتنمو!'; }
+  else if (done < 5) { tree.classList.remove('wilted'); status.textContent = 'بداية جيدة!'; }
+  else if (done < 15) { status.textContent = 'شجرة تكبر!'; }
+  else if (done < 30) { status.textContent = 'شجرة قوية!'; }
+  else { status.textContent = 'غابة كاملة! أسطورة!'; }
   
-  // حساب السلسلة (وهمي للتوضيح)
   document.getElementById('streakCount').textContent = done > 0 ? 3 : 0; 
 }
 
-function toggleTask(id, current) {
-  sb.from('tasks').update({ done: !current }).eq('id', id).then(loadData);
-}
-
+function toggleTask(id, current) { sb.from('tasks').update({ done: !current }).eq('id', id).then(loadData); }
+async function deleteTask(id) { await sb.from('tasks').delete().eq('id', id); loadData(); }
 async function addTask() {
   const text = document.getElementById('taskText').value;
   if (!text) return;
@@ -377,13 +474,13 @@ async function addTask() {
 // --- الفروض ---
 function renderExams() {
   document.getElementById('examsTableBody').innerHTML = exams.map(ex => `
-    <tr><td>${ex.exam_date}</td><td><span style="background:var(--lime); color:var(--green-dark); padding:2px 8px; border-radius:10px; font-size:12px; font-weight:bold;">${ex.subject}</span></td><td>${ex.exam_time}</td></tr>
+    <tr><td>${ex.exam_date}</td><td><b>${ex.subject}</b></td><td>${ex.exam_time}</td></tr>
   `).join('');
   
   const today = new Date().toISOString().split('T')[0];
   const next = exams.find(ex => ex.exam_date >= today);
   if (next) {
-    document.getElementById('upcomingExamsList').innerHTML = `<div style="padding:15px; background:rgba(163,230,53,0.1); border-radius:10px; border:1px solid var(--lime);"><b>${next.subject}</b> — ${next.exam_date} (${next.exam_time})</div>`;
+    document.getElementById('upcomingExamsList').innerHTML = `<div style="padding:15px; background:var(--accent-light); border-radius:12px; border:1px solid var(--accent); color:var(--text-main); font-weight:700;"><b>${next.subject}</b> — ${next.exam_date} (${next.exam_time})</div>`;
   }
 }
 
@@ -392,8 +489,7 @@ function renderChat() {
   const box = document.getElementById('chatBox');
   box.innerHTML = messages.map(m => `
     <div class="msg ${m.sender_name === currentUser.email.split('@')[0] ? 'mine' : 'other'}">
-      <div class="msg-name">${m.sender_name}</div>
-      ${m.content}
+      <div class="msg-name">${m.sender_name}</div>${m.content}
     </div>
   `).join('');
   box.scrollTop = box.scrollHeight;
@@ -428,33 +524,24 @@ async function addFlashcard() {
   loadData();
 }
 
-// --- خلفية ديناميكية (حسب الوقت) ---
-function updateDynamicBg() {
-  const h = new Date().getHours();
-  const bg = document.getElementById('bg-dynamic');
-  if (h >= 6 && h < 12) {
-    // صباح: أخضر فاتح جداً
-    bg.style.background = 'radial-gradient(circle at 20% 30%, rgba(163,230,53,0.3), transparent 50%), radial-gradient(circle at 80% 70%, rgba(34,197,94,0.2), transparent 50%)';
-  } else if (h >= 12 && h < 18) {
-    // ظهر: أخضر زاهي
-    bg.style.background = 'radial-gradient(circle at 50% 50%, rgba(163,230,53,0.2), transparent 60%)';
-  } else {
-    // ليل: أخضر داكن هادئ
-    bg.style.background = 'radial-gradient(circle at 20% 30%, rgba(34,197,94,0.1), transparent 50%), radial-gradient(circle at 80% 70%, rgba(13,31,19,0.2), transparent 50%)';
-  }
+// --- الخلفيات ---
+function changeBg(name) {
+  document.getElementById('bg-layer').style.backgroundImage = `url('${name}')`;
+  localStorage.setItem('vinland_bg', name);
+}
+function initBg() {
+  changeBg(localStorage.getItem('vinland_bg') || 'background1.png');
 }
 
 // --- الإشعارات ---
-function requestNotifications() {
-  Notification.requestPermission().then(p => { if(p==='granted') showToast('تم التفعيل!'); });
-}
+function requestNotifications() { Notification.requestPermission().then(p => { if(p==='granted') showToast('تم التفعيل!'); }); }
 
 // --- الأصوات ---
 let musicPlaying = false;
 function toggleMusic() {
   const audio = document.getElementById('bgMusic');
-  if (musicPlaying) { audio.pause(); document.getElementById('musicBtn').textContent = '▶ تشغيل الموسيقى'; }
-  else { audio.play(); document.getElementById('musicBtn').textContent = '⏸ إيقاف الموسيقى'; }
+  if (musicPlaying) { audio.pause(); document.getElementById('musicBtn').textContent = '▶ تشغيل'; }
+  else { audio.play(); document.getElementById('musicBtn').textContent = '⏸ إيقاف'; }
   musicPlaying = !musicPlaying;
 }
 
