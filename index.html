@@ -5,57 +5,84 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VinlandX — رفيقك للنجاح</title>
 <meta name="description" content="VinlandX — منصة إدارة مهام المذاكرة بأسلوب Vinland Saga">
-<meta name="theme-color" content="#495249">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
+<meta name="theme-color" content="#0B1426">
+
+<!-- اللوجو -->
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<meta property="og:image" content="https://vinlandx.github.io/icon.png">
+<meta property="og:title" content="VinlandX">
+<meta property="og:description" content="منصة إدارة مهام المذاكرة">
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* ============ Vinland Saga Light Theme ============ */
 :root {
-  --bg-main: #E8E6E1;
-  --bg-secondary: #D8CFC0;
-  --bg-card: #F5F2ED;
-  --bg-sidebar: #2E2721;
-  --sidebar-text: #C8C9B4;
-  --sidebar-hover: #495249;
-  --text-main: #2E2721;
-  --text-dim: #7D6147;
-  --text-light: #908c74;
-  --accent: #495249;
-  --accent-hover: #355036;
-  --gold: #C8C9B4;
-  --gold-dark: #B7A77F;
-  --danger: #815B50;
-  --danger-hover: #6B443A;
-  --success: #355036;
-  --border: #C8C9B4;
-  --shadow: 0 4px 20px rgba(46,39,33,0.08);
-  --shadow-hover: 0 8px 30px rgba(46,39,33,0.15);
-  --radius: 14px;
+  --night: #0B1426;
+  --night-2: #142236;
+  --ocean: #1E3A5F;
+  --gold: #D4A853;
+  --gold-light: #E8C87A;
+  --blood: #8B2E2E;
+  --snow: #F0F4F8;
+  --field: #2D4A2D;
+  --text: #E8EEF5;
+  --text-dim: #8FA3B8;
+  --border: rgba(212,168,83,0.25);
+  --glass: rgba(20,34,54,0.75);
+  --glass-dark: rgba(11,20,38,0.85);
+  --shadow: 0 8px 32px rgba(0,0,0,0.5);
+  --radius: 16px;
   --radius-sm: 10px;
-  --sidebar-width: 260px;
+  --sidebar-width: 270px;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
-  font-family: 'Segoe UI', 'Tahoma', system-ui, sans-serif;
-  background: var(--bg-main);
-  color: var(--text-main);
+  font-family: 'Segoe UI', Tahoma, system-ui, sans-serif;
+  color: var(--text);
   min-height: 100vh;
-  display: flex;
+  background: var(--night);
   overflow-x: hidden;
+}
+
+/* ============ خلفية الأنمي الحقيقية ============ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('background1.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  z-index: -10;
+}
+/* طبقة تعتيم فوق الخلفية */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(11, 20, 38, 0.80) 0%,
+    rgba(11, 20, 38, 0.60) 50%,
+    rgba(11, 20, 38, 0.88) 100%
+  );
+  z-index: -9;
+  pointer-events: none;
 }
 
 /* ============ شاشة التحميل ============ */
 #loadingScreen {
   position: fixed; inset:0;
-  background: var(--bg-main);
+  background: var(--night);
   display: flex; align-items:center; justify-content:center;
   flex-direction: column; gap: 16px;
   z-index: 9999;
 }
 .spinner {
   width: 44px; height: 44px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
+  border: 3px solid rgba(212,168,83,0.2);
+  border-top-color: var(--gold);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -64,70 +91,73 @@ body {
 /* ============ شاشة الدخول ============ */
 #loginScreen {
   position: fixed; inset:0;
-  background: var(--bg-main);
   display: none;
   align-items: center; justify-content: center;
   flex-direction: column;
   z-index: 100;
   padding: 24px;
-  background-image: 
-    radial-gradient(ellipse at 20% 50%, rgba(73,82,73,0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(200,201,180,0.2) 0%, transparent 50%);
 }
 .login-logo {
-  width: 90px; height: 90px;
-  background: var(--bg-sidebar);
-  border-radius: 22px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 42px;
-  margin-bottom: 20px;
-  box-shadow: var(--shadow);
+  width: 110px; height: 110px;
+  border-radius: 24px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 40px rgba(212,168,83,0.4);
+  border: 2px solid rgba(212,168,83,0.3);
+  background: var(--night-2);
 }
+.login-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 #loginScreen h1 {
-  font-size: 38px;
-  font-weight: 800;
-  color: var(--text-main);
-  letter-spacing: 2px;
+  font-size: 42px;
+  font-weight: 900;
+  color: var(--snow);
+  letter-spacing: 3px;
   margin-bottom: 6px;
+  text-shadow: 0 2px 20px rgba(212,168,83,0.4);
 }
 #loginScreen .subtitle {
-  color: var(--text-dim);
-  font-size: 15px;
-  margin-bottom: 8px;
+  color: var(--gold);
+  font-size: 14px;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
 }
 #loginScreen .quote {
-  color: var(--text-light);
-  font-size: 12px;
+  color: var(--text-dim);
+  font-size: 13px;
   font-style: italic;
   margin-bottom: 36px;
-  max-width: 300px;
+  max-width: 320px;
   text-align: center;
-  line-height: 1.6;
+  line-height: 1.7;
 }
-.auth-buttons { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 300px; }
+.auth-buttons { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 320px; }
 .auth-btn {
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  padding: 14px 24px;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 15px 24px;
   border-radius: var(--radius-sm);
-  border: 1.5px solid var(--border);
-  background: var(--bg-card);
-  color: var(--text-main);
+  border: 1.5px solid rgba(212,168,83,0.4);
+  background: rgba(20,34,54,0.7);
+  backdrop-filter: blur(10px);
+  color: var(--text);
   font-size: 15px; font-weight: 600;
   cursor: pointer;
   transition: all 0.25s;
+  font-family: inherit;
 }
 .auth-btn:hover {
-  border-color: var(--accent);
-  box-shadow: var(--shadow);
+  border-color: var(--gold);
+  background: rgba(30,58,95,0.8);
   transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(212,168,83,0.2);
 }
 .auth-btn svg { width: 20px; height: 20px; }
 
 /* ============ السايدبار ============ */
 #sidebar {
   width: var(--sidebar-width);
-  background: var(--bg-sidebar);
-  color: var(--sidebar-text);
+  background: var(--glass-dark);
+  backdrop-filter: blur(16px);
+  border-left: 1px solid rgba(212,168,83,0.2);
   min-height: 100vh;
   position: fixed;
   top: 0; right: 0;
@@ -137,34 +167,35 @@ body {
   transition: transform 0.3s ease;
 }
 .sidebar-header {
-  padding: 28px 24px 20px;
-  border-bottom: 1px solid rgba(200,201,180,0.12);
+  padding: 24px 22px 18px;
+  border-bottom: 1px solid rgba(212,168,83,0.15);
 }
 .sidebar-logo {
   display: flex; align-items: center; gap: 12px;
 }
-.sidebar-logo .icon {
-  width: 42px; height: 42px;
-  background: var(--accent);
+.sidebar-logo .logo-img {
+  width: 46px; height: 46px;
   border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
+  overflow: hidden;
+  border: 1.5px solid rgba(212,168,83,0.4);
+  flex-shrink: 0;
 }
+.sidebar-logo .logo-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .sidebar-logo h2 {
   font-size: 20px;
-  font-weight: 800;
-  color: #F5F2ED;
-  letter-spacing: 1.5px;
+  font-weight: 900;
+  color: var(--snow);
+  letter-spacing: 2px;
 }
 .sidebar-logo .tagline {
   font-size: 10px;
-  color: var(--text-light);
-  letter-spacing: 1px;
+  color: var(--gold);
+  letter-spacing: 2px;
   margin-top: 2px;
 }
 .sidebar-nav {
   flex: 1;
-  padding: 20px 14px;
+  padding: 18px 12px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -173,7 +204,7 @@ body {
   display: flex; align-items: center; gap: 12px;
   padding: 12px 16px;
   border-radius: var(--radius-sm);
-  color: var(--sidebar-text);
+  color: var(--text-dim);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -183,31 +214,34 @@ body {
   width: 100%;
   text-align: right;
   font-family: inherit;
+  border-right: 3px solid transparent;
 }
 .nav-item:hover {
-  background: rgba(73,82,73,0.4);
-  color: #F5F2ED;
+  background: rgba(212,168,83,0.08);
+  color: var(--text);
 }
 .nav-item.active {
-  background: var(--accent);
-  color: #F5F2ED;
+  background: rgba(212,168,83,0.15);
+  color: var(--gold);
   font-weight: 700;
+  border-right-color: var(--gold);
 }
-.nav-item .nav-icon { font-size: 18px; width: 24px; text-align: center; }
+.nav-item .nav-icon { font-size: 17px; width: 22px; text-align: center; }
 .sidebar-footer {
-  padding: 16px 20px;
-  border-top: 1px solid rgba(200,201,180,0.12);
+  padding: 14px 16px;
+  border-top: 1px solid rgba(212,168,83,0.15);
 }
 .user-mini {
   display: flex; align-items: center; gap: 10px;
   padding: 10px;
   border-radius: var(--radius-sm);
-  background: rgba(73,82,73,0.25);
+  background: rgba(212,168,83,0.08);
+  border: 1px solid rgba(212,168,83,0.15);
 }
 .user-mini .avatar-sm {
   width: 36px; height: 36px;
   border-radius: 10px;
-  background: var(--accent);
+  background: var(--ocean);
   display: flex; align-items: center; justify-content: center;
   font-size: 16px;
   overflow: hidden;
@@ -217,12 +251,12 @@ body {
 .user-mini .info { flex: 1; min-width: 0; }
 .user-mini .name {
   font-size: 13px; font-weight: 600;
-  color: #F5F2ED;
+  color: var(--snow);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .user-mini .email {
   font-size: 10px;
-  color: var(--text-light);
+  color: var(--text-dim);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .logout-btn {
@@ -230,9 +264,9 @@ body {
   margin-top: 10px;
   padding: 10px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(129,91,80,0.4);
-  background: transparent;
-  color: #D67C7C;
+  border: 1px solid rgba(139,46,46,0.5);
+  background: rgba(139,46,46,0.15);
+  color: #E89999;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -240,44 +274,54 @@ body {
   font-family: inherit;
 }
 .logout-btn:hover {
-  background: var(--danger);
+  background: var(--blood);
   color: white;
-  border-color: var(--danger);
+  border-color: var(--blood);
 }
 
-/* ============ المحتوى الرئيسي ============ */
+/* ============ المحتوى ============ */
 #mainContent {
   flex: 1;
   margin-right: var(--sidebar-width);
   padding: 24px 28px 40px;
   min-height: 100vh;
   transition: margin 0.3s;
-  background-image: 
-    radial-gradient(ellipse at 100% 0%, rgba(200,201,180,0.15) 0%, transparent 40%);
 }
 
-/* شريط علوي للموبايل */
 .mobile-header {
   display: none;
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border);
-  margin: -24px -28px 20px;
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(212,168,83,0.2);
+  border-radius: var(--radius-sm);
+  margin: 0 0 20px;
+}
+.mobile-header .mob-logo {
+  display: flex; align-items: center; gap: 10px;
+}
+.mobile-header .mob-logo img {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(212,168,83,0.4);
+}
+.mobile-header .mob-logo span {
+  font-weight: 900; font-size: 16px; letter-spacing: 1.5px;
 }
 .menu-toggle {
   width: 40px; height: 40px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(212,168,83,0.3);
   background: transparent;
   font-size: 20px;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  color: var(--text-main);
+  color: var(--gold);
 }
 
-/* ============ أقسام الصفحات ============ */
+/* ============ الصفحات ============ */
 .page-section { display: none; animation: fadeUp 0.4s ease; }
 .page-section.active { display: block; }
 @keyframes fadeUp {
@@ -285,11 +329,12 @@ body {
   to { opacity:1; transform: translateY(0); }
 }
 .section-title {
-  font-size: 24px;
-  font-weight: 800;
-  color: var(--text-main);
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--snow);
   margin-bottom: 6px;
   display: flex; align-items: center; gap: 10px;
+  letter-spacing: 1px;
 }
 .section-subtitle {
   font-size: 13px;
@@ -297,39 +342,40 @@ body {
   margin-bottom: 24px;
 }
 
-/* ============ العدّاد التنازلي ============ */
+/* ============ العدّاد ============ */
 .countdown-card {
-  background: var(--bg-sidebar);
+  background: linear-gradient(135deg, rgba(20,34,54,0.85), rgba(30,58,95,0.7));
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(212,168,83,0.3);
   border-radius: var(--radius);
   padding: 24px 28px;
   margin-bottom: 24px;
-  color: #F5F2ED;
+  box-shadow: var(--shadow);
   position: relative;
   overflow: hidden;
 }
 .countdown-card::before {
   content: '';
   position: absolute;
-  top: -50%; left: -20%;
-  width: 140%; height: 200%;
-  background: radial-gradient(ellipse at 30% 50%, rgba(200,201,180,0.08) 0%, transparent 60%);
-  pointer-events: none;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
 }
 .countdown-label {
   font-size: 13px;
   color: var(--gold);
   margin-bottom: 14px;
-  position: relative;
+  letter-spacing: 1px;
+  font-weight: 600;
 }
 .countdown-nums {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  position: relative;
 }
 .count-box {
-  background: rgba(200,201,180,0.1);
-  border: 1px solid rgba(200,201,180,0.15);
+  background: rgba(11,20,38,0.6);
+  border: 1px solid rgba(212,168,83,0.25);
   border-radius: var(--radius-sm);
   padding: 14px 18px;
   min-width: 72px;
@@ -337,13 +383,13 @@ body {
 }
 .count-num {
   font-size: 32px;
-  font-weight: 800;
-  color: var(--gold);
+  font-weight: 900;
+  color: var(--gold-light);
   line-height: 1;
 }
 .count-lbl {
   font-size: 10px;
-  color: var(--text-light);
+  color: var(--text-dim);
   margin-top: 6px;
   letter-spacing: 1px;
 }
@@ -356,22 +402,23 @@ body {
   margin-bottom: 24px;
 }
 .stat-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(212,168,83,0.2);
   border-radius: var(--radius);
   padding: 20px;
   text-align: center;
   transition: all 0.25s;
 }
 .stat-card:hover {
-  box-shadow: var(--shadow-hover);
-  transform: translateY(-2px);
-  border-color: var(--accent);
+  box-shadow: 0 8px 30px rgba(212,168,83,0.2);
+  transform: translateY(-3px);
+  border-color: var(--gold);
 }
 .stat-num {
   font-size: 32px;
-  font-weight: 800;
-  color: var(--accent);
+  font-weight: 900;
+  color: var(--gold-light);
   line-height: 1;
 }
 .stat-label {
@@ -382,8 +429,9 @@ body {
 
 /* ============ البطاقات ============ */
 .card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: var(--glass);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(212,168,83,0.2);
   border-radius: var(--radius);
   padding: 22px;
   margin-bottom: 20px;
@@ -392,55 +440,59 @@ body {
 .card-title {
   font-size: 16px;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--snow);
   margin-bottom: 18px;
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 10px;
 }
 .card-title .icon-badge {
-  width: 30px; height: 30px;
-  border-radius: 8px;
-  background: var(--accent);
-  color: #F5F2ED;
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--ocean), var(--night-2));
+  border: 1px solid rgba(212,168,83,0.3);
+  color: var(--gold);
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 /* ============ النموذج ============ */
-.form-row {
-  display: flex; gap: 10px; flex-wrap: wrap;
-}
+.form-row { display: flex; gap: 10px; flex-wrap: wrap; }
 input, select {
   padding: 12px 14px;
   border-radius: var(--radius-sm);
-  border: 1.5px solid var(--border);
-  background: #FFFFFF;
-  color: var(--text-main);
+  border: 1.5px solid rgba(212,168,83,0.25);
+  background: rgba(11,20,38,0.6);
+  color: var(--text);
   font-size: 14px;
   font-family: inherit;
   outline: none;
   transition: all 0.2s;
 }
 input:focus, select:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(73,82,73,0.12);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212,168,83,0.15);
 }
-input::placeholder { color: var(--text-light); }
+input::placeholder { color: var(--text-dim); }
 .form-row input[type=text] { flex:1; min-width: 180px; }
 .form-row select { min-width: 130px; }
 .form-row input[type=date] { min-width: 145px; }
+select option { background: var(--night-2); color: var(--text); }
 .btn-primary {
   padding: 12px 26px;
-  background: var(--accent);
-  color: #F5F2ED;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--night);
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 14px;
   font-family: inherit;
   transition: all 0.2s;
+  letter-spacing: 0.5px;
 }
-.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: var(--shadow); }
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212,168,83,0.4);
+}
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
 /* ============ الفلاتر ============ */
@@ -450,7 +502,7 @@ input::placeholder { color: var(--text-light); }
 .filter-btn {
   padding: 8px 18px;
   border-radius: 20px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid rgba(212,168,83,0.25);
   background: transparent;
   color: var(--text-dim);
   cursor: pointer;
@@ -459,11 +511,12 @@ input::placeholder { color: var(--text-light); }
   font-family: inherit;
   transition: all 0.2s;
 }
-.filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+.filter-btn:hover { border-color: var(--gold); color: var(--gold); }
 .filter-btn.active {
-  background: var(--accent);
-  color: #F5F2ED;
-  border-color: var(--accent);
+  background: var(--gold);
+  color: var(--night);
+  border-color: var(--gold);
+  font-weight: 800;
 }
 
 /* ============ المهام ============ */
@@ -473,8 +526,8 @@ li.task {
   justify-content: space-between;
   align-items: center;
   padding: 14px 16px;
-  background: #FFFFFF;
-  border: 1px solid var(--border);
+  background: rgba(11,20,38,0.5);
+  border: 1px solid rgba(212,168,83,0.2);
   border-radius: var(--radius-sm);
   margin-bottom: 10px;
   gap: 12px;
@@ -482,17 +535,19 @@ li.task {
   transition: all 0.25s;
 }
 li.task:hover {
-  border-color: var(--accent);
-  box-shadow: var(--shadow);
+  border-color: var(--gold);
+  box-shadow: 0 4px 18px rgba(212,168,83,0.15);
+  transform: translateX(-3px);
 }
 li.task.done { opacity: 0.55; }
-li.task.done .task-text { text-decoration: line-through; color: var(--text-light); }
+li.task.done .task-text { text-decoration: line-through; color: var(--text-dim); }
 .task-info { flex: 1; min-width: 160px; }
 .task-text {
   font-weight: 600;
   font-size: 15px;
   margin-bottom: 6px;
   word-break: break-word;
+  color: var(--snow);
 }
 .task-meta {
   font-size: 12px;
@@ -506,9 +561,21 @@ li.task.done .task-text { text-decoration: line-through; color: var(--text-light
   font-size: 11px;
   font-weight: 600;
 }
-.subject-tag { background: rgba(73,82,73,0.12); color: var(--accent); }
-.owner-tag { background: rgba(125,97,71,0.12); color: var(--text-dim); }
-.date-tag { background: rgba(200,201,180,0.3); color: var(--text-dim); }
+.subject-tag {
+  background: rgba(30,58,95,0.5);
+  color: #9DC1E8;
+  border: 1px solid rgba(30,58,95,0.8);
+}
+.owner-tag {
+  background: rgba(212,168,83,0.12);
+  color: var(--gold);
+  border: 1px solid rgba(212,168,83,0.25);
+}
+.date-tag {
+  background: rgba(45,74,45,0.35);
+  color: #9BC79B;
+  border: 1px solid rgba(45,74,45,0.6);
+}
 .task-actions { display: flex; gap: 6px; }
 .task-actions button {
   width: 36px; height: 36px;
@@ -518,30 +585,39 @@ li.task.done .task-text { text-decoration: line-through; color: var(--text-light
   font-size: 15px;
   display: flex; align-items: center; justify-content: center;
   transition: all 0.2s;
+  font-family: inherit;
 }
-.btn-done { background: rgba(53,80,54,0.12); color: var(--success); }
-.btn-done:hover { background: var(--success); color: white; }
-.btn-del { background: rgba(129,91,80,0.12); color: var(--danger); }
-.btn-del:hover { background: var(--danger); color: white; }
+.btn-done {
+  background: rgba(45,74,45,0.4);
+  color: #9BC79B;
+  border: 1px solid rgba(45,74,45,0.7);
+}
+.btn-done:hover { background: var(--field); color: white; }
+.btn-del {
+  background: rgba(139,46,46,0.3);
+  color: #E89999;
+  border: 1px solid rgba(139,46,46,0.6);
+}
+.btn-del:hover { background: var(--blood); color: white; }
 
 /* ============ فارغ ============ */
 .empty-state {
   text-align: center;
   padding: 48px 20px;
-  color: var(--text-light);
+  color: var(--text-dim);
 }
-.empty-state .emoji { font-size: 48px; margin-bottom: 12px; opacity: 0.6; }
+.empty-state .emoji { font-size: 48px; margin-bottom: 12px; opacity: 0.7; }
 
 /* ============ الإعدادات ============ */
 .settings-row {
   display: flex; justify-content: space-between; align-items: center;
   padding: 16px 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(212,168,83,0.15);
   gap: 16px;
   flex-wrap: wrap;
 }
 .settings-row:last-child { border-bottom: none; }
-.settings-label { font-weight: 600; font-size: 14px; }
+.settings-label { font-weight: 600; font-size: 14px; color: var(--snow); }
 .settings-desc { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
 
 /* ============ Toast ============ */
@@ -549,13 +625,15 @@ li.task.done .task-text { text-decoration: line-through; color: var(--text-light
   position: fixed;
   bottom: 28px; left: 50%;
   transform: translateX(-50%) translateY(80px);
-  background: var(--bg-sidebar);
-  color: #F5F2ED;
+  background: var(--glass-dark);
+  backdrop-filter: blur(16px);
+  color: var(--snow);
+  border: 1px solid rgba(212,168,83,0.4);
   padding: 14px 28px;
   border-radius: var(--radius-sm);
   font-weight: 600;
   font-size: 14px;
-  box-shadow: 0 10px 30px rgba(46,39,33,0.3);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   opacity: 0;
   transition: all 0.35s cubic-bezier(.4,0,.2,1);
   z-index: 999;
@@ -573,6 +651,7 @@ li.task.done .task-text { text-decoration: line-through; color: var(--text-light
   .count-box { min-width: 58px; padding: 10px 12px; }
   .section-title { font-size: 20px; }
   #mainContent { padding: 16px; }
+  #loginScreen h1 { font-size: 32px; }
 }
 @media (min-width: 901px) {
   #sidebar { transform: translateX(0) !important; }
@@ -581,17 +660,17 @@ li.task.done .task-text { text-decoration: line-through; color: var(--text-light
 </head>
 <body>
 
-<!-- ============ شاشة التحميل ============ -->
+<!-- شاشة التحميل -->
 <div id="loadingScreen">
   <div class="spinner"></div>
   <div style="color: var(--text-dim); font-size:14px;">جاري التحميل...</div>
 </div>
 
-<!-- ============ شاشة الدخول ============ -->
+<!-- شاشة الدخول -->
 <div id="loginScreen">
-  <div class="login-logo">⚔️</div>
+  <div class="login-logo"><img src="icon.png" alt="VinlandX" onerror="this.parentNode.textContent='⚔️'; this.parentNode.style.display='flex'; this.parentNode.style.alignItems='center'; this.parentNode.style.justifyContent='center'; this.parentNode.style.fontSize='48px';"></div>
   <h1>VinlandX</h1>
-  <p class="subtitle">منصة إدارة المهام</p>
+  <p class="subtitle">BEM 2026</p>
   <p class="quote">"ليس لدي أعداء" — ثورفين</p>
   <div class="auth-buttons">
     <button class="auth-btn" onclick="signInWithGoogle()">
@@ -605,11 +684,11 @@ li.task.done .task-text { text-decoration: line-through; color: var(--text-light
   </div>
 </div>
 
-<!-- ============ السايدبار ============ -->
+<!-- السايدبار -->
 <aside id="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-logo">
-      <div class="icon">⚔️</div>
+      <div class="logo-img"><img src="icon.png" alt="VinlandX" onerror="this.parentNode.textContent='⚔️'; this.parentNode.style.display='flex'; this.parentNode.style.alignItems='center'; this.parentNode.style.justifyContent='center'; this.parentNode.style.fontSize='22px';"></div>
       <div>
         <h2>VinlandX</h2>
         <div class="tagline">BEM 2026</div>
@@ -617,21 +696,11 @@ li.task.done .task-text { text-decoration: line-through; color: var(--text-light
     </div>
   </div>
   <nav class="sidebar-nav">
-    <button class="nav-item active" data-page="dashboard">
-      <span class="nav-icon">🏠</span> لوحة التحكم
-    </button>
-    <button class="nav-item" data-page="tasks">
-      <span class="nav-icon">📋</span> المهام
-    </button>
-    <button class="nav-item" data-page="progress">
-      <span class="nav-icon">📊</span> التقدم
-    </button>
-    <button class="nav-item" data-page="pomodoro">
-      <span class="nav-icon">⏱️</span> بومودورو
-    </button>
-    <button class="nav-item" data-page="settings">
-      <span class="nav-icon">⚙️</span> الإعدادات
-    </button>
+    <button class="nav-item active" data-page="dashboard"><span class="nav-icon">🏠</span> لوحة التحكم</button>
+    <button class="nav-item" data-page="tasks"><span class="nav-icon">📋</span> المهام</button>
+    <button class="nav-item" data-page="progress"><span class="nav-icon">📊</span> التقدم</button>
+    <button class="nav-item" data-page="pomodoro"><span class="nav-icon">⏱️</span> بومودورو</button>
+    <button class="nav-item" data-page="settings"><span class="nav-icon">⚙️</span> الإعدادات</button>
   </nav>
   <div class="sidebar-footer">
     <div class="user-mini">
@@ -645,63 +714,46 @@ li.task.done .task-text { text-decoration: line-through; color: var(--text-light
   </div>
 </aside>
 
-<!-- ============ المحتوى الرئيسي ============ -->
+<!-- المحتوى -->
 <main id="mainContent">
-  <!-- شريط الموبايل -->
   <div class="mobile-header">
-    <div style="display:flex; align-items:center; gap:10px;">
-      <div style="width:34px;height:34px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">⚔️</div>
-      <span style="font-weight:800; font-size:16px;">VinlandX</span>
+    <div class="mob-logo">
+      <img src="icon.png" alt="" onerror="this.style.display='none'">
+      <span>VinlandX</span>
     </div>
     <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
   </div>
 
-  <!-- ===== لوحة التحكم ===== -->
   <section id="page-dashboard" class="page-section active">
     <h1 class="section-title">⚔️ لوحة التحكم</h1>
-    <p class="section-subtitle" id="greetingText">مرحباً بك، أيها المحارب</p>
-
-    <!-- العدّاد -->
+    <p class="section-subtitle" id="greetingText">مرحباً بك</p>
     <div class="countdown-card">
       <div class="countdown-label">⏳ الوقت المتبقي لامتحان BEM 2026</div>
       <div class="countdown-nums" id="countdown"></div>
     </div>
-
-    <!-- الإحصائيات -->
     <div class="stats-grid" id="statsGrid"></div>
-
-    <!-- مهام قريبة -->
     <div class="card">
       <div class="card-title"><span class="icon-badge">📌</span> مهامك القادمة</div>
       <ul class="task-list" id="upcomingTasks"></ul>
     </div>
   </section>
 
-  <!-- ===== المهام ===== -->
   <section id="page-tasks" class="page-section">
     <h1 class="section-title">📋 المهام</h1>
     <p class="section-subtitle">أضف مهامك وتابع تقدمك</p>
-
     <div class="card">
       <div class="card-title"><span class="icon-badge">➕</span> إضافة مهمة جديدة</div>
       <div class="form-row">
         <input type="text" id="taskText" placeholder="ما المهمة؟" maxlength="200">
         <select id="taskSubject">
-          <option>📗 عربية</option>
-          <option>📐 رياضيات</option>
-          <option>🇫🇷 فرنسية</option>
-          <option>🇬🇧 إنجليزية</option>
-          <option>⚛️ فيزياء</option>
-          <option>🔬 علوم</option>
-          <option>🏛️ تاريخ</option>
-          <option>🌍 جغرافيا</option>
-          <option>🕌 إسلامية</option>
+          <option>📗 عربية</option><option>📐 رياضيات</option><option>🇫🇷 فرنسية</option>
+          <option>🇬🇧 إنجليزية</option><option>⚛️ فيزياء</option><option>🔬 علوم</option>
+          <option>🏛️ تاريخ</option><option>🌍 جغرافيا</option><option>🕌 إسلامية</option>
         </select>
         <input type="date" id="taskDate">
         <button class="btn-primary" id="addBtn" onclick="addTask()">إضافة</button>
       </div>
     </div>
-
     <div class="card">
       <div class="filter-row">
         <button class="filter-btn active" data-filter="all">الكل</button>
@@ -713,31 +765,28 @@ li.task.done .task-text { text-decoration: line-through; color: var(--text-light
     </div>
   </section>
 
-  <!-- ===== التقدم ===== -->
   <section id="page-progress" class="page-section">
     <h1 class="section-title">📊 التقدم</h1>
-    <p class="section-subtitle">أداءك مقارنة برفاقك في السلاح</p>
+    <p class="section-subtitle">أداءك مقارنة برفاقك</p>
     <div class="card">
       <div class="card-title"><span class="icon-badge">🏆</span> ترتيب المجموعة</div>
       <div id="progressTable"></div>
     </div>
   </section>
 
-  <!-- ===== بومودورو ===== -->
   <section id="page-pomodoro" class="page-section">
     <h1 class="section-title">⏱️ بومودورو</h1>
-    <p class="section-subtitle">ركز 25 دقيقة، ثم استرح</p>
+    <p class="section-subtitle">ركز 25 دقيقة ثم استرح</p>
     <div class="card" style="text-align:center;">
-      <div style="font-size:64px; font-weight:800; color:var(--accent); line-height:1; margin:20px 0;" id="pomodoroTime">25:00</div>
+      <div style="font-size:64px; font-weight:900; color:var(--gold-light); line-height:1; margin:20px 0; text-shadow:0 2px 20px rgba(212,168,83,0.3);" id="pomodoroTime">25:00</div>
       <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
         <button class="btn-primary" onclick="startPomo()">▶ ابدأ</button>
-        <button class="btn-primary" style="background:var(--gold-dark);" onclick="pausePomo()">⏸ إيقاف</button>
-        <button class="btn-primary" style="background:var(--danger);" onclick="resetPomo()">↻ إعادة</button>
+        <button class="btn-primary" style="background:linear-gradient(135deg,#8B6D2E,#B7A77F);" onclick="pausePomo()">⏸ إيقاف</button>
+        <button class="btn-primary" style="background:linear-gradient(135deg,#6B2424,#8B2E2E);color:white;" onclick="resetPomo()">↻ إعادة</button>
       </div>
     </div>
   </section>
 
-  <!-- ===== الإعدادات ===== -->
   <section id="page-settings" class="page-section">
     <h1 class="section-title">⚙️ الإعدادات</h1>
     <p class="section-subtitle">خصص تجربتك</p>
@@ -776,11 +825,9 @@ const SUPABASE_KEY = 'sb_publishable_h4jat3HiWdT1bjlK0wdaLA_k7DReWCw';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* ============ الحالة ============ */
 let currentUser = null;
 let tasks = [];
 let filter = 'all';
-let currentPage = 'dashboard';
 let realtimeChannel = null;
 let countdownInterval = null;
 let pomoTime = 25 * 60;
@@ -809,7 +856,7 @@ async function logout() {
   location.reload();
 }
 
-/* ============ مراقبة الجلسة ============ */
+/* ============ الجلسة ============ */
 sb.auth.onAuthStateChange(async (event, session) => {
   if (session?.user) {
     currentUser = session.user;
@@ -825,7 +872,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
   }
 });
 
-/* ============ تحميل المهام ============ */
+/* ============ تحميل ============ */
 async function loadTasks() {
   const { data, error } = await sb.from('tasks').select('*').order('created_at', { ascending: false });
   if (error) { showToast('❌ ' + error.message); return; }
@@ -856,7 +903,6 @@ async function addTask() {
   await loadTasks();
 }
 
-/* ============ تعديل/حذف ============ */
 async function toggleTask(id, currentDone) {
   const { error } = await sb.from('tasks').update({ done: !currentDone }).eq('id', id);
   if (error) { showToast('❌ ' + error.message); return; }
@@ -879,7 +925,7 @@ function setupRealtime() {
     .subscribe();
 }
 
-/* ============ واجهة ============ */
+/* ============ UI ============ */
 function getDisplayName() {
   const custom = localStorage.getItem('displayName');
   if (custom) return custom;
@@ -887,20 +933,17 @@ function getDisplayName() {
 }
 function updateUI() {
   const name = getDisplayName();
-  const email = currentUser.email || '';
   document.getElementById('sidebarName').textContent = name;
-  document.getElementById('sidebarEmail').textContent = email;
+  document.getElementById('sidebarEmail').textContent = currentUser.email || '';
   const avatarUrl = currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture;
   const av = document.getElementById('sidebarAvatar');
   if (avatarUrl) av.innerHTML = `<img src="${avatarUrl}" alt="">`;
   else av.textContent = name.charAt(0).toUpperCase();
-  // تحية
   const h = new Date().getHours();
   let g = '🌙 مساء الخير';
   if (h < 12) g = '☀️ صباح الخير';
   else if (h < 18) g = '🌤️ مساء الخير';
   document.getElementById('greetingText').textContent = `${g}، ${name}`;
-  // إعدادات
   document.getElementById('displayNameInput').value = name;
   document.getElementById('bemDateInput').value = BEM_DATE.toISOString().split('T')[0];
 }
@@ -940,20 +983,18 @@ function renderTasks() {
     list.innerHTML = `<div class="empty-state"><div class="emoji">🌿</div><div>لا توجد مهام هنا</div></div>`;
     return;
   }
-  list.innerHTML = filtered.map(t => taskHTML(t)).join('');
+  list.innerHTML = filtered.map(taskHTML).join('');
 }
 
 function renderUpcoming() {
   const list = document.getElementById('upcomingTasks');
-  const mine = tasks
-    .filter(t => t.owner_id === currentUser.id && !t.done)
-    .sort((a,b) => (a.due_date || '9999').localeCompare(b.due_date || '9999'))
-    .slice(0, 4);
+  const mine = tasks.filter(t => t.owner_id === currentUser.id && !t.done)
+    .sort((a,b) => (a.due_date || '9999').localeCompare(b.due_date || '9999')).slice(0, 4);
   if (!mine.length) {
     list.innerHTML = `<div class="empty-state" style="padding:24px;"><div>🎉 لا مهام قريبة — أحسنت!</div></div>`;
     return;
   }
-  list.innerHTML = mine.map(t => taskHTML(t)).join('');
+  list.innerHTML = mine.map(taskHTML).join('');
 }
 
 function taskHTML(t) {
@@ -998,15 +1039,15 @@ function renderProgress() {
   el.innerHTML = arr.map((d, i) => {
     const pct = d.total ? Math.round((d.done/d.total)*100) : 0;
     return `
-    <div style="display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border);">
+    <div style="display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid rgba(212,168,83,0.15);">
       <div style="font-size:20px; width:32px;">${medals[i] || (i+1)}</div>
       <div style="flex:1; min-width:100px;">
-        <div style="font-weight:600; font-size:14px;">${esc(d.name)}</div>
-        <div style="background:var(--bg-secondary); border-radius:10px; height:6px; margin-top:6px; overflow:hidden;">
-          <div style="height:100%; width:${pct}%; background:var(--accent); border-radius:10px; transition:width 0.5s;"></div>
+        <div style="font-weight:600; font-size:14px; color:var(--snow);">${esc(d.name)}</div>
+        <div style="background:rgba(11,20,38,0.6); border-radius:10px; height:6px; margin-top:6px; overflow:hidden;">
+          <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,var(--gold),var(--gold-light)); border-radius:10px; transition:width 0.5s;"></div>
         </div>
       </div>
-      <div style="font-weight:700; color:var(--accent); font-size:14px;">${pct}%</div>
+      <div style="font-weight:700; color:var(--gold-light); font-size:14px;">${pct}%</div>
       <div style="font-size:12px; color:var(--text-dim);">${d.done}/${d.total}</div>
     </div>`;
   }).join('');
@@ -1044,15 +1085,12 @@ document.querySelectorAll('.nav-item').forEach(btn => {
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-    const page = btn.dataset.page;
-    document.getElementById('page-' + page).classList.add('active');
-    currentPage = page;
+    document.getElementById('page-' + btn.dataset.page).classList.add('active');
     if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
   };
 });
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
-/* ============ فلاتر ============ */
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1089,8 +1127,7 @@ function saveSettings() {
     localStorage.setItem('bemDate', date);
     startCountdown();
   }
-  updateUI();
-  render();
+  updateUI(); render();
   showToast('✅ تم الحفظ');
 }
 
@@ -1104,7 +1141,6 @@ function showToast(msg) {
   toastTimeout = setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-/* ============ بدء ============ */
 updatePomo();
 </script>
 </body>
