@@ -1,561 +1,1657 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VinlandX — رفيقك للنجاح</title>
-<link rel="icon" type="image/png" href="icon.png">
-<!-- خط Cairo المريح للعين -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0a0f1a" />
+<title>Vinlandx — كرة الحومة 🇩🇿</title>
+<link rel="icon" type="image/png" href="assets/icon.png" />
+<link rel="manifest" href="manifest.json" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* ============ ثيم Sage & Emerald (مريح للعين) ============ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
 :root {
-  --bg-main: #F3F7F4;
-  --bg-card: rgba(255, 255, 255, 0.92);
-  --bg-sidebar: #1F2D27;
-  --text-main: #2D3732;
-  --text-dim: #6B7C74;
-  --accent: #3B825B;       /* أخضر زمردي هادئ */
-  --accent-light: #E4EFE8; /* أخضر فاتح جداً */
-  --accent-hover: #2E6B49;
-  --border: rgba(59, 130, 91, 0.15);
-  --shadow: 0 4px 20px rgba(45, 55, 50, 0.05);
-  --shadow-hover: 0 8px 30px rgba(59, 130, 91, 0.12);
-  --radius: 16px;
-  --sidebar-width: 260px;
+  --green: #22c55e;
+  --green-bright: #4ade80;
+  --green-deep: #16a34a;
+  --red: #ef4444;
+  --red-bright: #f87171;
+  --gold: #fbbf24;
+  --gold-deep: #d97706;
+  --purple: #a78bfa;
+  --blue: #60a5fa;
+  
+  --bg: #0a0f1a;
+  --bg-2: #0f172a;
+  --card: rgba(255,255,255,0.06);
+  --card-hover: rgba(255,255,255,0.1);
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border: rgba(255,255,255,0.1);
+  
+  --glass-blur: 20px;
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
 }
-* { margin:0; padding:0; box-sizing:border-box; font-family: 'Cairo', sans-serif; }
-body {
-  color: var(--text-main);
-  background: var(--bg-main);
-  min-height: 100vh;
+
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --bg-2: #ffffff;
+  --card: rgba(255,255,255,0.85);
+  --card-hover: rgba(255,255,255,0.95);
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --border: rgba(15,23,42,0.08);
+}
+
+html { scroll-behavior: smooth; }
+
+html, body {
+  height: 100%;
   overflow-x: hidden;
 }
 
-/* ============ الخلفيات ============ */
-#bg-layer {
+body {
+  font-family: 'Cairo', system-ui, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  min-height: 100vh;
+  direction: rtl;
+  position: relative;
+  transition: background 0.4s ease, color 0.4s ease;
+  cursor: none;
+}
+
+/* ==== Custom Cursor ==== */
+.cursor-dot {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  background: var(--green-bright);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s, background 0.2s;
+  box-shadow: 0 0 20px var(--green-bright);
+}
+.cursor-ring {
+  position: fixed;
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--green-bright);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: transform 0.15s ease-out, width 0.2s, height 0.2s, border-color 0.2s;
+  opacity: 0.6;
+}
+.cursor-ring.hover {
+  width: 60px;
+  height: 60px;
+  border-color: var(--gold);
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  body { cursor: auto; }
+  .cursor-dot, .cursor-ring { display: none; }
+}
+
+/* ==== Loading Screen ==== */
+#loader {
   position: fixed;
   inset: 0;
-  z-index: -10;
+  background: var(--bg);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s ease, visibility 0.6s;
+}
+#loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+.loader-logo {
+  width: 140px;
+  height: 140px;
+  margin-bottom: 24px;
+  animation: loaderPulse 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 40px rgba(34,197,94,0.5));
+}
+@keyframes loaderPulse {
+  0%,100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+.loader-text {
+  font-size: 1.8rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--green-bright), var(--gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 2px;
+  margin-bottom: 24px;
+}
+.loader-bar {
+  width: 200px;
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+.loader-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--green-bright), transparent);
+  animation: loaderBar 1.5s ease-in-out infinite;
+}
+@keyframes loaderBar {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ==== Background ==== */
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  background-image: url('assets/background1.png');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  transition: background-image 0.8s ease-in-out;
+  transition: transform 0.1s ease-out;
+  will-change: transform;
 }
-#bg-overlay {
+.bg-overlay {
   position: fixed;
   inset: 0;
-  background: linear-gradient(180deg, rgba(243, 247, 244, 0.88) 0%, rgba(243, 247, 244, 0.96) 100%);
-  z-index: -9;
-  pointer-events: none;
-  backdrop-filter: blur(4px);
+  z-index: -2;
+  background: linear-gradient(180deg, 
+    rgba(10,15,26,0.7) 0%, 
+    rgba(10,15,26,0.85) 50%, 
+    rgba(10,15,26,0.95) 100%);
+}
+[data-theme="light"] .bg-overlay {
+  background: linear-gradient(180deg, 
+    rgba(248,250,252,0.85) 0%, 
+    rgba(248,250,252,0.92) 50%, 
+    rgba(248,250,252,0.98) 100%);
 }
 
-/* ============ السايدبار ============ */
-#sidebar {
-  width: var(--sidebar-width);
-  background: var(--bg-sidebar);
-  min-height: 100vh;
+.bg-orb {
   position: fixed;
-  top: 0; right: 0;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: -1;
+  pointer-events: none;
+}
+.orb-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(34,197,94,0.35), transparent 70%);
+  top: -150px;
+  right: -150px;
+  animation: float1 14s ease-in-out infinite;
+}
+.orb-2 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(239,68,68,0.25), transparent 70%);
+  bottom: -200px;
+  left: -200px;
+  animation: float2 18s ease-in-out infinite;
+}
+@keyframes float1 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(-60px,60px) scale(1.15); }
+}
+@keyframes float2 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(80px,-60px) scale(1.1); }
+}
+
+/* ==== Glassmorphism Base ==== */
+.glass {
+  background: var(--card);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 
+    0 8px 32px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+}
+[data-theme="light"] .glass {
+  box-shadow: 
+    0 8px 32px rgba(15,23,42,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+/* ==== Container ==== */
+.container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ==== Header ==== */
+header {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 1300px;
+  z-index: 100;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: all 0.4s cubic-bezier(.4,0,.2,1);
+}
+header.scrolled {
+  top: 8px;
+  padding: 8px 16px;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--text);
+}
+.header-logo img {
+  height: 42px;
+  width: auto;
+  filter: drop-shadow(0 4px 12px rgba(34,197,94,0.4));
+  transition: transform 0.3s;
+}
+.header-logo:hover img {
+  transform: rotate(-8deg) scale(1.05);
+}
+.header-logo-text {
   display: flex;
   flex-direction: column;
-  z-index: 50;
-  transition: transform 0.3s ease;
-  box-shadow: -4px 0 24px rgba(0,0,0,0.1);
+  line-height: 1;
 }
-.sidebar-header { padding: 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.sidebar-logo { display: flex; align-items: center; gap: 12px; }
-.sidebar-logo img { width: 42px; height: 42px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
-.sidebar-logo h2 { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: 1px; }
-.sidebar-logo .tagline { font-size: 11px; color: #8CA396; font-weight: 600; }
-
-.sidebar-nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
-.nav-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 16px; border-radius: 12px;
-  color: #8CA396; font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: all 0.2s;
-  border: none; background: transparent; width: 100%; text-align: right;
+.header-logo-text .main {
+  font-size: 1.15rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--green-bright), var(--gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 1px;
 }
-.nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
-.nav-item.active { background: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(59,130,91,0.3); }
-.nav-item svg { width: 20px; height: 20px; fill: currentColor; }
-
-.sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.05); }
-.user-mini { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-.avatar-sm { width: 36px; height: 36px; border-radius: 10px; background: var(--accent); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; overflow: hidden; }
-.avatar-sm img { width: 100%; height: 100%; object-fit: cover; }
-.user-mini .name { font-size: 14px; font-weight: 700; color: #fff; }
-.user-mini .email { font-size: 11px; color: #8CA396; }
-.logout-btn {
-  width: 100%; padding: 10px; border-radius: 10px;
-  background: rgba(220, 38, 38, 0.1); color: #F87171;
-  border: 1px solid rgba(220, 38, 38, 0.2); font-weight: bold; cursor: pointer; transition: 0.2s;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
+.header-logo-text .sub {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-top: 3px;
 }
-.logout-btn:hover { background: #DC2626; color: #fff; }
 
-/* ============ المحتوى الرئيسي ============ */
-#mainContent { margin-right: var(--sidebar-width); padding: 24px 28px 40px; min-height: 100vh; transition: margin 0.3s; }
-.mobile-header { display: none; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; }
-.menu-toggle { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--accent); display: flex; align-items: center; justify-content: center; }
+/* ==== Nav ==== */
+nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+nav a {
+  padding: 8px 14px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.25s;
+  position: relative;
+}
+nav a:hover {
+  color: var(--text);
+  background: rgba(255,255,255,0.05);
+}
+nav a.active {
+  color: var(--green-bright);
+  background: rgba(34,197,94,0.15);
+}
+[data-theme="light"] nav a.active {
+  background: rgba(34,197,94,0.12);
+}
 
-/* ============ الصفحات ============ */
-.page-section { display: none; animation: fadeIn 0.4s ease; }
-.page-section.active { display: block; }
-@keyframes fadeIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
-.section-title { font-size: 24px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
-.section-title svg { width: 28px; height: 28px; fill: var(--accent); }
-.section-subtitle { font-size: 14px; color: var(--text-dim); margin-bottom: 24px; font-weight: 600; }
+/* ==== Header Actions ==== */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-/* ============ البطاقات ============ */
-.card {
-  background: var(--bg-card);
-  backdrop-filter: blur(12px);
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.05);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s;
+  padding: 0;
+}
+.icon-btn:hover {
+  background: rgba(34,197,94,0.15);
+  border-color: var(--green);
+  transform: translateY(-2px);
+}
+.icon-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.user-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.25s;
+  font-family: inherit;
+  color: var(--text);
+}
+.user-btn:hover {
+  background: rgba(34,197,94,0.15);
+  border-color: var(--green);
+}
+.user-btn img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--green);
+}
+.user-btn span {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #4285f4, #34a853);
+  border: none;
+  color: #fff;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 16px rgba(66,133,244,0.35);
+}
+.login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(66,133,244,0.5);
+}
+.login-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: #fff;
+}
+
+/* ==== Mobile Menu ==== */
+.mobile-toggle {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  nav {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 16px;
+    right: 16px;
+    flex-direction: column;
+    padding: 16px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  nav.open { display: flex; }
+  nav a { width: 100%; text-align: right; padding: 12px 16px; }
+  .mobile-toggle { display: flex; }
+  .user-btn span { display: none; }
+}
+
+/* ==== Main Content ==== */
+main {
+  padding-top: 100px;
+  padding-bottom: 60px;
+  min-height: 100vh;
+}
+
+/* ==== Hero ==== */
+.hero {
+  padding: 60px 0 40px;
+  text-align: center;
+  position: relative;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: rgba(34,197,94,0.15);
+  border: 1px solid rgba(34,197,94,0.3);
+  color: var(--green-bright);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-bottom: 24px;
+  animation: fadeInUp 0.8s ease 0.2s backwards;
+}
+.hero-badge svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+
+.hero h1 {
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  font-weight: 900;
+  line-height: 1.1;
   margin-bottom: 20px;
-  box-shadow: var(--shadow);
+  letter-spacing: -1px;
+  animation: fadeInUp 0.8s ease 0.3s backwards;
+}
+.hero h1 .green {
+  background: linear-gradient(135deg, var(--green-bright), var(--green));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 30px rgba(34,197,94,0.5));
+}
+.hero h1 .gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 30px rgba(251,191,36,0.5));
+}
+
+.hero p {
+  font-size: clamp(0.9rem, 2vw, 1.15rem);
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto 40px;
+  font-weight: 600;
+  line-height: 1.7;
+  animation: fadeInUp 0.8s ease 0.4s backwards;
+}
+
+.hero-cta {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeInUp 0.8s ease 0.5s backwards;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 32px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--green), var(--green-deep));
+  color: #fff;
+  font-family: inherit;
+  font-weight: 900;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s;
+  box-shadow: 
+    0 8px 24px rgba(34,197,94,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.6s;
+}
+.btn-primary:hover::before {
+  left: 100%;
+}
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 
+    0 16px 40px rgba(34,197,94,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+}
+.btn-primary svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.5;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 32px;
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  color: var(--text);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  text-decoration: none;
   transition: all 0.3s;
 }
-.card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
-.card-title { font-size: 16px; font-weight: 800; color: var(--accent); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
-.card-title svg { width: 20px; height: 20px; fill: var(--accent); }
-
-/* ============ الإحصائيات ============ */
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 24px; }
-.stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; box-shadow: var(--shadow); }
-.stat-num { font-size: 32px; font-weight: 800; color: var(--accent); line-height: 1.2; }
-.stat-label { font-size: 13px; color: var(--text-dim); font-weight: 600; margin-top: 4px; }
-
-/* ============ الجدول ============ */
-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-th, td { padding: 14px 12px; text-align: right; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 600; }
-th { background: var(--accent-light); color: var(--accent); font-weight: 800; }
-tr:hover td { background: rgba(228, 239, 232, 0.4); }
-
-/* ============ المهام ============ */
-ul { list-style: none; }
-li.task {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 16px; background: #fff; border: 1px solid var(--border);
-  border-radius: 12px; margin-bottom: 10px; transition: 0.2s;
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: var(--green);
+  transform: translateY(-3px);
 }
-li.task:hover { border-color: var(--accent); }
-li.task.done { opacity: 0.6; background: var(--accent-light); }
-li.task.done .task-text { text-decoration: line-through; color: var(--text-dim); }
-.task-text { font-weight: 700; font-size: 15px; }
-.task-actions { display: flex; gap: 8px; }
-.btn-icon {
-  width: 34px; height: 34px; border-radius: 8px; border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; transition: 0.2s;
+.btn-secondary svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.5;
 }
-.btn-icon svg { width: 18px; height: 18px; fill: currentColor; }
-.btn-check { background: var(--accent-light); color: var(--accent); }
-.btn-check:hover { background: var(--accent); color: #fff; }
-.btn-del { background: #FEE2E2; color: #DC2626; }
-.btn-del:hover { background: #DC2626; color: #fff; }
 
-/* ============ الفورم والأزرار ============ */
-input, select, textarea {
-  padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border);
-  background: #fff; color: var(--text-main); font-size: 14px; font-weight: 600;
-  outline: none; transition: 0.2s;
+/* ==== Stats Grid ==== */
+.stats-section {
+  margin: 60px 0;
+  animation: fadeInUp 0.8s ease 0.6s backwards;
 }
-input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
-.btn-primary {
-  padding: 12px 24px; background: var(--accent); color: #fff;
-  border: none; border-radius: 12px; cursor: pointer; font-weight: 800; font-size: 14px;
-  transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 18px;
 }
-.btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,91,0.2); }
-.btn-primary svg { width: 18px; height: 18px; fill: currentColor; }
-.btn-outline { background: transparent; border: 2px solid var(--accent); color: var(--accent); }
-.btn-outline:hover { background: var(--accent); color: #fff; }
 
-/* ============ الشجرة ============ */
-.tree-container { text-align: center; font-size: 90px; margin: 20px 0; transition: 0.5s; }
-.tree-container svg { width: 100px; height: 100px; fill: var(--accent); filter: drop-shadow(0 10px 15px rgba(59,130,91,0.3)); }
-.tree-container.wilted svg { fill: #D1D5DB; filter: none; }
-
-/* ============ البطاقات (Flashcards) ============ */
-.flashcard-wrap { perspective: 1000px; width: 100%; height: 220px; margin-bottom: 20px; cursor: pointer; }
-.flashcard { width: 100%; height: 100%; position: relative; transition: transform 0.6s; transform-style: preserve-3d; }
-.flashcard-wrap.flipped .flashcard { transform: rotateY(180deg); }
-.fc-front, .fc-back {
-  position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
-  border-radius: var(--radius); display: flex; align-items: center; justify-content: center;
-  padding: 20px; text-align: center; font-size: 20px; font-weight: 800;
-  box-shadow: var(--shadow);
+.stat-card {
+  padding: 28px 20px;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(.4,0,.2,1);
+  position: relative;
+  overflow: hidden;
 }
-.fc-front { background: #fff; border: 2px solid var(--accent); color: var(--accent); }
-.fc-back { background: var(--accent); color: #fff; transform: rotateY(180deg); }
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--green-bright), var(--gold));
+  transform: scaleX(0);
+  transition: transform 0.4s;
+  transform-origin: right;
+}
+.stat-card:hover::before {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+.stat-card:hover {
+  transform: translateY(-6px);
+  background: var(--card-hover);
+}
 
-/* ============ الشات ============ */
-.chat-box { height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 15px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 15px; }
-.msg { padding: 12px 16px; border-radius: 14px; max-width: 80%; font-size: 14px; font-weight: 600; line-height: 1.5; }
-.msg.mine { background: var(--accent); color: #fff; align-self: flex-start; border-bottom-right-radius: 4px; }
-.msg.other { background: var(--accent-light); color: var(--text-main); align-self: flex-end; border-bottom-left-radius: 4px; }
-.msg-name { font-size: 11px; opacity: 0.7; margin-bottom: 4px; font-weight: 700; }
+.stat-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  transition: transform 0.3s;
+}
+.stat-card:hover .stat-icon {
+  transform: scale(1.1) rotate(-5deg);
+}
+.stat-icon svg {
+  width: 28px;
+  height: 28px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.stat-icon.green { background: linear-gradient(135deg, var(--green-bright), var(--green-deep)); box-shadow: 0 8px 24px rgba(34,197,94,0.4); }
+.stat-icon.red { background: linear-gradient(135deg, var(--red-bright), var(--red)); box-shadow: 0 8px 24px rgba(239,68,68,0.4); }
+.stat-icon.gold { background: linear-gradient(135deg, var(--gold), var(--gold-deep)); box-shadow: 0 8px 24px rgba(251,191,36,0.4); }
+.stat-icon.blue { background: linear-gradient(135deg, var(--blue), #3b82f6); box-shadow: 0 8px 24px rgba(96,165,250,0.4); }
+.stat-icon.purple { background: linear-gradient(135deg, var(--purple), #8b5cf6); box-shadow: 0 8px 24px rgba(167,139,250,0.4); }
 
-/* ============ التقويم ============ */
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 10px; }
-.cal-day { padding: 12px; text-align: center; border-radius: 10px; border: 1px solid var(--border); font-size: 13px; font-weight: 600; min-height: 80px; position: relative; background: #fff; }
-.cal-day.header { background: var(--accent); color: #fff; font-weight: 800; min-height: auto; padding: 10px; border: none; }
-.cal-day.has-exam { border-color: var(--accent); background: var(--accent-light); font-weight: 800; }
-.cal-day .exam-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); }
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--text), var(--text-muted));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: transform 0.3s;
+}
+.stat-card:hover .stat-value {
+  transform: scale(1.05);
+}
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
 
-/* ============ Toast ============ */
+/* ==== Section ==== */
+section {
+  margin: 60px 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-title .icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--green-bright), var(--green-deep));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(34,197,94,0.4);
+}
+.section-title .icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.section-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green-bright);
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 0.85rem;
+  transition: gap 0.25s;
+}
+.section-link:hover { gap: 12px; }
+.section-link svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.5;
+}
+
+/* ==== Players Grid ==== */
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+/* ==== FIFA Card ==== */
+.fifa-card {
+  position: relative;
+  border-radius: 20px;
+  padding: 22px;
+  text-align: center;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(.4,0,.2,1);
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+.fifa-card.gold {
+  background: linear-gradient(160deg, #fef9c3 0%, #fde68a 20%, #fbbf24 50%, #d97706 85%, #92400e 100%);
+  box-shadow: 
+    0 20px 60px rgba(217,119,6,0.4),
+    inset 0 0 0 2px rgba(255,255,255,0.5);
+}
+.fifa-card.silver {
+  background: linear-gradient(160deg, #f8fafc 0%, #e2e8f0 25%, #cbd5e1 55%, #94a3b8 85%, #64748b 100%);
+  box-shadow: 
+    0 20px 60px rgba(100,116,139,0.4),
+    inset 0 0 0 2px rgba(255,255,255,0.6);
+}
+.fifa-card.bronze {
+  background: linear-gradient(160deg, #fed7aa 0%, #fb923c 25%, #ea580c 55%, #c2410c 85%, #7c2d12 100%);
+  box-shadow: 
+    0 20px 60px rgba(194,65,12,0.4),
+    inset 0 0 0 2px rgba(255,255,255,0.4);
+}
+
+.fifa-card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%);
+  transform: translateX(-100%);
+  transition: transform 0.8s;
+  pointer-events: none;
+}
+.fifa-card:hover::before {
+  transform: translateX(100%);
+}
+
+.fifa-card:hover {
+  transform: translateY(-12px) rotateY(6deg) rotateX(-4deg) scale(1.03);
+}
+
+.fifa-rating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+.fifa-rating-num {
+  font-size: 2.8rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #422006;
+  text-shadow: 0 2px 4px rgba(255,255,255,0.5);
+}
+.fifa-card.silver .fifa-rating-num { color: #1e293b; text-shadow: 0 2px 4px rgba(255,255,255,0.7); }
+.fifa-card.bronze .fifa-rating-num { color: #431407; text-shadow: 0 2px 4px rgba(255,255,255,0.3); }
+
+.fifa-position {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  background: rgba(66,32,6,0.9);
+  color: #fef3c7;
+}
+.fifa-card.silver .fifa-position { background: rgba(30,41,59,0.9); color: #f1f5f9; }
+.fifa-card.bronze .fifa-position { background: rgba(67,20,7,0.9); color: #fed7aa; }
+
+.fifa-photo-wrap {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 16px;
+  position: relative;
+  z-index: 1;
+}
+.fifa-photo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid rgba(255,255,255,0.9);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  background: #f1f5f9;
+}
+.fifa-photo-wrap::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.4), transparent 70%);
+  z-index: -1;
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+@keyframes pulseGlow {
+  0%,100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+.fifa-name {
+  font-size: 1.15rem;
+  font-weight: 900;
+  margin-bottom: 12px;
+  color: #422006;
+  text-shadow: 0 2px 4px rgba(255,255,255,0.5);
+  position: relative;
+  z-index: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fifa-card.silver .fifa-name { color: #1e293b; }
+.fifa-card.bronze .fifa-name { color: #431407; }
+
+.fifa-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+  padding-top: 12px;
+  border-top: 2px solid rgba(0,0,0,0.15);
+  position: relative;
+  z-index: 1;
+}
+.fifa-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #422006;
+}
+.fifa-card.silver .fifa-stat { color: #1e293b; }
+.fifa-card.bronze .fifa-stat { color: #431407; }
+.fifa-stat-val {
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+/* ==== Matches List ==== */
+.matches-grid {
+  display: grid;
+  gap: 12px;
+}
+.match-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  transition: all 0.3s;
+  gap: 12px;
+  cursor: pointer;
+}
+.match-card:hover {
+  transform: translateX(-4px);
+  background: var(--card-hover);
+}
+.match-team {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+.match-team.right { justify-content: flex-end; text-align: left; }
+.match-team-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--green-bright), var(--green-deep));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 900;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.match-score {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  background: rgba(34,197,94,0.15);
+  border: 1px solid rgba(34,197,94,0.3);
+  color: var(--green-bright);
+  font-weight: 900;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  min-width: 70px;
+  text-align: center;
+}
+.match-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-align: center;
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* ==== Empty ==== */
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.empty svg {
+  width: 64px;
+  height: 64px;
+  stroke: var(--green-bright);
+  fill: none;
+  stroke-width: 1.5;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+.empty h3 {
+  font-size: 1.15rem;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.empty p { font-size: 0.85rem; }
+
+/* ==== Loading / Skeleton ==== */
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 100%);
+  background-size: 200% 100%;
+  animation: skeleton 1.5s linear infinite;
+  border-radius: var(--radius-md);
+}
+@keyframes skeleton {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton-card {
+  height: 260px;
+}
+
+/* ==== Animations ==== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ==== Toast ==== */
 .toast {
-  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
-  background: var(--text-main); color: #fff; padding: 14px 28px; border-radius: 12px;
-  font-weight: 700; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0;
-  transition: all 0.35s cubic-bezier(.4,0,.2,1); z-index: 999;
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  padding: 14px 24px;
+  border-radius: var(--radius-md);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  font-weight: 700;
+  font-size: 0.9rem;
+  z-index: 500;
+  transition: transform 0.4s cubic-bezier(.4,0,.2,1);
+  max-width: 90vw;
 }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--green); color: var(--green-bright); }
+.toast.error { border-color: var(--red); color: var(--red-bright); }
 
-/* ============ Responsive ============ */
-@media (max-width: 900px) {
-  #sidebar { transform: translateX(100%); }
-  #sidebar.open { transform: translateX(0); }
-  #mainContent { margin-right: 0; padding: 16px; }
-  .mobile-header { display: flex; }
+/* ==== Scrollbar ==== */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--green), var(--green-deep));
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--green-bright); }
+
+/* ==== Responsive ==== */
+@media (max-width: 768px) {
+  .container { padding: 0 16px; }
+  main { padding-top: 90px; }
+  .hero { padding: 40px 0 20px; }
+  .section-title { font-size: 1.2rem; }
+  .section-title .icon { width: 34px; height: 34px; }
+  .section-title .icon svg { width: 18px; height: 18px; }
+  .stat-value { font-size: 2rem; }
+  .players-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .fifa-card { padding: 16px; }
+  .fifa-rating-num { font-size: 2rem; }
+  .fifa-photo-wrap { width: 80px; height: 80px; }
+  .match-card { padding: 12px 14px; }
+  .match-team { font-size: 0.85rem; }
+  .match-team-avatar { width: 30px; height: 30px; font-size: 0.75rem; }
+  .match-score { padding: 6px 12px; font-size: 0.9rem; min-width: 60px; }
+}
+
+@media (max-width: 480px) {
+  .hero h1 { font-size: 2rem; }
+  .hero-cta { flex-direction: column; }
+  .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+  .players-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .stat-card { padding: 20px 12px; }
+  .stat-icon { width: 44px; height: 44px; }
+  .stat-icon svg { width: 22px; height: 22px; }
+  .stat-value { font-size: 1.7rem; }
+  .header-logo img { height: 34px; }
+  .header-logo-text .main { font-size: 1rem; }
 }
 </style>
 </head>
 <body>
 
-<!-- خلفية قابلة للتغيير -->
-<div id="bg-layer"></div>
-<div id="bg-overlay"></div>
+<!-- ===== CUSTOM CURSOR ===== -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
 
-<!-- السايدبار -->
-<aside id="sidebar">
-  <div class="sidebar-header">
-    <div class="sidebar-logo">
-      <img src="icon.png" alt="Logo">
-      <div><h2>VinlandX</h2><div class="tagline">BEM 2026</div></div>
+<!-- ===== LOADER ===== -->
+<div id="loader">
+  <img src="assets/logo.png" alt="Vinlandx" class="loader-logo" onerror="this.style.display='none'" />
+  <div class="loader-text">VINLANDX</div>
+  <div class="loader-bar"></div>
+</div>
+
+<!-- ===== BACKGROUND ===== -->
+<div class="bg-layer" id="bgLayer"></div>
+<div class="bg-overlay"></div>
+<div class="bg-orb orb-1"></div>
+<div class="bg-orb orb-2"></div>
+
+<!-- ===== HEADER ===== -->
+<header id="header">
+  <a href="index.html" class="header-logo">
+    <img src="assets/logo.png" alt="Vinlandx" onerror="this.style.display='none'" />
+    <div class="header-logo-text">
+      <span class="main">VINLANDX</span>
+      <span class="sub">كرة الحومة 🇩🇿</span>
     </div>
-  </div>
-  <nav class="sidebar-nav">
-    <button class="nav-item active" data-page="dashboard">
-      <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> لوحة التحكم
-    </button>
-    <button class="nav-item" data-page="tasks">
-      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> المهام
-    </button>
-    <button class="nav-item" data-page="schedule">
-      <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg> الفروض
-    </button>
-    <button class="nav-item" data-page="flashcards">
-      <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> البطاقات
-    </button>
-    <button class="nav-item" data-page="chat">
-      <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg> الشات
-    </button>
-    <button class="nav-item" data-page="settings">
-      <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg> الإعدادات
-    </button>
+  </a>
+
+  <nav id="nav">
+    <a href="index.html" class="active">الرئيسية</a>
+    <a href="players.html">اللاعبين</a>
+    <a href="matches.html">الماتشات</a>
+    <a href="leaderboard.html">الترتيب</a>
+    <a href="compare.html">قارن</a>
+    <a href="teams.html">الفرق</a>
   </nav>
-  <div class="sidebar-footer">
-    <div class="user-mini">
-      <div class="avatar-sm" id="sidebarAvatar">V</div>
-      <div><div class="name" id="sidebarName">مستخدم</div><div class="email" id="sidebarEmail">—</div></div>
+
+  <div class="header-actions">
+    <button class="icon-btn mobile-toggle" onclick="toggleMobileNav()" aria-label="القائمة">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" aria-label="الوضع">
+      <svg viewBox="0 0 24 24" id="themeIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <div id="userArea">
+      <button class="login-btn" onclick="signInWithGoogle()">
+        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        دخول
+      </button>
     </div>
-    <button class="logout-btn" onclick="logout()">
-      <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
-      خروج
-    </button>
   </div>
-</aside>
+</header>
 
-<!-- المحتوى -->
-<main id="mainContent">
-  <div class="mobile-header">
-    <div style="display:flex; gap:8px; align-items:center; font-weight:900; color:var(--accent);">VinlandX</div>
-    <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
-      <svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:currentColor;"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-    </button>
-  </div>
-
-  <!-- لوحة التحكم -->
-  <section id="page-dashboard" class="page-section active">
-    <h1 class="section-title">مرحباً، <span id="greetName"></span></h1>
-    <p class="section-subtitle">أنجز مهامك لتنمو شجرتك!</p>
+<!-- ===== MAIN ===== -->
+<main>
+  <div class="container">
     
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-num" id="totalTasksCount">0</div>
-        <div class="stat-label">مهام منجزة</div>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        منصة كرة الحومة الجزائرية
       </div>
-      <div class="stat-card">
-        <div class="stat-num" id="streakCount">0</div>
-        <div class="stat-label">أيام متتالية</div>
+      <h1>
+        أهلاً بيك في <span class="green">Vinlandx</span><br>
+        كرة <span class="gold">الحومة</span> 🇩🇿
+      </h1>
+      <p>
+        تابع لاعبين الحومة، سجّل ماتشاتهم، وتنافس مع صحابك في بطولات كرة القدم. كل شي في مكان واحد.
+      </p>
+      <div class="hero-cta">
+        <a href="players.html" class="btn-primary">
+          <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          شوف اللاعبين
+        </a>
+        <a href="leaderboard.html" class="btn-secondary">
+          <svg viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          الترتيب
+        </a>
       </div>
-    </div>
+    </section>
 
-    <div class="card" style="text-align:center;">
-      <div class="card-title" style="justify-content:center;">شجرة الإنجاز</div>
-      <div class="tree-container" id="studyTree">
-        <!-- شجرة SVG -->
-        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+    <!-- STATS -->
+    <section class="stats-section fade-in">
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card glass skeleton"></div>
+        <div class="stat-card glass skeleton"></div>
+        <div class="stat-card glass skeleton"></div>
+        <div class="stat-card glass skeleton"></div>
       </div>
-      <p style="font-size:13px; color:var(--text-dim); font-weight:600;" id="treeStatus">أنجز مهام لتنمو!</p>
-    </div>
+    </section>
 
-    <div class="card">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
-        أقرب فروض
+    <!-- PLAYERS -->
+    <section class="fade-in">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="icon">
+            <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          </span>
+          نجوم الحومة
+        </h2>
+        <a href="players.html" class="section-link">
+          شوف الكل
+          <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </a>
       </div>
-      <div id="upcomingExamsList"></div>
-    </div>
-  </section>
+      <div class="players-grid" id="playersGrid">
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+      </div>
+    </section>
 
-  <!-- المهام -->
-  <section id="page-tasks" class="page-section">
-    <h1 class="section-title">المهام</h1>
-    <div class="card">
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <input type="text" id="taskText" placeholder="مهمة جديدة..." style="flex:1;">
-        <button class="btn-primary" onclick="addTask()">
-          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> إضافة
-        </button>
+    <!-- MATCHES -->
+    <section class="fade-in">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="icon" style="background: linear-gradient(135deg, var(--red-bright), var(--red)); box-shadow: 0 8px 24px rgba(239,68,68,0.4);">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20M2 12h20"/></svg>
+          </span>
+          آخر الماتشات
+        </h2>
+        <a href="matches.html" class="section-link">
+          كل الماتشات
+          <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </a>
       </div>
-    </div>
-    <div class="card"><ul id="taskList"></ul></div>
-  </section>
+      <div class="matches-grid" id="matchesGrid">
+        <div class="skeleton" style="height: 76px;"></div>
+        <div class="skeleton" style="height: 76px;"></div>
+        <div class="skeleton" style="height: 76px;"></div>
+      </div>
+    </section>
 
-  <!-- الفروض -->
-  <section id="page-schedule" class="page-section">
-    <h1 class="section-title">رزنامة الفروض</h1>
-    <div class="card">
-      <table><thead><tr><th>التاريخ</th><th>المادة</th><th>التوقيت</th></tr></thead><tbody id="examsTableBody"></tbody></table>
-    </div>
-  </section>
-
-  <!-- البطاقات -->
-  <section id="page-flashcards" class="page-section">
-    <h1 class="section-title">بطاقات الحفظ</h1>
-    <div class="card">
-      <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
-        <input type="text" id="fcQ" placeholder="السؤال" style="flex:1;">
-        <input type="text" id="fcA" placeholder="الجواب" style="flex:1;">
-        <button class="btn-primary" onclick="addFlashcard()">إضافة</button>
-      </div>
-      <div class="flashcard-wrap" id="fcWrap" onclick="this.classList.toggle('flipped')">
-        <div class="flashcard">
-          <div class="fc-front" id="fcFront">اضغط لرؤية البطاقة</div>
-          <div class="fc-back" id="fcBack">الجواب</div>
-        </div>
-      </div>
-      <button class="btn-primary" style="width:100%;" onclick="nextFlashcard()">البطاقة التالية →</button>
-    </div>
-  </section>
-
-  <!-- الشات -->
-  <section id="page-chat" class="page-section">
-    <h1 class="section-title">شات المجموعة</h1>
-    <div class="card">
-      <div class="chat-box" id="chatBox"></div>
-      <div style="display:flex; gap:10px;">
-        <input type="text" id="chatInput" placeholder="اكتب رسالة..." style="flex:1;" onkeypress="if(event.key==='Enter') sendMessage()">
-        <button class="btn-primary" onclick="sendMessage()">
-          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- الإعدادات -->
-  <section id="page-settings" class="page-section">
-    <h1 class="section-title">الإعدادات</h1>
-    <div class="card">
-      <div class="card-title">الخلفية</div>
-      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px;">
-        <button class="btn-primary btn-outline" onclick="changeBg('background1.png')">خلفية 1</button>
-        <button class="btn-primary btn-outline" onclick="changeBg('background2.png')">خلفية 2</button>
-        <button class="btn-primary btn-outline" onclick="changeBg('background3.png')">خلفية 3</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">الإشعارات</div>
-      <button class="btn-primary" onclick="requestNotifications()">تفعيل إشعارات المتصفح</button>
-    </div>
-    <div class="card">
-      <div class="card-title">موسيقى التركيز</div>
-      <button class="btn-primary" onclick="toggleMusic()" id="musicBtn">▶ تشغيل</button>
-    </div>
-  </section>
+  </div>
 </main>
 
+<!-- ===== TOAST ===== -->
 <div class="toast" id="toast"></div>
-<audio id="bgMusic" loop><source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg"></audio>
 
 <script>
-const sb = supabase.createClient('https://vamwvezmeztadbeydfdy.supabase.co', 'sb_publishable_h4jat3HiWdT1bjlK0wdaLA_k7DReWCw');
+// ============= CONFIG =============
+const SUPABASE_URL = "https://ncrycgbrstafdouvipzc.supabase.co";
+const SUPABASE_KEY = "sb_publishable_6t2dkU27Rkinsoo8MhYAEQ_FSgj4G73";
+
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============= STATE =============
 let currentUser = null;
-let tasks = [], exams = [], flashcards = [], messages = [];
-let fcIndex = 0;
+let currentProfile = null;
+let allPlayers = [];
+let allMatches = [];
+let allEvents = [];
 
-sb.auth.onAuthStateChange(async (e, session) => {
-  if (session?.user) {
+// ============= LOADER =============
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    document.getElementById("loader").classList.add("hidden");
+  }, 800);
+});
+
+// ============= CUSTOM CURSOR =============
+const cursorDot = document.getElementById("cursorDot");
+const cursorRing = document.getElementById("cursorRing");
+let mouseX = 0, mouseY = 0;
+let ringX = 0, ringY = 0;
+
+document.addEventListener("mousemove", (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursorDot.style.left = mouseX + "px";
+  cursorDot.style.top = mouseY + "px";
+});
+
+function animateRing() {
+  ringX += (mouseX - ringX) * 0.15;
+  ringY += (mouseY - ringY) * 0.15;
+  cursorRing.style.left = ringX + "px";
+  cursorRing.style.top = ringY + "px";
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+
+document.querySelectorAll("a, button, .fifa-card, .match-card, .stat-card").forEach(el => {
+  el.addEventListener("mouseenter", () => cursorRing.classList.add("hover"));
+  el.addEventListener("mouseleave", () => cursorRing.classList.remove("hover"));
+});
+
+document.addEventListener("mouseover", (e) => {
+  if (e.target.closest("a, button, .fifa-card, .match-card, .stat-card, .icon-btn, .user-btn")) {
+    cursorRing.classList.add("hover");
+  }
+});
+
+// ============= THEME =============
+function getSavedTheme() {
+  return localStorage.getItem("vinlandx_theme") || "dark";
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const icon = document.getElementById("themeIcon");
+  if (theme === "dark") {
+    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  } else {
+    icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  }
+}
+
+function toggleTheme() {
+  const current = getSavedTheme();
+  const next = current === "dark" ? "light" : "dark";
+  localStorage.setItem("vinlandx_theme", next);
+  applyTheme(next);
+  showToast(next === "dark" ? "🌙 الوضع الداكن" : "☀️ الوضع الفاتح", "success");
+}
+
+applyTheme(getSavedTheme());
+
+// ============= MOBILE NAV =============
+function toggleMobileNav() {
+  document.getElementById("nav").classList.toggle("open");
+}
+
+// ============= HEADER SCROLL =============
+let lastScroll = 0;
+window.addEventListener("scroll", () => {
+  const header = document.getElementById("header");
+  if (window.scrollY > 50) {
+    header.classList.add("scrolled");
+  } else {
+    header.classList.remove("scrolled");
+  }
+  lastScroll = window.scrollY;
+});
+
+// ============= PARALLAX BACKGROUND =============
+document.addEventListener("mousemove", (e) => {
+  const bg = document.getElementById("bgLayer");
+  const x = (e.clientX / window.innerWidth - 0.5) * 20;
+  const y = (e.clientY / window.innerHeight - 0.5) * 20;
+  bg.style.transform = `translate(${x}px, ${y}px) scale(1.05)`;
+});
+
+// ============= FADE IN ON SCROLL =============
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("visible");
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
+
+// ============= AUTH =============
+async function signInWithGoogle() {
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin + window.location.pathname
+      }
+    });
+    if (error) throw error;
+  } catch (err) {
+    showToast("خطأ في تسجيل الدخول: " + err.message, "error");
+  }
+}
+
+async function signOut() {
+  await supabaseClient.auth.signOut();
+  currentUser = null;
+  currentProfile = null;
+  renderUserArea();
+  showToast("تسجّل الخروج", "success");
+}
+
+async function checkAuth() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) {
     currentUser = session.user;
-    document.getElementById('sidebarName').textContent = currentUser.email.split('@')[0];
-    document.getElementById('greetName').textContent = currentUser.email.split('@')[0];
-    loadData();
-    initBg();
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", currentUser.id)
+      .single();
+    currentProfile = profile;
   }
-});
-
-async function loadData() {
-  const { data: t } = await sb.from('tasks').select('*');
-  const { data: ex } = await sb.from('exams').select('*').order('exam_date');
-  const { data: fc } = await sb.from('flashcards').select('*');
-  const { data: msg } = await sb.from('messages').select('*').order('created_at');
-  
-  tasks = t || []; exams = ex || []; flashcards = fc || []; messages = msg || [];
-  
-  renderTasks();
-  renderExams();
-  renderChat();
-  renderFlashcard();
-  updateTree();
+  renderUserArea();
 }
 
-// --- المهام والشجرة ---
-function renderTasks() {
-  const done = tasks.filter(x=>x.done).length;
-  document.getElementById('totalTasksCount').textContent = done;
-  document.getElementById('taskList').innerHTML = tasks.map(t => `
-    <li class="task ${t.done ? 'done' : ''}">
-      <span class="task-text">${t.text}</span>
-      <div class="task-actions">
-        <button class="btn-icon btn-check" onclick="toggleTask(${t.id}, ${t.done})">
-          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-        </button>
-        <button class="btn-icon btn-del" onclick="deleteTask(${t.id})">
-          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-        </button>
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  if (session) {
+    currentUser = session.user;
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", currentUser.id)
+      .single();
+    currentProfile = profile;
+  } else {
+    currentUser = null;
+    currentProfile = null;
+  }
+  renderUserArea();
+});
+
+function renderUserArea() {
+  const area = document.getElementById("userArea");
+  if (currentUser && currentProfile) {
+    const name = currentProfile.full_name || currentProfile.email?.split("@")[0] || "لاعب";
+    const avatar = currentProfile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=22c55e&color=fff`;
+    area.innerHTML = `
+      <button class="user-btn" onclick="showUserMenu(event)">
+        <img src="${avatar}" alt="${escapeHTML(name)}" />
+        <span>${escapeHTML(name)}</span>
+      </button>
+    `;
+  } else {
+    area.innerHTML = `
+      <button class="login-btn" onclick="signInWithGoogle()">
+        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        دخول
+      </button>
+    `;
+  }
+}
+
+function showUserMenu(e) {
+  e.stopPropagation();
+  // قائمة بسيطة
+  if (confirm("تسجّل الخروج؟")) {
+    signOut();
+  }
+}
+
+// ============= HELPERS =============
+function escapeHTML(s) {
+  if (!s) return "";
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function calcOverall(p) {
+  return Math.round((p.strength + p.shot_power + p.pace + p.dribbling + p.passing + p.defense) / 6);
+}
+
+function getCardTier(overall) {
+  if (overall >= 85) return "gold";
+  if (overall >= 70) return "silver";
+  return "bronze";
+}
+
+function defaultPhoto() {
+  return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23334"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7" fill="none" stroke="%2322c55e" stroke-width="1.5"/></svg>';
+}
+
+function formatDate(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const days = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+  const months = ["جانفي", "فيفري", "مارس", "أفريل", "ماي", "جوان", "جويلية", "أوت", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+  return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+}
+
+async function fetchSafe(table, query = "") {
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/${table}${query ? "?" + query : ""}`;
+    const res = await fetch(url, {
+      headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+}
+
+// ============= TOAST =============
+let toastTimer;
+function showToast(msg, type = "success") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast " + type;
+  clearTimeout(toastTimer);
+  setTimeout(() => t.classList.add("show"), 10);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+// ============= LOAD DATA =============
+async function loadAll() {
+  try {
+    const [players, matches, events] = await Promise.all([
+      fetchSafe("players", "select=*&order=created_at.desc"),
+      fetchSafe("matches", "select=*&order=match_date.desc&limit=3"),
+      fetchSafe("events", "select=event_type")
+    ]);
+    allPlayers = players;
+    allMatches = matches;
+    allEvents = events;
+
+    renderStats();
+    renderPlayers();
+    renderMatches();
+    setupRealtime();
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// ============= RENDER STATS =============
+function renderStats() {
+  const totalPlayers = allPlayers.length;
+  const totalGoals = allEvents.filter(e => e.event_type === "goal").length;
+  const totalAssists = allEvents.filter(e => e.event_type === "assist").length;
+  const totalMatches = allMatches.length;
+
+  document.getElementById("statsGrid").innerHTML = `
+    <div class="stat-card glass">
+      <div class="stat-icon green">
+        <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
       </div>
-    </li>
-  `).join('');
-}
-
-function updateTree() {
-  const done = tasks.filter(x=>x.done).length;
-  const tree = document.getElementById('studyTree');
-  const status = document.getElementById('treeStatus');
-  
-  if (done === 0) { tree.classList.add('wilted'); status.textContent = 'أنجز مهام لتنمو!'; }
-  else if (done < 5) { tree.classList.remove('wilted'); status.textContent = 'بداية جيدة!'; }
-  else if (done < 15) { status.textContent = 'شجرة تكبر!'; }
-  else if (done < 30) { status.textContent = 'شجرة قوية!'; }
-  else { status.textContent = 'غابة كاملة! أسطورة!'; }
-  
-  document.getElementById('streakCount').textContent = done > 0 ? 3 : 0; 
-}
-
-function toggleTask(id, current) { sb.from('tasks').update({ done: !current }).eq('id', id).then(loadData); }
-async function deleteTask(id) { await sb.from('tasks').delete().eq('id', id); loadData(); }
-async function addTask() {
-  const text = document.getElementById('taskText').value;
-  if (!text) return;
-  await sb.from('tasks').insert({ text, subject: 'عام', owner_id: currentUser.id, owner_name: currentUser.email });
-  document.getElementById('taskText').value = '';
-  loadData();
-}
-
-// --- الفروض ---
-function renderExams() {
-  document.getElementById('examsTableBody').innerHTML = exams.map(ex => `
-    <tr><td>${ex.exam_date}</td><td><b>${ex.subject}</b></td><td>${ex.exam_time}</td></tr>
-  `).join('');
-  
-  const today = new Date().toISOString().split('T')[0];
-  const next = exams.find(ex => ex.exam_date >= today);
-  if (next) {
-    document.getElementById('upcomingExamsList').innerHTML = `<div style="padding:15px; background:var(--accent-light); border-radius:12px; border:1px solid var(--accent); color:var(--text-main); font-weight:700;"><b>${next.subject}</b> — ${next.exam_date} (${next.exam_time})</div>`;
-  }
-}
-
-// --- الشات ---
-function renderChat() {
-  const box = document.getElementById('chatBox');
-  box.innerHTML = messages.map(m => `
-    <div class="msg ${m.sender_name === currentUser.email.split('@')[0] ? 'mine' : 'other'}">
-      <div class="msg-name">${m.sender_name}</div>${m.content}
+      <div class="stat-value">${totalPlayers}</div>
+      <div class="stat-label">لاعب مسجّل</div>
     </div>
-  `).join('');
-  box.scrollTop = box.scrollHeight;
-}
-async function sendMessage() {
-  const inp = document.getElementById('chatInput');
-  if (!inp.value) return;
-  await sb.from('messages').insert({ sender_name: currentUser.email.split('@')[0], content: inp.value });
-  inp.value = '';
-  loadData();
-}
-
-// --- البطاقات ---
-function renderFlashcard() {
-  if (!flashcards.length) return;
-  const fc = flashcards[fcIndex % flashcards.length];
-  document.getElementById('fcFront').textContent = fc.question;
-  document.getElementById('fcBack').textContent = fc.answer;
-}
-function nextFlashcard() {
-  fcIndex++;
-  document.getElementById('fcWrap').classList.remove('flipped');
-  renderFlashcard();
-}
-async function addFlashcard() {
-  const q = document.getElementById('fcQ').value;
-  const a = document.getElementById('fcA').value;
-  if (!q || !a) return;
-  await sb.from('flashcards').insert({ question: q, answer: a, subject: 'عام', owner_id: currentUser.id });
-  document.getElementById('fcQ').value = '';
-  document.getElementById('fcA').value = '';
-  loadData();
+    <div class="stat-card glass">
+      <div class="stat-icon red">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20M2 12h20"/></svg>
+      </div>
+      <div class="stat-value">${totalGoals}</div>
+      <div class="stat-label">هدف مسجّل</div>
+    </div>
+    <div class="stat-card glass">
+      <div class="stat-icon gold">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      </div>
+      <div class="stat-value">${totalAssists}</div>
+      <div class="stat-label">تمريرة حاسمة</div>
+    </div>
+    <div class="stat-card glass">
+      <div class="stat-icon blue">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      </div>
+      <div class="stat-value">${totalMatches}</div>
+      <div class="stat-label">ماتش مسجّل</div>
+    </div>
+  `;
 }
 
-// --- الخلفيات ---
-function changeBg(name) {
-  document.getElementById('bg-layer').style.backgroundImage = `url('${name}')`;
-  localStorage.setItem('vinland_bg', name);
-}
-function initBg() {
-  changeBg(localStorage.getItem('vinland_bg') || 'background1.png');
+// ============= RENDER PLAYERS =============
+function renderPlayers() {
+  const grid = document.getElementById("playersGrid");
+  if (allPlayers.length === 0) {
+    grid.innerHTML = `
+      <div class="empty" style="grid-column: 1 / -1;">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+        <h3>ما فيه لاعبين بعد</h3>
+        <p>الأدمن يزيد اللاعبين من اللوحة</p>
+      </div>
+    `;
+    return;
+  }
+
+  const sorted = [...allPlayers].sort((a, b) => calcOverall(b) - calcOverall(a)).slice(0, 4);
+  grid.innerHTML = sorted.map(p => {
+    const overall = calcOverall(p);
+    const tier = getCardTier(overall);
+    const photo = p.photo || defaultPhoto();
+    const stats = {
+      pace: p.pace || 0,
+      shot: p.shot_power || 0,
+      pass: p.passing || 0,
+      dribble: p.dribbling || 0,
+      def: p.defense || 0,
+      phys: p.strength || 0
+    };
+    return `
+      <div class="fifa-card ${tier}" onclick="location.href='player.html?id=${p.id}'">
+        <div class="fifa-rating">
+          <span class="fifa-rating-num">${overall}</span>
+          <span class="fifa-position">${p.position}</span>
+        </div>
+        <div class="fifa-photo-wrap">
+          <img class="fifa-photo" src="${photo}" alt="${escapeHTML(p.name)}" onerror="this.src='${defaultPhoto()}'" />
+        </div>
+        <div class="fifa-name">${escapeHTML(p.name)}</div>
+        <div class="fifa-stats">
+          <div class="fifa-stat"><span class="fifa-stat-val">${stats.pace}</span> سرعة</div>
+          <div class="fifa-stat"><span class="fifa-stat-val">${stats.shot}</span> فراب</div>
+          <div class="fifa-stat"><span class="fifa-stat-val">${stats.pass}</span> تمرير</div>
+          <div class="fifa-stat"><span class="fifa-stat-val">${stats.dribble}</span> مراوغة</div>
+          <div class="fifa-stat"><span class="fifa-stat-val">${stats.def}</span> دفاع</div>
+          <div class="fifa-stat"><span class="fifa-stat-val">${stats.phys}</span> قوة</div>
+        </div>
+      </div>
+    `;
+  }).join("");
 }
 
-// --- الإشعارات ---
-function requestNotifications() { Notification.requestPermission().then(p => { if(p==='granted') showToast('تم التفعيل!'); }); }
+// ============= RENDER MATCHES =============
+function renderMatches() {
+  const grid = document.getElementById("matchesGrid");
+  if (allMatches.length === 0) {
+    grid.innerHTML = `
+      <div class="empty">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20M2 12h20"/></svg>
+        <h3>ما فيه ماتشات</h3>
+        <p>الماتشات راح تظهر هنا</p>
+      </div>
+    `;
+    return;
+  }
 
-// --- الأصوات ---
-let musicPlaying = false;
-function toggleMusic() {
-  const audio = document.getElementById('bgMusic');
-  if (musicPlaying) { audio.pause(); document.getElementById('musicBtn').textContent = '▶ تشغيل'; }
-  else { audio.play(); document.getElementById('musicBtn').textContent = '⏸ إيقاف'; }
-  musicPlaying = !musicPlaying;
+  grid.innerHTML = allMatches.map(m => {
+    const aWon = m.score_a > m.score_b;
+    const bWon = m.score_b > m.score_a;
+    const initialA = (m.team_a || "A").charAt(0);
+    const initialB = (m.team_b || "B").charAt(0);
+    return `
+      <div class="match-card glass" onclick="location.href='matches.html'">
+        <div class="match-team">
+          <div class="match-team-avatar" style="${aWon ? 'background: linear-gradient(135deg, var(--gold), var(--gold-deep));' : ''}">${initialA}</div>
+          <span>${escapeHTML(m.team_a)}</span>
+        </div>
+        <div style="text-align:center;flex-shrink:0">
+          <div class="match-score">${m.score_a} - ${m.score_b}</div>
+          <div class="match-date">${formatDate(m.match_date)}</div>
+        </div>
+        <div class="match-team right">
+          <span>${escapeHTML(m.team_b)}</span>
+          <div class="match-team-avatar" style="${bWon ? 'background: linear-gradient(135deg, var(--gold), var(--gold-deep));' : ''}">${initialB}</div>
+        </div>
+      </div>
+    `;
+  }).join("");
 }
 
-// --- التنقل ---
-document.querySelectorAll('.nav-item').forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-    document.getElementById('page-' + btn.dataset.page).classList.add('active');
-  };
+// ============= REALTIME =============
+function setupRealtime() {
+  supabaseClient
+    .channel("vinlandx-realtime")
+    .on("postgres_changes", { event: "*", schema: "public", table: "players" }, () => {
+      loadAll();
+    })
+    .on("postgres_changes", { event: "*", schema: "public", table: "matches" }, () => {
+      loadAll();
+    })
+    .on("postgres_changes", { event: "*", schema: "public", table: "events" }, () => {
+      loadAll();
+    })
+    .subscribe();
+}
+
+// ============= INIT =============
+document.addEventListener("DOMContentLoaded", async () => {
+  await checkAuth();
+  await loadAll();
 });
-function logout() { sb.auth.signOut().then(() => location.reload()); }
-let tT; function showToast(m) { const el=document.getElementById('toast'); el.textContent=m; el.classList.add('show'); clearTimeout(tT); tT=setTimeout(()=>el.classList.remove('show'),3000); }
 </script>
+
 </body>
 </html>
