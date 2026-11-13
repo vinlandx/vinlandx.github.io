@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#0a0f1a" />
-<title>Vinlandx — كرة الحومة 🇩🇿</title>
+<title>كرة الحومة - Vinlandx</title>
 <link rel="icon" type="image/png" href="assets/icon.png" />
 <link rel="manifest" href="manifest.json" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,46 +15,77 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --green: #22c55e;
-  --green-bright: #4ade80;
-  --green-deep: #16a34a;
-  --red: #ef4444;
-  --red-bright: #f87171;
-  --gold: #fbbf24;
-  --gold-deep: #d97706;
-  --purple: #a78bfa;
-  --blue: #60a5fa;
-  
-  --bg: #0a0f1a;
-  --bg-2: #0f172a;
-  --card: rgba(255,255,255,0.06);
-  --card-hover: rgba(255,255,255,0.1);
+  /* Green family */
+  --green-1: #4ade80;
+  --green-2: #22c55e;
+  --green-3: #16a34a;
+  --green-4: #15803d;
+  --green-5: #14532d;
+
+  /* Red family */
+  --red-1: #f87171;
+  --red-2: #ef4444;
+  --red-3: #dc2626;
+  --red-4: #b91c1c;
+
+  /* Gold family */
+  --gold-1: #fde68a;
+  --gold-2: #fbbf24;
+  --gold-3: #f59e0b;
+  --gold-4: #d97706;
+  --gold-5: #92400e;
+
+  /* Blue */
+  --blue-1: #93c5fd;
+  --blue-2: #60a5fa;
+  --blue-3: #3b82f6;
+
+  /* Purple */
+  --purple-1: #c4b5fd;
+  --purple-2: #a78bfa;
+  --purple-3: #8b5cf6;
+
+  /* Base dark */
+  --bg: #070b14;
+  --bg-2: #0d1424;
+  --bg-3: #141c30;
+  --card: rgba(255,255,255,0.05);
+  --card-hover: rgba(255,255,255,0.09);
   --text: #f1f5f9;
   --text-muted: #94a3b8;
-  --border: rgba(255,255,255,0.1);
-  
-  --glass-blur: 20px;
+  --text-dim: #64748b;
+  --border: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.15);
+
+  /* Effects */
+  --glass-blur: 24px;
+  --radius-xl: 28px;
   --radius-lg: 24px;
   --radius-md: 16px;
   --radius-sm: 12px;
+
+  /* Gradients */
+  --grad-green: linear-gradient(135deg, var(--green-1) 0%, var(--green-3) 100%);
+  --grad-red: linear-gradient(135deg, var(--red-1) 0%, var(--red-3) 100%);
+  --grad-gold: linear-gradient(135deg, var(--gold-2) 0%, var(--gold-4) 100%);
+  --grad-mixed: linear-gradient(135deg, var(--green-2) 0%, var(--gold-2) 50%, var(--red-2) 100%);
 }
 
 [data-theme="light"] {
   --bg: #f8fafc;
   --bg-2: #ffffff;
+  --bg-3: #f1f5f9;
   --card: rgba(255,255,255,0.85);
   --card-hover: rgba(255,255,255,0.95);
   --text: #0f172a;
-  --text-muted: #64748b;
+  --text-muted: #475569;
+  --text-dim: #94a3b8;
   --border: rgba(15,23,42,0.08);
+  --border-strong: rgba(15,23,42,0.15);
 }
 
 html { scroll-behavior: smooth; }
-
-html, body {
-  height: 100%;
-  overflow-x: hidden;
-}
+html, body { height: 100%; overflow-x: hidden; }
 
 body {
   font-family: 'Cairo', system-ui, sans-serif;
@@ -64,47 +95,9 @@ body {
   direction: rtl;
   position: relative;
   transition: background 0.4s ease, color 0.4s ease;
-  cursor: none;
 }
 
-/* ==== Custom Cursor ==== */
-.cursor-dot {
-  position: fixed;
-  width: 8px;
-  height: 8px;
-  background: var(--green-bright);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
-  transition: transform 0.1s, background 0.2s;
-  box-shadow: 0 0 20px var(--green-bright);
-}
-.cursor-ring {
-  position: fixed;
-  width: 36px;
-  height: 36px;
-  border: 2px solid var(--green-bright);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9998;
-  transform: translate(-50%, -50%);
-  transition: transform 0.15s ease-out, width 0.2s, height 0.2s, border-color 0.2s;
-  opacity: 0.6;
-}
-.cursor-ring.hover {
-  width: 60px;
-  height: 60px;
-  border-color: var(--gold);
-  opacity: 1;
-}
-
-@media (max-width: 768px) {
-  body { cursor: auto; }
-  .cursor-dot, .cursor-ring { display: none; }
-}
-
-/* ==== Loading Screen ==== */
+/* ===== LOADER ===== */
 #loader {
   position: fixed;
   inset: 0;
@@ -116,16 +109,14 @@ body {
   justify-content: center;
   transition: opacity 0.6s ease, visibility 0.6s;
 }
-#loader.hidden {
-  opacity: 0;
-  visibility: hidden;
-}
+#loader.hidden { opacity: 0; visibility: hidden; }
 .loader-logo {
   width: 140px;
   height: 140px;
   margin-bottom: 24px;
   animation: loaderPulse 2s ease-in-out infinite;
-  filter: drop-shadow(0 0 40px rgba(34,197,94,0.5));
+  filter: drop-shadow(0 0 50px rgba(34,197,94,0.6));
+  object-fit: contain;
 }
 @keyframes loaderPulse {
   0%,100% { transform: scale(1); opacity: 0.9; }
@@ -134,17 +125,30 @@ body {
 .loader-text {
   font-size: 1.8rem;
   font-weight: 900;
-  background: linear-gradient(135deg, var(--green-bright), var(--gold));
+  background: var(--grad-mixed);
+  background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
+  margin-bottom: 6px;
+  animation: gradientShift 3s ease infinite;
+}
+.loader-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 700;
   margin-bottom: 24px;
+  letter-spacing: 1px;
+}
+@keyframes gradientShift {
+  0%,100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 .loader-bar {
   width: 200px;
   height: 4px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.08);
   border-radius: 999px;
   overflow: hidden;
   position: relative;
@@ -153,7 +157,8 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, var(--green-bright), transparent);
+  background: var(--grad-mixed);
+  background-size: 200% 100%;
   animation: loaderBar 1.5s ease-in-out infinite;
 }
 @keyframes loaderBar {
@@ -161,56 +166,60 @@ body {
   100% { transform: translateX(100%); }
 }
 
-/* ==== Background ==== */
+/* ===== BACKGROUND ===== */
 .bg-layer {
   position: fixed;
   inset: 0;
   z-index: -3;
-  background-image: url('assets/background1.png');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  transition: transform 0.1s ease-out;
+  transition: transform 0.1s ease-out, opacity 0.6s ease;
   will-change: transform;
+  opacity: 1;
 }
 .bg-overlay {
   position: fixed;
   inset: 0;
   z-index: -2;
-  background: linear-gradient(180deg, 
-    rgba(10,15,26,0.7) 0%, 
-    rgba(10,15,26,0.85) 50%, 
-    rgba(10,15,26,0.95) 100%);
+  background: linear-gradient(180deg,
+    rgba(7,11,20,0.75) 0%,
+    rgba(7,11,20,0.88) 50%,
+    rgba(7,11,20,0.96) 100%);
+  transition: background 0.4s ease;
 }
 [data-theme="light"] .bg-overlay {
-  background: linear-gradient(180deg, 
-    rgba(248,250,252,0.85) 0%, 
-    rgba(248,250,252,0.92) 50%, 
+  background: linear-gradient(180deg,
+    rgba(248,250,252,0.88) 0%,
+    rgba(248,250,252,0.94) 50%,
     rgba(248,250,252,0.98) 100%);
 }
 
 .bg-orb {
   position: fixed;
   border-radius: 50%;
-  filter: blur(120px);
+  filter: blur(140px);
   z-index: -1;
   pointer-events: none;
+  transition: opacity 0.4s;
 }
 .orb-1 {
-  width: 500px;
-  height: 500px;
+  width: 500px; height: 500px;
   background: radial-gradient(circle, rgba(34,197,94,0.35), transparent 70%);
-  top: -150px;
-  right: -150px;
-  animation: float1 14s ease-in-out infinite;
+  top: -180px; right: -180px;
+  animation: float1 16s ease-in-out infinite;
 }
 .orb-2 {
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(239,68,68,0.25), transparent 70%);
-  bottom: -200px;
-  left: -200px;
-  animation: float2 18s ease-in-out infinite;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(239,68,68,0.22), transparent 70%);
+  bottom: -220px; left: -220px;
+  animation: float2 20s ease-in-out infinite;
+}
+.orb-3 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(251,191,36,0.18), transparent 70%);
+  top: 40%; left: 30%;
+  animation: float3 24s ease-in-out infinite;
 }
 @keyframes float1 {
   0%,100% { transform: translate(0,0) scale(1); }
@@ -220,25 +229,29 @@ body {
   0%,100% { transform: translate(0,0) scale(1); }
   50% { transform: translate(80px,-60px) scale(1.1); }
 }
+@keyframes float3 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(-40px,-40px) scale(1.2); }
+}
 
-/* ==== Glassmorphism Base ==== */
+/* ===== GLASS ===== */
 .glass {
   background: var(--card);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: 
-    0 8px 32px rgba(0,0,0,0.3),
-    inset 0 1px 0 rgba(255,255,255,0.1);
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.06);
 }
 [data-theme="light"] .glass {
-  box-shadow: 
+  box-shadow:
     0 8px 32px rgba(15,23,42,0.08),
-    inset 0 1px 0 rgba(255,255,255,0.8);
+    inset 0 1px 0 rgba(255,255,255,0.9);
 }
 
-/* ==== Container ==== */
+/* ===== CONTAINER ===== */
 .container {
   max-width: 1300px;
   margin: 0 auto;
@@ -247,7 +260,7 @@ body {
   z-index: 1;
 }
 
-/* ==== Header ==== */
+/* ===== HEADER ===== */
 header {
   position: fixed;
   top: 16px;
@@ -262,6 +275,15 @@ header {
   justify-content: space-between;
   gap: 16px;
   transition: all 0.4s cubic-bezier(.4,0,.2,1);
+  background: var(--card);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+}
+[data-theme="light"] header {
+  box-shadow: 0 8px 32px rgba(15,23,42,0.08);
 }
 header.scrolled {
   top: 8px;
@@ -276,27 +298,28 @@ header.scrolled {
   color: var(--text);
 }
 .header-logo img {
-  height: 42px;
+  height: 44px;
   width: auto;
-  filter: drop-shadow(0 4px 12px rgba(34,197,94,0.4));
+  object-fit: contain;
+  filter: drop-shadow(0 4px 16px rgba(34,197,94,0.5));
   transition: transform 0.3s;
 }
-.header-logo:hover img {
-  transform: rotate(-8deg) scale(1.05);
-}
+.header-logo:hover img { transform: rotate(-8deg) scale(1.05); }
 .header-logo-text {
   display: flex;
   flex-direction: column;
   line-height: 1;
 }
 .header-logo-text .main {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 900;
-  background: linear-gradient(135deg, var(--green-bright), var(--gold));
+  background: var(--grad-mixed);
+  background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  animation: gradientShift 4s ease infinite;
 }
 .header-logo-text .sub {
   font-size: 0.65rem;
@@ -305,12 +328,7 @@ header.scrolled {
   margin-top: 3px;
 }
 
-/* ==== Nav ==== */
-nav {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
+nav { display: flex; align-items: center; gap: 4px; }
 nav a {
   padding: 8px 14px;
   color: var(--text-muted);
@@ -321,30 +339,16 @@ nav a {
   transition: all 0.25s;
   position: relative;
 }
-nav a:hover {
-  color: var(--text);
-  background: rgba(255,255,255,0.05);
-}
-nav a.active {
-  color: var(--green-bright);
-  background: rgba(34,197,94,0.15);
-}
-[data-theme="light"] nav a.active {
-  background: rgba(34,197,94,0.12);
-}
+nav a:hover { color: var(--text); background: rgba(34,197,94,0.1); }
+nav a.active { color: var(--green-1); background: rgba(34,197,94,0.15); }
+[data-theme="light"] nav a.active { background: rgba(34,197,94,0.12); color: var(--green-3); }
 
-/* ==== Header Actions ==== */
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.header-actions { display: flex; align-items: center; gap: 8px; }
 
 .icon-btn {
-  width: 42px;
-  height: 42px;
+  width: 42px; height: 42px;
   border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.04);
   border: 1px solid var(--border);
   color: var(--text);
   cursor: pointer;
@@ -356,26 +360,20 @@ nav a.active {
 }
 .icon-btn:hover {
   background: rgba(34,197,94,0.15);
-  border-color: var(--green);
+  border-color: var(--green-2);
   transform: translateY(-2px);
 }
 .icon-btn svg {
-  width: 20px;
-  height: 20px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  width: 20px; height: 20px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
 }
 
 .user-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: flex; align-items: center; gap: 8px;
   padding: 6px 14px 6px 8px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.04);
   border: 1px solid var(--border);
   cursor: pointer;
   transition: all 0.25s;
@@ -384,26 +382,20 @@ nav a.active {
 }
 .user-btn:hover {
   background: rgba(34,197,94,0.15);
-  border-color: var(--green);
+  border-color: var(--green-2);
 }
 .user-btn img {
-  width: 32px;
-  height: 32px;
+  width: 32px; height: 32px;
   border-radius: 50%;
-  border: 2px solid var(--green);
+  border: 2px solid var(--green-2);
 }
-.user-btn span {
-  font-size: 0.85rem;
-  font-weight: 700;
-}
+.user-btn span { font-size: 0.85rem; font-weight: 700; }
 
 .login-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  display: inline-flex; align-items: center; gap: 8px;
   padding: 10px 18px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, #4285f4, #34a853);
+  background: var(--grad-green);
   border: none;
   color: #fff;
   font-family: inherit;
@@ -411,36 +403,28 @@ nav a.active {
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 16px rgba(66,133,244,0.35);
+  box-shadow: 0 4px 16px rgba(34,197,94,0.4);
 }
 .login-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(66,133,244,0.5);
+  box-shadow: 0 8px 28px rgba(34,197,94,0.6);
 }
-.login-btn svg {
-  width: 18px;
-  height: 18px;
-  fill: #fff;
-}
+.login-btn svg { width: 18px; height: 18px; fill: #fff; }
 
-/* ==== Mobile Menu ==== */
-.mobile-toggle {
-  display: none;
-}
+.mobile-toggle { display: none; }
 
 @media (max-width: 900px) {
   nav {
     display: none;
     position: absolute;
     top: calc(100% + 8px);
-    left: 16px;
-    right: 16px;
+    left: 0; right: 0;
     flex-direction: column;
     padding: 16px;
     background: var(--bg-2);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
   }
   nav.open { display: flex; }
   nav a { width: 100%; text-align: right; padding: 12px 16px; }
@@ -448,28 +432,22 @@ nav a.active {
   .user-btn span { display: none; }
 }
 
-/* ==== Main Content ==== */
-main {
-  padding-top: 100px;
-  padding-bottom: 60px;
-  min-height: 100vh;
-}
+/* ===== MAIN ===== */
+main { padding-top: 100px; padding-bottom: 60px; min-height: 100vh; }
 
-/* ==== Hero ==== */
+/* ===== HERO ===== */
 .hero {
   padding: 60px 0 40px;
   text-align: center;
   position: relative;
 }
 .hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  display: inline-flex; align-items: center; gap: 8px;
   padding: 8px 18px;
   border-radius: 999px;
-  background: rgba(34,197,94,0.15);
+  background: rgba(34,197,94,0.12);
   border: 1px solid rgba(34,197,94,0.3);
-  color: var(--green-bright);
+  color: var(--green-1);
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.5px;
@@ -487,24 +465,24 @@ main {
   animation: fadeInUp 0.8s ease 0.3s backwards;
 }
 .hero h1 .green {
-  background: linear-gradient(135deg, var(--green-bright), var(--green));
+  background: var(--grad-green);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 0 30px rgba(34,197,94,0.5));
 }
 .hero h1 .gold {
-  background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+  background: var(--grad-gold);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 30px rgba(251,191,36,0.5));
+  filter: drop-shadow(0 0 30px rgba(251,191,36,0.4));
 }
 
 .hero p {
   font-size: clamp(0.9rem, 2vw, 1.15rem);
   color: var(--text-muted);
-  max-width: 600px;
+  max-width: 620px;
   margin: 0 auto 40px;
   font-weight: 600;
   line-height: 1.7;
@@ -512,20 +490,16 @@ main {
 }
 
 .hero-cta {
-  display: flex;
-  gap: 14px;
-  justify-content: center;
+  display: flex; gap: 14px; justify-content: center;
   flex-wrap: wrap;
   animation: fadeInUp 0.8s ease 0.5s backwards;
 }
 
 .btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
+  display: inline-flex; align-items: center; gap: 10px;
   padding: 16px 32px;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--green), var(--green-deep));
+  background: var(--grad-green);
   color: #fff;
   font-family: inherit;
   font-weight: 900;
@@ -534,7 +508,7 @@ main {
   cursor: pointer;
   text-decoration: none;
   transition: all 0.3s;
-  box-shadow: 
+  box-shadow:
     0 8px 24px rgba(34,197,94,0.4),
     inset 0 1px 0 rgba(255,255,255,0.3);
   position: relative;
@@ -543,34 +517,22 @@ main {
 .btn-primary::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
   transition: left 0.6s;
 }
-.btn-primary:hover::before {
-  left: 100%;
-}
+.btn-primary:hover::before { left: 100%; }
 .btn-primary:hover {
   transform: translateY(-3px);
-  box-shadow: 
-    0 16px 40px rgba(34,197,94,0.5),
+  box-shadow:
+    0 16px 40px rgba(34,197,94,0.55),
     inset 0 1px 0 rgba(255,255,255,0.3);
 }
-.btn-primary svg {
-  width: 20px;
-  height: 20px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2.5;
-}
+.btn-primary svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.5; }
 
 .btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
+  display: inline-flex; align-items: center; gap: 10px;
   padding: 16px 32px;
   border-radius: var(--radius-md);
   background: rgba(255,255,255,0.05);
@@ -579,51 +541,40 @@ main {
   font-family: inherit;
   font-weight: 800;
   font-size: 1rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   cursor: pointer;
   text-decoration: none;
   transition: all 0.3s;
 }
 .btn-secondary:hover {
   background: rgba(255,255,255,0.1);
-  border-color: var(--green);
+  border-color: var(--gold-2);
   transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(251,191,36,0.2);
 }
-.btn-secondary svg {
-  width: 20px;
-  height: 20px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2.5;
-}
+.btn-secondary svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.5; }
 
-/* ==== Stats Grid ==== */
-.stats-section {
-  margin: 60px 0;
-  animation: fadeInUp 0.8s ease 0.6s backwards;
-}
-
+/* ===== STATS ===== */
+.stats-section { margin: 60px 0; animation: fadeInUp 0.8s ease 0.6s backwards; }
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 18px;
 }
-
 .stat-card {
   padding: 28px 20px;
   text-align: center;
   transition: all 0.4s cubic-bezier(.4,0,.2,1);
   position: relative;
   overflow: hidden;
+  cursor: pointer;
 }
 .stat-card::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--green-bright), var(--gold));
+  background: var(--grad-mixed);
   transform: scaleX(0);
   transition: transform 0.4s;
   transform-origin: right;
@@ -635,35 +586,25 @@ main {
 .stat-card:hover {
   transform: translateY(-6px);
   background: var(--card-hover);
+  border-color: var(--green-3);
 }
-
 .stat-icon {
-  width: 56px;
-  height: 56px;
+  width: 56px; height: 56px;
   border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   margin: 0 auto 16px;
   transition: transform 0.3s;
 }
-.stat-card:hover .stat-icon {
-  transform: scale(1.1) rotate(-5deg);
-}
+.stat-card:hover .stat-icon { transform: scale(1.1) rotate(-5deg); }
 .stat-icon svg {
-  width: 28px;
-  height: 28px;
-  stroke: #fff;
-  fill: none;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  width: 28px; height: 28px;
+  stroke: #fff; fill: none;
+  stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
 }
-.stat-icon.green { background: linear-gradient(135deg, var(--green-bright), var(--green-deep)); box-shadow: 0 8px 24px rgba(34,197,94,0.4); }
-.stat-icon.red { background: linear-gradient(135deg, var(--red-bright), var(--red)); box-shadow: 0 8px 24px rgba(239,68,68,0.4); }
-.stat-icon.gold { background: linear-gradient(135deg, var(--gold), var(--gold-deep)); box-shadow: 0 8px 24px rgba(251,191,36,0.4); }
-.stat-icon.blue { background: linear-gradient(135deg, var(--blue), #3b82f6); box-shadow: 0 8px 24px rgba(96,165,250,0.4); }
-.stat-icon.purple { background: linear-gradient(135deg, var(--purple), #8b5cf6); box-shadow: 0 8px 24px rgba(167,139,250,0.4); }
+.stat-icon.green { background: var(--grad-green); box-shadow: 0 8px 24px rgba(34,197,94,0.4); }
+.stat-icon.red { background: var(--grad-red); box-shadow: 0 8px 24px rgba(239,68,68,0.4); }
+.stat-icon.gold { background: var(--grad-gold); box-shadow: 0 8px 24px rgba(251,191,36,0.4); }
+.stat-icon.blue { background: linear-gradient(135deg, var(--blue-2), var(--blue-3)); box-shadow: 0 8px 24px rgba(96,165,250,0.4); }
 
 .stat-value {
   font-size: 2.5rem;
@@ -676,20 +617,11 @@ main {
   -webkit-text-fill-color: transparent;
   transition: transform 0.3s;
 }
-.stat-card:hover .stat-value {
-  transform: scale(1.05);
-}
-.stat-label {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  font-weight: 700;
-}
+.stat-card:hover .stat-value { transform: scale(1.05); }
+.stat-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 700; }
 
-/* ==== Section ==== */
-section {
-  margin: 60px 0;
-}
-
+/* ===== SECTION ===== */
+section { margin: 60px 0; }
 .section-header {
   display: flex;
   align-items: center;
@@ -706,52 +638,42 @@ section {
   gap: 12px;
 }
 .section-title .icon {
-  width: 40px;
-  height: 40px;
+  width: 40px; height: 40px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, var(--green-bright), var(--green-deep));
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: var(--grad-green);
+  display: flex; align-items: center; justify-content: center;
   box-shadow: 0 8px 24px rgba(34,197,94,0.4);
 }
 .section-title .icon svg {
-  width: 22px;
-  height: 22px;
-  stroke: #fff;
-  fill: none;
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  width: 22px; height: 22px;
+  stroke: #fff; fill: none;
+  stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
 }
+.section-title .icon.red { background: var(--grad-red); box-shadow: 0 8px 24px rgba(239,68,68,0.4); }
+.section-title .icon.gold { background: var(--grad-gold); box-shadow: 0 8px 24px rgba(251,191,36,0.4); }
 
 .section-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--green-bright);
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--green-1);
   text-decoration: none;
   font-weight: 800;
   font-size: 0.85rem;
-  transition: gap 0.25s;
+  transition: gap 0.25s, color 0.2s;
 }
-.section-link:hover { gap: 12px; }
+.section-link:hover { gap: 12px; color: var(--gold-2); }
 .section-link svg {
-  width: 16px;
-  height: 16px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2.5;
+  width: 16px; height: 16px;
+  stroke: currentColor; fill: none; stroke-width: 2.5;
 }
 
-/* ==== Players Grid ==== */
+/* ===== PLAYERS GRID ===== */
 .players-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 20px;
 }
 
-/* ==== FIFA Card ==== */
+/* ===== FIFA CARD ===== */
 .fifa-card {
   position: relative;
   border-radius: 20px;
@@ -765,51 +687,40 @@ section {
 }
 .fifa-card.gold {
   background: linear-gradient(160deg, #fef9c3 0%, #fde68a 20%, #fbbf24 50%, #d97706 85%, #92400e 100%);
-  box-shadow: 
+  box-shadow:
     0 20px 60px rgba(217,119,6,0.4),
     inset 0 0 0 2px rgba(255,255,255,0.5);
 }
 .fifa-card.silver {
   background: linear-gradient(160deg, #f8fafc 0%, #e2e8f0 25%, #cbd5e1 55%, #94a3b8 85%, #64748b 100%);
-  box-shadow: 
+  box-shadow:
     0 20px 60px rgba(100,116,139,0.4),
     inset 0 0 0 2px rgba(255,255,255,0.6);
 }
 .fifa-card.bronze {
   background: linear-gradient(160deg, #fed7aa 0%, #fb923c 25%, #ea580c 55%, #c2410c 85%, #7c2d12 100%);
-  box-shadow: 
+  box-shadow:
     0 20px 60px rgba(194,65,12,0.4),
     inset 0 0 0 2px rgba(255,255,255,0.4);
 }
-
 .fifa-card::before {
   content: "";
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
   background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%);
   transform: translateX(-100%);
   transition: transform 0.8s;
   pointer-events: none;
 }
-.fifa-card:hover::before {
-  transform: translateX(100%);
-}
-
-.fifa-card:hover {
-  transform: translateY(-12px) rotateY(6deg) rotateX(-4deg) scale(1.03);
-}
+.fifa-card:hover::before { transform: translateX(100%); }
+.fifa-card:hover { transform: translateY(-12px) rotateY(6deg) rotateX(-4deg) scale(1.03); }
 
 .fifa-rating {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   gap: 8px;
   margin-bottom: 16px;
-  position: relative;
-  z-index: 1;
+  position: relative; z-index: 1;
 }
 .fifa-rating-num {
   font-size: 2.8rem;
@@ -834,15 +745,13 @@ section {
 .fifa-card.bronze .fifa-position { background: rgba(67,20,7,0.9); color: #fed7aa; }
 
 .fifa-photo-wrap {
-  width: 100px;
-  height: 100px;
+  width: 100px; height: 100px;
   margin: 0 auto 16px;
   position: relative;
   z-index: 1;
 }
 .fifa-photo {
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   border-radius: 50%;
   object-fit: cover;
   border: 4px solid rgba(255,255,255,0.9);
@@ -862,15 +771,13 @@ section {
   0%,100% { opacity: 0.5; transform: scale(1); }
   50% { opacity: 0.8; transform: scale(1.1); }
 }
-
 .fifa-name {
   font-size: 1.15rem;
   font-weight: 900;
   margin-bottom: 12px;
   color: #422006;
   text-shadow: 0 2px 4px rgba(255,255,255,0.5);
-  position: relative;
-  z-index: 1;
+  position: relative; z-index: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -884,8 +791,7 @@ section {
   gap: 6px 16px;
   padding-top: 12px;
   border-top: 2px solid rgba(0,0,0,0.15);
-  position: relative;
-  z-index: 1;
+  position: relative; z-index: 1;
 }
 .fifa-stat {
   display: flex;
@@ -897,16 +803,10 @@ section {
 }
 .fifa-card.silver .fifa-stat { color: #1e293b; }
 .fifa-card.bronze .fifa-stat { color: #431407; }
-.fifa-stat-val {
-  font-size: 1rem;
-  font-weight: 900;
-}
+.fifa-stat-val { font-size: 1rem; font-weight: 900; }
 
-/* ==== Matches List ==== */
-.matches-grid {
-  display: grid;
-  gap: 12px;
-}
+/* ===== MATCHES ===== */
+.matches-grid { display: grid; gap: 12px; }
 .match-card {
   display: flex;
   align-items: center;
@@ -919,6 +819,7 @@ section {
 .match-card:hover {
   transform: translateX(-4px);
   background: var(--card-hover);
+  border-color: var(--red-2);
 }
 .match-team {
   flex: 1;
@@ -930,24 +831,20 @@ section {
 }
 .match-team.right { justify-content: flex-end; text-align: left; }
 .match-team-avatar {
-  width: 36px;
-  height: 36px;
+  width: 36px; height: 36px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--green-bright), var(--green-deep));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-weight: 900;
-  font-size: 0.85rem;
+  background: var(--grad-green);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 900; font-size: 0.85rem;
   flex-shrink: 0;
 }
+.match-team-avatar.winner { background: var(--grad-gold); box-shadow: 0 4px 12px rgba(251,191,36,0.4); }
 .match-score {
   padding: 8px 16px;
   border-radius: var(--radius-sm);
-  background: rgba(34,197,94,0.15);
+  background: rgba(34,197,94,0.12);
   border: 1px solid rgba(34,197,94,0.3);
-  color: var(--green-bright);
+  color: var(--green-1);
   font-weight: 900;
   font-size: 1rem;
   font-variant-numeric: tabular-nums;
@@ -963,7 +860,7 @@ section {
   margin-top: 4px;
 }
 
-/* ==== Empty ==== */
+/* ===== EMPTY ===== */
 .empty {
   text-align: center;
   padding: 60px 20px;
@@ -971,22 +868,15 @@ section {
   font-weight: 600;
 }
 .empty svg {
-  width: 64px;
-  height: 64px;
-  stroke: var(--green-bright);
-  fill: none;
-  stroke-width: 1.5;
+  width: 64px; height: 64px;
+  stroke: var(--green-2); fill: none; stroke-width: 1.5;
   margin-bottom: 16px;
   opacity: 0.5;
 }
-.empty h3 {
-  font-size: 1.15rem;
-  color: var(--text);
-  margin-bottom: 6px;
-}
+.empty h3 { font-size: 1.15rem; color: var(--text); margin-bottom: 6px; }
 .empty p { font-size: 0.85rem; }
 
-/* ==== Loading / Skeleton ==== */
+/* ===== SKELETON ===== */
 .skeleton {
   background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 100%);
   background-size: 200% 100%;
@@ -997,22 +887,13 @@ section {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
-.skeleton-card {
-  height: 260px;
-}
+.skeleton-card { height: 260px; }
 
-/* ==== Animations ==== */
+/* ===== ANIMATIONS ===== */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
 .fade-in {
   opacity: 0;
   transform: translateY(30px);
@@ -1023,17 +904,16 @@ section {
   transform: translateY(0);
 }
 
-/* ==== Toast ==== */
+/* ===== TOAST ===== */
 .toast {
   position: fixed;
-  bottom: 24px;
-  left: 50%;
+  bottom: 24px; left: 50%;
   transform: translateX(-50%) translateY(120px);
   padding: 14px 24px;
   border-radius: var(--radius-md);
   background: var(--bg-2);
-  border: 1px solid var(--border);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
   font-weight: 700;
   font-size: 0.9rem;
   z-index: 500;
@@ -1041,19 +921,19 @@ section {
   max-width: 90vw;
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
-.toast.success { border-color: var(--green); color: var(--green-bright); }
-.toast.error { border-color: var(--red); color: var(--red-bright); }
+.toast.success { border-color: var(--green-2); color: var(--green-1); }
+.toast.error { border-color: var(--red-2); color: var(--red-1); }
 
-/* ==== Scrollbar ==== */
+/* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--green), var(--green-deep));
+  background: linear-gradient(180deg, var(--green-2), var(--green-4));
   border-radius: 999px;
 }
-::-webkit-scrollbar-thumb:hover { background: var(--green-bright); }
+::-webkit-scrollbar-thumb:hover { background: var(--green-1); }
 
-/* ==== Responsive ==== */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .container { padding: 0 16px; }
   main { padding-top: 90px; }
@@ -1083,36 +963,34 @@ section {
   .stat-icon svg { width: 22px; height: 22px; }
   .stat-value { font-size: 1.7rem; }
   .header-logo img { height: 34px; }
-  .header-logo-text .main { font-size: 1rem; }
+  .header-logo-text .main { font-size: 0.95rem; }
 }
 </style>
 </head>
 <body>
 
-<!-- ===== CUSTOM CURSOR ===== -->
-<div class="cursor-dot" id="cursorDot"></div>
-<div class="cursor-ring" id="cursorRing"></div>
-
 <!-- ===== LOADER ===== -->
 <div id="loader">
   <img src="assets/logo.png" alt="Vinlandx" class="loader-logo" onerror="this.style.display='none'" />
   <div class="loader-text">VINLANDX</div>
+  <div class="loader-sub">كرة الحومة 🇩🇿</div>
   <div class="loader-bar"></div>
 </div>
 
 <!-- ===== BACKGROUND ===== -->
-<div class="bg-layer" id="bgLayer"></div>
+<div class="bg-layer" id="bgLayer" style="background-image: url('assets/background1.png');"></div>
 <div class="bg-overlay"></div>
 <div class="bg-orb orb-1"></div>
 <div class="bg-orb orb-2"></div>
+<div class="bg-orb orb-3"></div>
 
 <!-- ===== HEADER ===== -->
 <header id="header">
   <a href="index.html" class="header-logo">
     <img src="assets/logo.png" alt="Vinlandx" onerror="this.style.display='none'" />
     <div class="header-logo-text">
-      <span class="main">VINLANDX</span>
-      <span class="sub">كرة الحومة 🇩🇿</span>
+      <span class="main">كرة الحومة - Vinlandx</span>
+      <span class="sub">منصة كرة القدم الجزائرية</span>
     </div>
   </a>
 
@@ -1144,8 +1022,7 @@ section {
 <!-- ===== MAIN ===== -->
 <main>
   <div class="container">
-    
-    <!-- HERO -->
+
     <section class="hero">
       <div class="hero-badge">
         <svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -1170,7 +1047,6 @@ section {
       </div>
     </section>
 
-    <!-- STATS -->
     <section class="stats-section fade-in">
       <div class="stats-grid" id="statsGrid">
         <div class="stat-card glass skeleton"></div>
@@ -1180,7 +1056,6 @@ section {
       </div>
     </section>
 
-    <!-- PLAYERS -->
     <section class="fade-in">
       <div class="section-header">
         <h2 class="section-title">
@@ -1202,11 +1077,10 @@ section {
       </div>
     </section>
 
-    <!-- MATCHES -->
     <section class="fade-in">
       <div class="section-header">
         <h2 class="section-title">
-          <span class="icon" style="background: linear-gradient(135deg, var(--red-bright), var(--red)); box-shadow: 0 8px 24px rgba(239,68,68,0.4);">
+          <span class="icon red">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20M2 12h20"/></svg>
           </span>
           آخر الماتشات
@@ -1226,14 +1100,12 @@ section {
   </div>
 </main>
 
-<!-- ===== TOAST ===== -->
 <div class="toast" id="toast"></div>
 
 <script>
 // ============= CONFIG =============
 const SUPABASE_URL = "https://ncrycgbrstafdouvipzc.supabase.co";
 const SUPABASE_KEY = "sb_publishable_6t2dkU27Rkinsoo8MhYAEQ_FSgj4G73";
-
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ============= STATE =============
@@ -1247,46 +1119,11 @@ let allEvents = [];
 window.addEventListener("load", () => {
   setTimeout(() => {
     document.getElementById("loader").classList.add("hidden");
-  }, 800);
-});
-
-// ============= CUSTOM CURSOR =============
-const cursorDot = document.getElementById("cursorDot");
-const cursorRing = document.getElementById("cursorRing");
-let mouseX = 0, mouseY = 0;
-let ringX = 0, ringY = 0;
-
-document.addEventListener("mousemove", (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-  cursorDot.style.left = mouseX + "px";
-  cursorDot.style.top = mouseY + "px";
-});
-
-function animateRing() {
-  ringX += (mouseX - ringX) * 0.15;
-  ringY += (mouseY - ringY) * 0.15;
-  cursorRing.style.left = ringX + "px";
-  cursorRing.style.top = ringY + "px";
-  requestAnimationFrame(animateRing);
-}
-animateRing();
-
-document.querySelectorAll("a, button, .fifa-card, .match-card, .stat-card").forEach(el => {
-  el.addEventListener("mouseenter", () => cursorRing.classList.add("hover"));
-  el.addEventListener("mouseleave", () => cursorRing.classList.remove("hover"));
-});
-
-document.addEventListener("mouseover", (e) => {
-  if (e.target.closest("a, button, .fifa-card, .match-card, .stat-card, .icon-btn, .user-btn")) {
-    cursorRing.classList.add("hover");
-  }
+  }, 900);
 });
 
 // ============= THEME =============
-function getSavedTheme() {
-  return localStorage.getItem("vinlandx_theme") || "dark";
-}
+function getSavedTheme() { return localStorage.getItem("vinlandx_theme") || "dark"; }
 
 function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
@@ -1309,49 +1146,37 @@ function toggleTheme() {
 applyTheme(getSavedTheme());
 
 // ============= MOBILE NAV =============
-function toggleMobileNav() {
-  document.getElementById("nav").classList.toggle("open");
-}
+function toggleMobileNav() { document.getElementById("nav").classList.toggle("open"); }
 
 // ============= HEADER SCROLL =============
-let lastScroll = 0;
 window.addEventListener("scroll", () => {
   const header = document.getElementById("header");
-  if (window.scrollY > 50) {
-    header.classList.add("scrolled");
-  } else {
-    header.classList.remove("scrolled");
-  }
-  lastScroll = window.scrollY;
+  if (window.scrollY > 50) header.classList.add("scrolled");
+  else header.classList.remove("scrolled");
 });
 
-// ============= PARALLAX BACKGROUND =============
+// ============= PARALLAX =============
 document.addEventListener("mousemove", (e) => {
   const bg = document.getElementById("bgLayer");
-  const x = (e.clientX / window.innerWidth - 0.5) * 20;
-  const y = (e.clientY / window.innerHeight - 0.5) * 20;
+  const x = (e.clientX / window.innerWidth - 0.5) * 15;
+  const y = (e.clientY / window.innerHeight - 0.5) * 15;
   bg.style.transform = `translate(${x}px, ${y}px) scale(1.05)`;
 });
 
 // ============= FADE IN ON SCROLL =============
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add("visible");
-    }
+    if (entry.isIntersecting) entry.target.classList.add("visible");
   });
 }, { threshold: 0.1 });
-
 document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
 
 // ============= AUTH =============
 async function signInWithGoogle() {
   try {
-    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+    const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: window.location.origin + window.location.pathname
-      }
+      options: { redirectTo: window.location.origin + window.location.pathname }
     });
     if (error) throw error;
   } catch (err) {
@@ -1371,11 +1196,7 @@ async function checkAuth() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (session) {
     currentUser = session.user;
-    const { data: profile } = await supabaseClient
-      .from("profiles")
-      .select("*")
-      .eq("id", currentUser.id)
-      .single();
+    const { data: profile } = await supabaseClient.from("profiles").select("*").eq("id", currentUser.id).single();
     currentProfile = profile;
   }
   renderUserArea();
@@ -1384,11 +1205,7 @@ async function checkAuth() {
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (session) {
     currentUser = session.user;
-    const { data: profile } = await supabaseClient
-      .from("profiles")
-      .select("*")
-      .eq("id", currentUser.id)
-      .single();
+    const { data: profile } = await supabaseClient.from("profiles").select("*").eq("id", currentUser.id).single();
     currentProfile = profile;
   } else {
     currentUser = null;
@@ -1403,7 +1220,7 @@ function renderUserArea() {
     const name = currentProfile.full_name || currentProfile.email?.split("@")[0] || "لاعب";
     const avatar = currentProfile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=22c55e&color=fff`;
     area.innerHTML = `
-      <button class="user-btn" onclick="showUserMenu(event)">
+      <button class="user-btn" onclick="if(confirm('تسجّل الخروج؟')) signOut()">
         <img src="${avatar}" alt="${escapeHTML(name)}" />
         <span>${escapeHTML(name)}</span>
       </button>
@@ -1418,14 +1235,6 @@ function renderUserArea() {
   }
 }
 
-function showUserMenu(e) {
-  e.stopPropagation();
-  // قائمة بسيطة
-  if (confirm("تسجّل الخروج؟")) {
-    signOut();
-  }
-}
-
 // ============= HELPERS =============
 function escapeHTML(s) {
   if (!s) return "";
@@ -1433,21 +1242,17 @@ function escapeHTML(s) {
   d.textContent = s;
   return d.innerHTML;
 }
-
 function calcOverall(p) {
   return Math.round((p.strength + p.shot_power + p.pace + p.dribbling + p.passing + p.defense) / 6);
 }
-
-function getCardTier(overall) {
-  if (overall >= 85) return "gold";
-  if (overall >= 70) return "silver";
+function getCardTier(o) {
+  if (o >= 85) return "gold";
+  if (o >= 70) return "silver";
   return "bronze";
 }
-
 function defaultPhoto() {
   return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23334"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7" fill="none" stroke="%2322c55e" stroke-width="1.5"/></svg>';
 }
-
 function formatDate(iso) {
   if (!iso) return "";
   const d = new Date(iso);
@@ -1455,7 +1260,6 @@ function formatDate(iso) {
   const months = ["جانفي", "فيفري", "مارس", "أفريل", "ماي", "جوان", "جويلية", "أوت", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
   return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
 }
-
 async function fetchSafe(table, query = "") {
   try {
     const url = `${SUPABASE_URL}/rest/v1/${table}${query ? "?" + query : ""}`;
@@ -1482,7 +1286,7 @@ function showToast(msg, type = "success") {
   toastTimer = setTimeout(() => t.classList.remove("show"), 3000);
 }
 
-// ============= LOAD DATA =============
+// ============= LOAD =============
 async function loadAll() {
   try {
     const [players, matches, events] = await Promise.all([
@@ -1493,56 +1297,42 @@ async function loadAll() {
     allPlayers = players;
     allMatches = matches;
     allEvents = events;
-
     renderStats();
     renderPlayers();
     renderMatches();
     setupRealtime();
-  } catch (e) {
-    console.error(e);
-  }
+  } catch (e) { console.error(e); }
 }
 
-// ============= RENDER STATS =============
 function renderStats() {
   const totalPlayers = allPlayers.length;
   const totalGoals = allEvents.filter(e => e.event_type === "goal").length;
   const totalAssists = allEvents.filter(e => e.event_type === "assist").length;
   const totalMatches = allMatches.length;
-
   document.getElementById("statsGrid").innerHTML = `
     <div class="stat-card glass">
-      <div class="stat-icon green">
-        <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-      </div>
+      <div class="stat-icon green"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
       <div class="stat-value">${totalPlayers}</div>
       <div class="stat-label">لاعب مسجّل</div>
     </div>
     <div class="stat-card glass">
-      <div class="stat-icon red">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20M2 12h20"/></svg>
-      </div>
+      <div class="stat-icon red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20M2 12h20"/></svg></div>
       <div class="stat-value">${totalGoals}</div>
       <div class="stat-label">هدف مسجّل</div>
     </div>
     <div class="stat-card glass">
-      <div class="stat-icon gold">
-        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-      </div>
+      <div class="stat-icon gold"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
       <div class="stat-value">${totalAssists}</div>
       <div class="stat-label">تمريرة حاسمة</div>
     </div>
     <div class="stat-card glass">
-      <div class="stat-icon blue">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-      </div>
+      <div class="stat-icon blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
       <div class="stat-value">${totalMatches}</div>
       <div class="stat-label">ماتش مسجّل</div>
     </div>
   `;
 }
 
-// ============= RENDER PLAYERS =============
 function renderPlayers() {
   const grid = document.getElementById("playersGrid");
   if (allPlayers.length === 0) {
@@ -1555,20 +1345,11 @@ function renderPlayers() {
     `;
     return;
   }
-
   const sorted = [...allPlayers].sort((a, b) => calcOverall(b) - calcOverall(a)).slice(0, 4);
   grid.innerHTML = sorted.map(p => {
     const overall = calcOverall(p);
     const tier = getCardTier(overall);
     const photo = p.photo || defaultPhoto();
-    const stats = {
-      pace: p.pace || 0,
-      shot: p.shot_power || 0,
-      pass: p.passing || 0,
-      dribble: p.dribbling || 0,
-      def: p.defense || 0,
-      phys: p.strength || 0
-    };
     return `
       <div class="fifa-card ${tier}" onclick="location.href='player.html?id=${p.id}'">
         <div class="fifa-rating">
@@ -1580,19 +1361,18 @@ function renderPlayers() {
         </div>
         <div class="fifa-name">${escapeHTML(p.name)}</div>
         <div class="fifa-stats">
-          <div class="fifa-stat"><span class="fifa-stat-val">${stats.pace}</span> سرعة</div>
-          <div class="fifa-stat"><span class="fifa-stat-val">${stats.shot}</span> فراب</div>
-          <div class="fifa-stat"><span class="fifa-stat-val">${stats.pass}</span> تمرير</div>
-          <div class="fifa-stat"><span class="fifa-stat-val">${stats.dribble}</span> مراوغة</div>
-          <div class="fifa-stat"><span class="fifa-stat-val">${stats.def}</span> دفاع</div>
-          <div class="fifa-stat"><span class="fifa-stat-val">${stats.phys}</span> قوة</div>
+          <div class="fifa-stat"><span class="fifa-stat-val">${p.pace||0}</span> سرعة</div>
+          <div class="fifa-stat"><span class="fifa-stat-val">${p.shot_power||0}</span> فراب</div>
+          <div class="fifa-stat"><span class="fifa-stat-val">${p.passing||0}</span> تمرير</div>
+          <div class="fifa-stat"><span class="fifa-stat-val">${p.dribbling||0}</span> مراوغة</div>
+          <div class="fifa-stat"><span class="fifa-stat-val">${p.defense||0}</span> دفاع</div>
+          <div class="fifa-stat"><span class="fifa-stat-val">${p.strength||0}</span> قوة</div>
         </div>
       </div>
     `;
   }).join("");
 }
 
-// ============= RENDER MATCHES =============
 function renderMatches() {
   const grid = document.getElementById("matchesGrid");
   if (allMatches.length === 0) {
@@ -1605,16 +1385,13 @@ function renderMatches() {
     `;
     return;
   }
-
   grid.innerHTML = allMatches.map(m => {
     const aWon = m.score_a > m.score_b;
     const bWon = m.score_b > m.score_a;
-    const initialA = (m.team_a || "A").charAt(0);
-    const initialB = (m.team_b || "B").charAt(0);
     return `
       <div class="match-card glass" onclick="location.href='matches.html'">
         <div class="match-team">
-          <div class="match-team-avatar" style="${aWon ? 'background: linear-gradient(135deg, var(--gold), var(--gold-deep));' : ''}">${initialA}</div>
+          <div class="match-team-avatar ${aWon ? 'winner' : ''}">${(m.team_a||'A').charAt(0)}</div>
           <span>${escapeHTML(m.team_a)}</span>
         </div>
         <div style="text-align:center;flex-shrink:0">
@@ -1623,26 +1400,19 @@ function renderMatches() {
         </div>
         <div class="match-team right">
           <span>${escapeHTML(m.team_b)}</span>
-          <div class="match-team-avatar" style="${bWon ? 'background: linear-gradient(135deg, var(--gold), var(--gold-deep));' : ''}">${initialB}</div>
+          <div class="match-team-avatar ${bWon ? 'winner' : ''}">${(m.team_b||'B').charAt(0)}</div>
         </div>
       </div>
     `;
   }).join("");
 }
 
-// ============= REALTIME =============
 function setupRealtime() {
   supabaseClient
     .channel("vinlandx-realtime")
-    .on("postgres_changes", { event: "*", schema: "public", table: "players" }, () => {
-      loadAll();
-    })
-    .on("postgres_changes", { event: "*", schema: "public", table: "matches" }, () => {
-      loadAll();
-    })
-    .on("postgres_changes", { event: "*", schema: "public", table: "events" }, () => {
-      loadAll();
-    })
+    .on("postgres_changes", { event: "*", schema: "public", table: "players" }, () => loadAll())
+    .on("postgres_changes", { event: "*", schema: "public", table: "matches" }, () => loadAll())
+    .on("postgres_changes", { event: "*", schema: "public", table: "events" }, () => loadAll())
     .subscribe();
 }
 
