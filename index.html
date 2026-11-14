@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#0a0f1a" />
 <title>كرة الحومة - Vinlandx</title>
-<link rel="icon" type="image/png" href="assets/icon.png" />
+<link rel="icon" type="image/png" href="icon.png" />
 <link rel="manifest" href="manifest.json" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,37 +15,31 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Green family */
   --green-1: #4ade80;
   --green-2: #22c55e;
   --green-3: #16a34a;
   --green-4: #15803d;
   --green-5: #14532d;
 
-  /* Red family */
   --red-1: #f87171;
   --red-2: #ef4444;
   --red-3: #dc2626;
   --red-4: #b91c1c;
 
-  /* Gold family */
   --gold-1: #fde68a;
   --gold-2: #fbbf24;
   --gold-3: #f59e0b;
   --gold-4: #d97706;
   --gold-5: #92400e;
 
-  /* Blue */
   --blue-1: #93c5fd;
   --blue-2: #60a5fa;
   --blue-3: #3b82f6;
 
-  /* Purple */
   --purple-1: #c4b5fd;
   --purple-2: #a78bfa;
   --purple-3: #8b5cf6;
 
-  /* Base dark */
   --bg: #070b14;
   --bg-2: #0d1424;
   --bg-3: #141c30;
@@ -57,14 +51,12 @@
   --border: rgba(255,255,255,0.08);
   --border-strong: rgba(255,255,255,0.15);
 
-  /* Effects */
   --glass-blur: 24px;
   --radius-xl: 28px;
   --radius-lg: 24px;
   --radius-md: 16px;
   --radius-sm: 12px;
 
-  /* Gradients */
   --grad-green: linear-gradient(135deg, var(--green-1) 0%, var(--green-3) 100%);
   --grad-red: linear-gradient(135deg, var(--red-1) 0%, var(--red-3) 100%);
   --grad-gold: linear-gradient(135deg, var(--gold-2) 0%, var(--gold-4) 100%);
@@ -251,7 +243,6 @@ body {
     inset 0 1px 0 rgba(255,255,255,0.9);
 }
 
-/* ===== CONTAINER ===== */
 .container {
   max-width: 1300px;
   margin: 0 auto;
@@ -337,7 +328,6 @@ nav a {
   font-size: 0.85rem;
   border-radius: var(--radius-sm);
   transition: all 0.25s;
-  position: relative;
 }
 nav a:hover { color: var(--text); background: rgba(34,197,94,0.1); }
 nav a.active { color: var(--green-1); background: rgba(34,197,94,0.15); }
@@ -432,7 +422,6 @@ nav a.active { color: var(--green-1); background: rgba(34,197,94,0.15); }
   .user-btn span { display: none; }
 }
 
-/* ===== MAIN ===== */
 main { padding-top: 100px; padding-bottom: 60px; min-height: 100vh; }
 
 /* ===== HERO ===== */
@@ -554,7 +543,6 @@ main { padding-top: 100px; padding-bottom: 60px; min-height: 100vh; }
 }
 .btn-secondary svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.5; }
 
-/* ===== STATS ===== */
 .stats-section { margin: 60px 0; animation: fadeInUp 0.8s ease 0.6s backwards; }
 .stats-grid {
   display: grid;
@@ -620,7 +608,6 @@ main { padding-top: 100px; padding-bottom: 60px; min-height: 100vh; }
 .stat-card:hover .stat-value { transform: scale(1.05); }
 .stat-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 700; }
 
-/* ===== SECTION ===== */
 section { margin: 60px 0; }
 .section-header {
   display: flex;
@@ -650,7 +637,6 @@ section { margin: 60px 0; }
   stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
 }
 .section-title .icon.red { background: var(--grad-red); box-shadow: 0 8px 24px rgba(239,68,68,0.4); }
-.section-title .icon.gold { background: var(--grad-gold); box-shadow: 0 8px 24px rgba(251,191,36,0.4); }
 
 .section-link {
   display: inline-flex; align-items: center; gap: 6px;
@@ -666,14 +652,12 @@ section { margin: 60px 0; }
   stroke: currentColor; fill: none; stroke-width: 2.5;
 }
 
-/* ===== PLAYERS GRID ===== */
 .players-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 20px;
 }
 
-/* ===== FIFA CARD ===== */
 .fifa-card {
   position: relative;
   border-radius: 20px;
@@ -687,21 +671,15 @@ section { margin: 60px 0; }
 }
 .fifa-card.gold {
   background: linear-gradient(160deg, #fef9c3 0%, #fde68a 20%, #fbbf24 50%, #d97706 85%, #92400e 100%);
-  box-shadow:
-    0 20px 60px rgba(217,119,6,0.4),
-    inset 0 0 0 2px rgba(255,255,255,0.5);
+  box-shadow: 0 20px 60px rgba(217,119,6,0.4), inset 0 0 0 2px rgba(255,255,255,0.5);
 }
 .fifa-card.silver {
   background: linear-gradient(160deg, #f8fafc 0%, #e2e8f0 25%, #cbd5e1 55%, #94a3b8 85%, #64748b 100%);
-  box-shadow:
-    0 20px 60px rgba(100,116,139,0.4),
-    inset 0 0 0 2px rgba(255,255,255,0.6);
+  box-shadow: 0 20px 60px rgba(100,116,139,0.4), inset 0 0 0 2px rgba(255,255,255,0.6);
 }
 .fifa-card.bronze {
   background: linear-gradient(160deg, #fed7aa 0%, #fb923c 25%, #ea580c 55%, #c2410c 85%, #7c2d12 100%);
-  box-shadow:
-    0 20px 60px rgba(194,65,12,0.4),
-    inset 0 0 0 2px rgba(255,255,255,0.4);
+  box-shadow: 0 20px 60px rgba(194,65,12,0.4), inset 0 0 0 2px rgba(255,255,255,0.4);
 }
 .fifa-card::before {
   content: "";
@@ -718,28 +696,21 @@ section { margin: 60px 0; }
 
 .fifa-rating {
   display: flex; align-items: center; justify-content: center;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 8px; margin-bottom: 16px;
   position: relative; z-index: 1;
 }
 .fifa-rating-num {
-  font-size: 2.8rem;
-  font-weight: 900;
-  line-height: 1;
-  color: #422006;
+  font-size: 2.8rem; font-weight: 900;
+  line-height: 1; color: #422006;
   text-shadow: 0 2px 4px rgba(255,255,255,0.5);
 }
 .fifa-card.silver .fifa-rating-num { color: #1e293b; text-shadow: 0 2px 4px rgba(255,255,255,0.7); }
 .fifa-card.bronze .fifa-rating-num { color: #431407; text-shadow: 0 2px 4px rgba(255,255,255,0.3); }
 
 .fifa-position {
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 0.7rem;
-  font-weight: 900;
-  letter-spacing: 1px;
-  background: rgba(66,32,6,0.9);
-  color: #fef3c7;
+  padding: 4px 10px; border-radius: 8px;
+  font-size: 0.7rem; font-weight: 900; letter-spacing: 1px;
+  background: rgba(66,32,6,0.9); color: #fef3c7;
 }
 .fifa-card.silver .fifa-position { background: rgba(30,41,59,0.9); color: #f1f5f9; }
 .fifa-card.bronze .fifa-position { background: rgba(67,20,7,0.9); color: #fed7aa; }
@@ -747,74 +718,53 @@ section { margin: 60px 0; }
 .fifa-photo-wrap {
   width: 100px; height: 100px;
   margin: 0 auto 16px;
-  position: relative;
-  z-index: 1;
+  position: relative; z-index: 1;
 }
 .fifa-photo {
   width: 100%; height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
+  border-radius: 50%; object-fit: cover;
   border: 4px solid rgba(255,255,255,0.9);
   box-shadow: 0 8px 24px rgba(0,0,0,0.3);
   background: #f1f5f9;
 }
 .fifa-photo-wrap::after {
   content: "";
-  position: absolute;
-  inset: -8px;
-  border-radius: 50%;
+  position: absolute; inset: -8px; border-radius: 50%;
   background: radial-gradient(circle, rgba(255,255,255,0.4), transparent 70%);
-  z-index: -1;
-  animation: pulseGlow 2.5s ease-in-out infinite;
+  z-index: -1; animation: pulseGlow 2.5s ease-in-out infinite;
 }
 @keyframes pulseGlow {
   0%,100% { opacity: 0.5; transform: scale(1); }
   50% { opacity: 0.8; transform: scale(1.1); }
 }
 .fifa-name {
-  font-size: 1.15rem;
-  font-weight: 900;
-  margin-bottom: 12px;
-  color: #422006;
-  text-shadow: 0 2px 4px rgba(255,255,255,0.5);
+  font-size: 1.15rem; font-weight: 900; margin-bottom: 12px;
+  color: #422006; text-shadow: 0 2px 4px rgba(255,255,255,0.5);
   position: relative; z-index: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .fifa-card.silver .fifa-name { color: #1e293b; }
 .fifa-card.bronze .fifa-name { color: #431407; }
 
 .fifa-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px 16px;
-  padding-top: 12px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px 16px; padding-top: 12px;
   border-top: 2px solid rgba(0,0,0,0.15);
   position: relative; z-index: 1;
 }
 .fifa-stat {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  font-size: 0.7rem;
-  font-weight: 800;
+  display: flex; align-items: baseline; gap: 6px;
+  font-size: 0.7rem; font-weight: 800;
   color: #422006;
 }
 .fifa-card.silver .fifa-stat { color: #1e293b; }
 .fifa-card.bronze .fifa-stat { color: #431407; }
 .fifa-stat-val { font-size: 1rem; font-weight: 900; }
 
-/* ===== MATCHES ===== */
 .matches-grid { display: grid; gap: 12px; }
 .match-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  transition: all 0.3s;
-  gap: 12px;
-  cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; transition: all 0.3s; gap: 12px; cursor: pointer;
 }
 .match-card:hover {
   transform: translateX(-4px);
@@ -822,61 +772,41 @@ section { margin: 60px 0; }
   border-color: var(--red-2);
 }
 .match-team {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 800;
-  font-size: 0.95rem;
+  flex: 1; display: flex; align-items: center; gap: 10px;
+  font-weight: 800; font-size: 0.95rem;
 }
 .match-team.right { justify-content: flex-end; text-align: left; }
 .match-team-avatar {
-  width: 36px; height: 36px;
-  border-radius: 10px;
+  width: 36px; height: 36px; border-radius: 10px;
   background: var(--grad-green);
   display: flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: 900; font-size: 0.85rem;
-  flex-shrink: 0;
+  color: #fff; font-weight: 900; font-size: 0.85rem; flex-shrink: 0;
 }
 .match-team-avatar.winner { background: var(--grad-gold); box-shadow: 0 4px 12px rgba(251,191,36,0.4); }
 .match-score {
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
+  padding: 8px 16px; border-radius: var(--radius-sm);
   background: rgba(34,197,94,0.12);
   border: 1px solid rgba(34,197,94,0.3);
-  color: var(--green-1);
-  font-weight: 900;
-  font-size: 1rem;
-  font-variant-numeric: tabular-nums;
-  min-width: 70px;
-  text-align: center;
+  color: var(--green-1); font-weight: 900; font-size: 1rem;
+  font-variant-numeric: tabular-nums; min-width: 70px; text-align: center;
 }
 .match-date {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  font-weight: 700;
-  text-align: center;
-  width: 100%;
-  margin-top: 4px;
+  font-size: 0.7rem; color: var(--text-muted);
+  font-weight: 700; text-align: center; width: 100%; margin-top: 4px;
 }
 
-/* ===== EMPTY ===== */
 .empty {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-muted);
-  font-weight: 600;
+  text-align: center; padding: 60px 20px;
+  color: var(--text-muted); font-weight: 600;
 }
 .empty svg {
   width: 64px; height: 64px;
   stroke: var(--green-2); fill: none; stroke-width: 1.5;
-  margin-bottom: 16px;
-  opacity: 0.5;
+  margin-bottom: 16px; opacity: 0.5;
 }
 .empty h3 { font-size: 1.15rem; color: var(--text); margin-bottom: 6px; }
 .empty p { font-size: 0.85rem; }
 
-/* ===== SKELETON ===== */
 .skeleton {
   background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 100%);
   background-size: 200% 100%;
@@ -889,34 +819,23 @@ section { margin: 60px 0; }
 }
 .skeleton-card { height: 260px; }
 
-/* ===== ANIMATIONS ===== */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .fade-in {
-  opacity: 0;
-  transform: translateY(30px);
+  opacity: 0; transform: translateY(30px);
   transition: opacity 0.6s ease, transform 0.6s ease;
 }
-.fade-in.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+.fade-in.visible { opacity: 1; transform: translateY(0); }
 
-/* ===== TOAST ===== */
 .toast {
-  position: fixed;
-  bottom: 24px; left: 50%;
+  position: fixed; bottom: 24px; left: 50%;
   transform: translateX(-50%) translateY(120px);
-  padding: 14px 24px;
-  border-radius: var(--radius-md);
-  background: var(--bg-2);
-  border: 1px solid var(--border-strong);
+  padding: 14px 24px; border-radius: var(--radius-md);
+  background: var(--bg-2); border: 1px solid var(--border-strong);
   box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-  font-weight: 700;
-  font-size: 0.9rem;
-  z-index: 500;
+  font-weight: 700; font-size: 0.9rem; z-index: 500;
   transition: transform 0.4s cubic-bezier(.4,0,.2,1);
   max-width: 90vw;
 }
@@ -924,7 +843,6 @@ section { margin: 60px 0; }
 .toast.success { border-color: var(--green-2); color: var(--green-1); }
 .toast.error { border-color: var(--red-2); color: var(--red-1); }
 
-/* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb {
@@ -933,7 +851,6 @@ section { margin: 60px 0; }
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--green-1); }
 
-/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .container { padding: 0 16px; }
   main { padding-top: 90px; }
@@ -969,25 +886,22 @@ section { margin: 60px 0; }
 </head>
 <body>
 
-<!-- ===== LOADER ===== -->
 <div id="loader">
-  <img src="assets/logo.png" alt="Vinlandx" class="loader-logo" onerror="this.style.display='none'" />
+  <img src="logo.png" alt="Vinlandx" class="loader-logo" onerror="this.style.display='none'" />
   <div class="loader-text">VINLANDX</div>
   <div class="loader-sub">كرة الحومة 🇩🇿</div>
   <div class="loader-bar"></div>
 </div>
 
-<!-- ===== BACKGROUND ===== -->
-<div class="bg-layer" id="bgLayer" style="background-image: url('assets/background1.png');"></div>
+<div class="bg-layer" id="bgLayer" style="background-image: url('background1.png');"></div>
 <div class="bg-overlay"></div>
 <div class="bg-orb orb-1"></div>
 <div class="bg-orb orb-2"></div>
 <div class="bg-orb orb-3"></div>
 
-<!-- ===== HEADER ===== -->
 <header id="header">
   <a href="index.html" class="header-logo">
-    <img src="assets/logo.png" alt="Vinlandx" onerror="this.style.display='none'" />
+    <img src="logo.png" alt="Vinlandx" onerror="this.style.display='none'" />
     <div class="header-logo-text">
       <span class="main">كرة الحومة - Vinlandx</span>
       <span class="sub">منصة كرة القدم الجزائرية</span>
@@ -1019,7 +933,6 @@ section { margin: 60px 0; }
   </div>
 </header>
 
-<!-- ===== MAIN ===== -->
 <main>
   <div class="container">
 
@@ -1103,28 +1016,21 @@ section { margin: 60px 0; }
 <div class="toast" id="toast"></div>
 
 <script>
-// ============= CONFIG =============
 const SUPABASE_URL = "https://ncrycgbrstafdouvipzc.supabase.co";
 const SUPABASE_KEY = "sb_publishable_6t2dkU27Rkinsoo8MhYAEQ_FSgj4G73";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ============= STATE =============
 let currentUser = null;
 let currentProfile = null;
 let allPlayers = [];
 let allMatches = [];
 let allEvents = [];
 
-// ============= LOADER =============
 window.addEventListener("load", () => {
-  setTimeout(() => {
-    document.getElementById("loader").classList.add("hidden");
-  }, 900);
+  setTimeout(() => document.getElementById("loader").classList.add("hidden"), 900);
 });
 
-// ============= THEME =============
 function getSavedTheme() { return localStorage.getItem("vinlandx_theme") || "dark"; }
-
 function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
   const icon = document.getElementById("themeIcon");
@@ -1134,7 +1040,6 @@ function applyTheme(theme) {
     icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
   }
 }
-
 function toggleTheme() {
   const current = getSavedTheme();
   const next = current === "dark" ? "light" : "dark";
@@ -1142,20 +1047,16 @@ function toggleTheme() {
   applyTheme(next);
   showToast(next === "dark" ? "🌙 الوضع الداكن" : "☀️ الوضع الفاتح", "success");
 }
-
 applyTheme(getSavedTheme());
 
-// ============= MOBILE NAV =============
 function toggleMobileNav() { document.getElementById("nav").classList.toggle("open"); }
 
-// ============= HEADER SCROLL =============
 window.addEventListener("scroll", () => {
   const header = document.getElementById("header");
   if (window.scrollY > 50) header.classList.add("scrolled");
   else header.classList.remove("scrolled");
 });
 
-// ============= PARALLAX =============
 document.addEventListener("mousemove", (e) => {
   const bg = document.getElementById("bgLayer");
   const x = (e.clientX / window.innerWidth - 0.5) * 15;
@@ -1163,7 +1064,6 @@ document.addEventListener("mousemove", (e) => {
   bg.style.transform = `translate(${x}px, ${y}px) scale(1.05)`;
 });
 
-// ============= FADE IN ON SCROLL =============
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) entry.target.classList.add("visible");
@@ -1171,7 +1071,6 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.1 });
 document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
 
-// ============= AUTH =============
 async function signInWithGoogle() {
   try {
     const { error } = await supabaseClient.auth.signInWithOAuth({
@@ -1235,7 +1134,6 @@ function renderUserArea() {
   }
 }
 
-// ============= HELPERS =============
 function escapeHTML(s) {
   if (!s) return "";
   const d = document.createElement("div");
@@ -1275,7 +1173,6 @@ async function fetchSafe(table, query = "") {
   }
 }
 
-// ============= TOAST =============
 let toastTimer;
 function showToast(msg, type = "success") {
   const t = document.getElementById("toast");
@@ -1286,7 +1183,6 @@ function showToast(msg, type = "success") {
   toastTimer = setTimeout(() => t.classList.remove("show"), 3000);
 }
 
-// ============= LOAD =============
 async function loadAll() {
   try {
     const [players, matches, events] = await Promise.all([
@@ -1416,7 +1312,6 @@ function setupRealtime() {
     .subscribe();
 }
 
-// ============= INIT =============
 document.addEventListener("DOMContentLoaded", async () => {
   await checkAuth();
   await loadAll();
