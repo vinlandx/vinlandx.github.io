@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0a0f1a" />
+<title>قارن اللاعبين - Vinlandx</title>
+<link rel="icon" type="image/png" href="icon.png" />
+<link rel="manifest" href="manifest.json" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green-1: #4ade80; --green-2: #22c55e; --green-3: #16a34a; --green-4: #15803d;
+  --red-1: #f87171; --red-2: #ef4444; --red-3: #dc2626;
+  --gold-1: #fde68a; --gold-2: #fbbf24; --gold-3: #f59e0b; --gold-4: #d97706;
+  --blue-1: #93c5fd; --blue-2: #60a5fa; --blue-3: #3b82f6;
+  --purple-1: #c4b5fd; --purple-2: #a78bfa; --purple-3: #8b5cf6;
+  --pink-2: #f472b6; --pink-3: #ec4899;
+
+  --bg: #070b14;
+  --card: rgba(255,255,255,0.05);
+  --card-hover: rgba(255,255,255,0.09);
+  --text: #f1f5f9; --text-muted: #94a3b8;
+  --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.15);
+
+  --radius-lg: 20px; --radius-md: 14px; --radius-sm: 10px;
+
+  --grad-green: linear-gradient(135deg, var(--green-1) 0%, var(--green-3) 100%);
+  --grad-red: linear-gradient(135deg, var(--red-1) 0%, var(--red-3) 100%);
+  --grad-gold: linear-gradient(135deg, var(--gold-2) 0%, var(--gold-4) 100%);
+}
+
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --card: rgba(255,255,255,0.9);
+  --card-hover: rgba(255,255,255,1);
+  --text: #0f172a; --text-muted: #475569;
+  --border: rgba(15,23,42,0.08); --border-strong: rgba(15,23,42,0.15);
+}
+
+html { scroll-behavior: smooth; }
+html, body { height: 100%; overflow-x: hidden; }
+
+body {
+  font-family: 'Cairo', system-ui, sans-serif;
+  color: var(--text); background: var(--bg);
+  min-height: 100vh; direction: rtl;
+  position: relative;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* LOADER */
+#loader {
+  position: fixed; inset: 0; background: var(--bg);
+  z-index: 10000; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity 0.3s ease, visibility 0.3s;
+}
+#loader.hidden { opacity: 0; visibility: hidden; }
+.loader-logo { width: 100px; height: 100px; margin-bottom: 16px; object-fit: contain; }
+.loader-text { font-size: 1.4rem; font-weight: 900; color: var(--green-1); letter-spacing: 2px; margin-bottom: 20px; }
+.loader-bar { width: 160px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 999px; overflow: hidden; position: relative; }
+.loader-bar::after { content: ""; position: absolute; inset: 0; background: var(--grad-green); animation: loaderBar 1.2s ease-in-out infinite; }
+@keyframes loaderBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+/* BACKGROUND */
+.bg-layer {
+  position: fixed; inset: 0; z-index: -2;
+  background-size: cover; background-position: center;
+  background-attachment: fixed;
+}
+.bg-overlay {
+  position: fixed; inset: 0; z-index: -1;
+  background: linear-gradient(180deg, rgba(7,11,20,0.8) 0%, rgba(7,11,20,0.95) 100%);
+}
+[data-theme="light"] .bg-overlay {
+  background: linear-gradient(180deg, rgba(248,250,252,0.9) 0%, rgba(248,250,252,0.98) 100%);
+}
+
+.glass {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+/* HEADER */
+header {
+  position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+  width: calc(100% - 24px); max-width: 1300px; z-index: 100;
+  padding: 10px 18px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  transition: all 0.3s;
+  background: var(--card);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
+}
+header.scrolled { top: 6px; padding: 6px 14px; }
+
+.header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
+.header-logo img { height: 40px; width: auto; object-fit: contain; }
+.header-logo-text { display: flex; flex-direction: column; line-height: 1; }
+.header-logo-text .main { font-size: 1rem; font-weight: 900; color: var(--green-1); letter-spacing: 0.5px; }
+.header-logo-text .sub { font-size: 0.62rem; color: var(--text-muted); font-weight: 700; margin-top: 2px; }
+
+nav { display: flex; align-items: center; gap: 4px; }
+nav a {
+  padding: 7px 12px; color: var(--text-muted); text-decoration: none;
+  font-weight: 700; font-size: 0.82rem; border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+nav a:hover { color: var(--text); background: rgba(34,197,94,0.1); }
+nav a.active { color: var(--green-1); background: rgba(34,197,94,0.15); }
+
+.header-actions { display: flex; align-items: center; gap: 8px; }
+.icon-btn {
+  width: 40px; height: 40px; border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  color: var(--text); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; padding: 0;
+}
+.icon-btn:hover { background: rgba(34,197,94,0.15); border-color: var(--green-2); }
+.icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+.user-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 12px 4px 4px; border-radius: 999px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.2s; font-family: inherit; color: var(--text);
+}
+.user-btn:hover { background: rgba(34,197,94,0.15); border-color: var(--green-2); }
+.user-btn img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--green-2); object-fit: cover; }
+.user-btn span { font-size: 0.82rem; font-weight: 700; }
+
+.login-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: var(--radius-sm);
+  background: var(--grad-green); border: none; color: #fff;
+  font-family: inherit; font-weight: 800; font-size: 0.82rem;
+  cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+}
+.login-btn:hover { transform: translateY(-1px); }
+.login-btn svg { width: 16px; height: 16px; fill: #fff; }
+
+.mobile-toggle { display: none; }
+
+@media (max-width: 900px) {
+  nav {
+    display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+    flex-direction: column; padding: 12px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+  nav.open { display: flex; }
+  nav a { width: 100%; text-align: right; padding: 10px 14px; }
+  .mobile-toggle { display: flex; }
+  .user-btn span { display: none; }
+}
+
+main { padding-top: 90px; padding-bottom: 60px; min-height: 100vh; }
+
+.page-header { text-align: center; padding: 30px 0 20px; }
+.page-header h1 {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+.page-header h1 .purple {
+  background: linear-gradient(135deg, var(--purple-2), var(--purple-3));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.page-header p { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; }
+
+/* SELECTOR */
+.selector-card {
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.selector-title {
+  font-size: 1rem;
+  font-weight: 900;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.selector-title span { display: flex; align-items: center; gap: 8px; }
+.selector-title svg { width: 18px; height: 18px; stroke: var(--green-1); fill: none; stroke-width: 2.2; }
+.selector-count {
+  padding: 4px 12px;
+  background: rgba(34,197,94,0.15);
+  color: var(--green-1);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.players-grid-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px;
+}
+.player-select-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+[data-theme="light"] .player-select-card { background: rgba(15,23,42,0.03); }
+.player-select-card:hover {
+  border-color: var(--green-2);
+  transform: translateY(-2px);
+}
+.player-select-card.selected {
+  border-color: var(--green-2);
+  background: rgba(34,197,94,0.12);
+  box-shadow: 0 4px 12px rgba(34,197,94,0.2);
+}
+.player-select-card img {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+}
+.player-select-card.selected img { border-color: var(--green-2); }
+.player-select-info { min-width: 0; flex: 1; }
+.player-select-name {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.player-select-pos {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+.player-select-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  flex-shrink: 0;
+}
+.player-select-card.selected .player-select-check {
+  background: var(--green-2);
+  border-color: var(--green-2);
+}
+.player-select-check svg {
+  width: 12px;
+  height: 12px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 3;
+  opacity: 0;
+}
+.player-select-card.selected .player-select-check svg { opacity: 1; }
+
+.actions-bar {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.btn.green { background: var(--grad-green); color: #fff; box-shadow: 0 4px 16px rgba(34,197,94,0.3); }
+.btn.green:hover { transform: translateY(-2px); }
+.btn.green:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn.outline { background: rgba(255,255,255,0.05); border: 1px solid var(--border-strong); color: var(--text); }
+.btn.outline:hover { background: rgba(255,255,255,0.1); border-color: var(--green-2); }
+
+/* COMPARISON AREA */
+.comparison-area { margin-top: 24px; }
+
+/* COMPARISON GRID */
+.comp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.comp-card {
+  padding: 16px;
+  text-align: center;
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  border: 2px solid var(--border);
+  transition: all 0.3s;
+  position: relative;
+}
+.comp-card.winner {
+  border-color: var(--gold-2);
+  background: linear-gradient(160deg, rgba(251,191,36,0.1), rgba(217,119,6,0.05));
+  box-shadow: 0 8px 24px rgba(251,191,36,0.2);
+}
+.comp-card.winner::before {
+  content: "🏆";
+  position: absolute;
+  top: -12px;
+  right: 50%;
+  transform: translateX(50%);
+  font-size: 1.5rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.comp-card-photo {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--green-2);
+  margin: 0 auto 10px;
+  display: block;
+  background: var(--bg);
+}
+.comp-card.winner .comp-card-photo { border-color: var(--gold-2); }
+
+.comp-card-name {
+  font-size: 0.9rem;
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.comp-card-pos {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.comp-card-overall {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.2rem;
+  margin: 0 auto;
+  background: rgba(34,197,94,0.15);
+  color: var(--green-1);
+  border: 2px solid var(--green-2);
+}
+.comp-card.winner .comp-card-overall {
+  background: var(--grad-gold);
+  color: #fff;
+  border-color: var(--gold-2);
+}
+
+/* RADAR */
+.radar-section {
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.radar-title {
+  font-size: 1rem;
+  font-weight: 900;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.radar-title svg { width: 18px; height: 18px; stroke: var(--purple-2); fill: none; stroke-width: 2.2; }
+
+.radar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+}
+.radar-svg {
+  max-width: 400px;
+  width: 100%;
+  height: auto;
+}
+
+.radar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--text);
+}
+[data-theme="light"] .legend-item { background: rgba(15,23,42,0.04); }
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+/* STAT BARS */
+.stat-bars-section {
+  padding: 20px;
+}
+.stat-bars-title {
+  font-size: 1rem;
+  font-weight: 900;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.stat-bars-title svg { width: 18px; height: 18px; stroke: var(--green-1); fill: none; stroke-width: 2.2; }
+
+.stat-bar-group {
+  margin-bottom: 20px;
+}
+.stat-bar-group-name {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.stat-bar-group-winner {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--gold-2);
+  padding: 3px 10px;
+  background: rgba(251,191,36,0.15);
+  border-radius: 999px;
+}
+.stat-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.stat-bar-player {
+  width: 80px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+.stat-bar-track {
+  flex: 1;
+  height: 12px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+[data-theme="light"] .stat-bar-track { background: rgba(15,23,42,0.08); }
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.8s cubic-bezier(.4,0,.2,1);
+  position: relative;
+}
+.stat-bar-value {
+  width: 40px;
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: var(--text);
+  text-align: center;
+  flex-shrink: 0;
+}
+.stat-bar-value.best { color: var(--gold-2); }
+
+/* EMPTY */
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.empty svg {
+  width: 70px;
+  height: 70px;
+  stroke: var(--purple-2);
+  fill: none;
+  stroke-width: 1.2;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+.empty h3 { font-size: 1.2rem; color: var(--text); margin-bottom: 6px; }
+.empty p { font-size: 0.9rem; }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  font-weight: 700;
+  font-size: 0.85rem;
+  z-index: 500;
+  transition: transform 0.3s ease;
+  max-width: 90vw;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--green-2); color: var(--green-1); }
+.toast.error { border-color: var(--red-2); color: var(--red-1); }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--purple-3); border-radius: 999px; }
+
+@media (max-width: 768px) {
+  .container { padding: 0 16px; }
+  main { padding-top: 80px; }
+  .comp-card-photo { width: 60px; height: 60px; }
+  .comp-card-name { font-size: 0.82rem; }
+  .comp-card-overall { width: 42px; height: 42px; font-size: 1rem; }
+  .selector-title { font-size: 0.9rem; }
+  .players-grid-selector { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .stat-bar-player { width: 60px; font-size: 0.7rem; }
+  .stat-bar-value { width: 32px; font-size: 0.78rem; }
+  .stat-bar-track { height: 10px; }
+}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <img src="logo.png" alt="Vinlandx" class="loader-logo" onerror="this.style.display='none'" />
+  <div class="loader-text">VINLANDX</div>
+  <div class="loader-bar"></div>
+</div>
+
+<div class="bg-layer" style="background-image: url('background4.png');"></div>
+<div class="bg-overlay"></div>
+
+<header id="header">
+  <a href="index.html" class="header-logo">
+    <img src="logo.png" alt="Vinlandx" onerror="this.style.display='none'" />
+    <div class="header-logo-text">
+      <span class="main">كرة الحومة - Vinlandx</span>
+      <span class="sub">منصة كرة القدم الجزائرية</span>
+    </div>
+  </a>
+
+  <nav id="nav">
+    <a href="index.html">الرئيسية</a>
+    <a href="players.html">اللاعبين</a>
+    <a href="matches.html">الماتشات</a>
+    <a href="leaderboard.html">الترتيب</a>
+    <a href="compare.html" class="active">قارن</a>
+    <a href="teams.html">الفرق</a>
+  </nav>
+
+  <div class="header-actions">
+    <button class="icon-btn mobile-toggle" onclick="toggleMobileNav()" aria-label="القائمة">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" aria-label="الوضع">
+      <svg viewBox="0 0 24 24" id="themeIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <div id="userArea">
+      <button class="login-btn" onclick="signInWithGoogle()">
+        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        دخول
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+
+    <div class="page-header">
+      <h1>قارن <span class="purple">اللاعبين</span> ⚖️</h1>
+      <p>اختار 2 إلى 5 لاعبين وقارنهم</p>
+    </div>
+
+    <!-- SELECTOR -->
+    <div class="selector-card glass">
+      <div class="selector-title">
+        <span>
+          <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          اختار اللاعبين
+        </span>
+        <span class="selector-count" id="selectedCount">0 / 5</span>
+      </div>
+
+      <div class="players-grid-selector" id="playersSelector">
+        <div class="skeleton" style="height: 56px;"></div>
+        <div class="skeleton" style="height: 56px;"></div>
+        <div class="skeleton" style="height: 56px;"></div>
+        <div class="skeleton" style="height: 56px;"></div>
+      </div>
+
+      <div class="actions-bar">
+        <button class="btn green" onclick="compareNow()" id="compareBtn" disabled>
+          <svg viewBox="0 0 24 24"><path d="M16 3h5v5"/><path d="M8 21H3v-5"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></svg>
+          قارن
+        </button>
+        <button class="btn outline" onclick="clearAll()">
+          <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          امسح
+        </button>
+      </div>
+    </div>
+
+    <!-- COMPARISON -->
+    <div class="comparison-area" id="comparisonArea"></div>
+
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = "https://dhvuopnibiwpzuwvxxtv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_sl9It4cgGFwkGCC76X4zHw_Hjx4iELO";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const MAX_COMPARE = 5;
+const COLORS = ["#22c55e", "#ef4444", "#fbbf24", "#60a5fa", "#a78bfa"];
+
+let currentUser = null;
+let currentProfile = null;
+let allPlayers = [];
+let allEvents = [];
+let selectedPlayers = [];
+
+const STAT_LABELS = {
+  pace: "السرعة",
+  shot_power: "قوة الفراب",
+  passing: "التمرير",
+  dribbling: "المراوغة",
+  defense: "الدفاع",
+  strength: "القوة البدنية"
+};
+
+window.addEventListener("load", () => {
+  document.getElementById("loader").classList.add("hidden");
+});
+
+function getSavedTheme() { return localStorage.getItem("vinlandx_theme") || "dark"; }
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const icon = document.getElementById("themeIcon");
+  if (theme === "dark") {
+    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  } else {
+    icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  }
+}
+function toggleTheme() {
+  const current = getSavedTheme();
+  const next = current === "dark" ? "light" : "dark";
+  localStorage.setItem("vinlandx_theme", next);
+  applyTheme(next);
+  showToast(next === "dark" ? "🌙 الوضع الداكن" : "☀️ الوضع الفاتح", "success");
+}
+applyTheme(getSavedTheme());
+
+function toggleMobileNav() { document.getElementById("nav").classList.toggle("open"); }
+
+window.addEventListener("scroll", () => {
+  const header = document.getElementById("header");
+  if (window.scrollY > 50) header.classList.add("scrolled");
+  else header.classList.remove("scrolled");
+});
+
+// AUTH
+async function signInWithGoogle() {
+  try {
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: "https://vinlandx.github.io" }
+    });
+    if (error) throw error;
+  } catch (err) { showToast("خطأ: " + err.message, "error"); }
+}
+
+async function signOut() {
+  await supabaseClient.auth.signOut();
+  currentUser = null;
+  currentProfile = null;
+  renderUserArea();
+}
+
+async function checkAuth() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    const { data: profile } = await supabaseClient.from("profiles").select("*").eq("id", currentUser.id).single();
+    currentProfile = profile;
+  }
+  renderUserArea();
+}
+
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  if (session) {
+    currentUser = session.user;
+    const { data: profile } = await supabaseClient.from("profiles").select("*").eq("id", currentUser.id).single();
+    currentProfile = profile;
+  } else {
+    currentUser = null;
+    currentProfile = null;
+  }
+  renderUserArea();
+});
+
+function renderUserArea() {
+  const area = document.getElementById("userArea");
+  if (currentUser) {
+    const avatar = currentProfile?.avatar_url ||
+      currentUser?.user_metadata?.avatar_url ||
+      currentUser?.user_metadata?.picture ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.email)}&background=22c55e&color=fff`;
+    const name = currentProfile?.full_name || currentUser?.user_metadata?.full_name || currentUser.email;
+    area.innerHTML = `
+      <button class="user-btn" onclick="if(confirm('تسجّل الخروج؟')) signOut()">
+        <img src="${avatar}" alt="${escapeHTML(name)}" />
+        <span>${escapeHTML(name.split("@")[0])}</span>
+      </button>
+    `;
+  } else {
+    area.innerHTML = `
+      <button class="login-btn" onclick="signInWithGoogle()">
+        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        دخول
+      </button>
+    `;
+  }
+}
+
+// HELPERS
+function escapeHTML(s) {
+  if (!s) return "";
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function calcOverall(p) {
+  return Math.round((p.strength + p.shot_power + p.pace + p.dribbling + p.passing + p.defense) / 6);
+}
+
+function defaultPhoto() {
+  return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23334"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7" fill="none" stroke="%2322c55e" stroke-width="1.5"/></svg>';
+}
+
+async function fetchSafe(table, query = "") {
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/${table}${query ? "?" + query : ""}`;
+    const res = await fetch(url, {
+      headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (e) { return []; }
+}
+
+let toastTimer;
+function showToast(msg, type = "success") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast " + type;
+  clearTimeout(toastTimer);
+  setTimeout(() => t.classList.add("show"), 10);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+// RENDER SELECTOR
+function renderSelector() {
+  const el = document.getElementById("playersSelector");
+  if (!el) return;
+
+  if (allPlayers.length === 0) {
+    el.innerHTML = `
+      <div class="empty" style="grid-column:1/-1;padding:30px 20px">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+        <h3>ما فيه لاعبين</h3>
+        <p>الأدمن يزيد اللاعبين</p>
+      </div>
+    `;
+    return;
+  }
+
+  el.innerHTML = allPlayers.map(p => {
+    const isSelected = selectedPlayers.includes(p.id);
+    return `
+      <div class="player-select-card ${isSelected ? 'selected' : ''}" onclick="togglePlayer('${p.id}')">
+        <img src="${p.photo || defaultPhoto()}" onerror="this.src='${defaultPhoto()}'" />
+        <div class="player-select-info">
+          <div class="player-select-name">${escapeHTML(p.name)}</div>
+          <div class="player-select-pos">${p.position} · ${calcOverall(p)}</div>
+        </div>
+        <div class="player-select-check">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function togglePlayer(id) {
+  if (selectedPlayers.includes(id)) {
+    selectedPlayers = selectedPlayers.filter(x => x !== id);
+  } else {
+    if (selectedPlayers.length >= MAX_COMPARE) {
+      showToast(`ما تقدرش تزيد أكثر من ${MAX_COMPARE} لاعبين`, "error");
+      return;
+    }
+    selectedPlayers.push(id);
+  }
+
+  document.getElementById("selectedCount").textContent = `${selectedPlayers.length} / ${MAX_COMPARE}`;
+  document.getElementById("compareBtn").disabled = selectedPlayers.length < 2;
+
+  renderSelector();
+}
+
+function clearAll() {
+  selectedPlayers = [];
+  document.getElementById("selectedCount").textContent = `0 / ${MAX_COMPARE}`;
+  document.getElementById("compareBtn").disabled = true;
+  document.getElementById("comparisonArea").innerHTML = "";
+  renderSelector();
+}
+
+// COMPARE
+function compareNow() {
+  if (selectedPlayers.length < 2) {
+    showToast("اختار لاعبين على الأقل", "error");
+    return;
+  }
+
+  const players = selectedPlayers.map(id => allPlayers.find(p => p.id === id)).filter(Boolean);
+  renderComparison(players);
+  document.getElementById("comparisonArea").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderComparison(players) {
+  const area = document.getElementById("comparisonArea");
+
+  // ترتيب حسب التقييم
+  const sorted = [...players].sort((a, b) => calcOverall(b) - calcOverall(a));
+  const bestOverall = calcOverall(sorted[0]);
+  const topPlayers = sorted.filter(p => calcOverall(p) === bestOverall).map(p => p.id);
+
+  // كروت اللاعبين
+  const cardsHTML = players.map(p => {
+    const overall = calcOverall(p);
+    const isWinner = topPlayers.includes(p.id);
+    return `
+      <div class="comp-card ${isWinner ? 'winner' : ''}">
+        <img class="comp-card-photo" src="${p.photo || defaultPhoto()}" onerror="this.src='${defaultPhoto()}'" />
+        <div class="comp-card-name">${escapeHTML(p.name)}</div>
+        <div class="comp-card-pos">${p.position}</div>
+        <div class="comp-card-overall">${overall}</div>
+      </div>
+    `;
+  }).join("");
+
+  // Radar
+  const radarHTML = renderRadar(players);
+
+  // Legend
+  const legendHTML = players.map((p, i) => `
+    <div class="legend-item">
+      <div class="legend-color" style="background: ${COLORS[i]}"></div>
+      ${escapeHTML(p.name)}
+    </div>
+  `).join("");
+
+  // Stat bars
+  const statBarsHTML = Object.keys(STAT_LABELS).map(statKey => {
+    const values = players.map(p => ({ player: p, val: p[statKey] || 0 }));
+    const maxVal = Math.max(...values.map(v => v.val));
+    const winners = values.filter(v => v.val === maxVal).map(v => v.player.id);
+
+    const barsHTML = values.map((v, i) => {
+      const isBest = winners.includes(v.player.id);
+      return `
+        <div class="stat-bar-row">
+          <div class="stat-bar-player">${escapeHTML(v.player.name.split(" ")[0])}</div>
+          <div class="stat-bar-track">
+            <div class="stat-bar-fill" style="width: ${v.val}%; background: ${COLORS[i]}"></div>
+          </div>
+          <div class="stat-bar-value ${isBest ? 'best' : ''}">${v.val}</div>
+        </div>
+      `;
+    }).join("");
+
+    const winnerNames = values.filter(v => winners.includes(v.player.id)).map(v => v.player.name).join("، ");
+
+    return `
+      <div class="stat-bar-group">
+        <div class="stat-bar-group-name">
+          ${STAT_LABELS[statKey]}
+          ${winners.length > 0 && winners.length < players.length ? `<span class="stat-bar-group-winner">🏆 ${winnerNames}</span>` : ''}
+        </div>
+        ${barsHTML}
+      </div>
+    `;
+  }).join("");
+
+  area.innerHTML = `
+    <div class="comp-grid">
+      ${cardsHTML}
+    </div>
+
+    <div class="radar-section glass">
+      <div class="radar-title">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        مقارنة المهارات
+      </div>
+      <div class="radar-container">${radarHTML}</div>
+      <div class="radar-legend">${legendHTML}</div>
+    </div>
+
+    <div class="stat-bars-section glass">
+      <div class="stat-bars-title">
+        <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        المقارنة التفصيلية
+      </div>
+      ${statBarsHTML}
+    </div>
+  `;
+}
+
+// RADAR CHART
+function renderRadar(players) {
+  const keys = Object.keys(STAT_LABELS);
+  const size = 400;
+  const cx = size / 2;
+  const cy = size / 2;
+  const radius = 130;
+  const n = keys.length;
+
+  const angleFor = (i) => (Math.PI * 2 * i) / n - Math.PI / 2;
+  const point = (i, value) => {
+    const angle = angleFor(i);
+    const r = (value / 100) * radius;
+    return { x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r };
+  };
+
+  // Grid
+  const gridLevels = [20, 40, 60, 80, 100];
+  const gridHTML = gridLevels.map(level => {
+    const pts = keys.map((_, i) => {
+      const p = point(i, level);
+      return `${p.x},${p.y}`;
+    }).join(" ");
+    return `<polygon points="${pts}" fill="none" stroke="rgba(148,163,184,0.2)" stroke-width="1"/>`;
+  }).join("");
+
+  // Axes
+  const axisHTML = keys.map((_, i) => {
+    const p = point(i, 100);
+    return `<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="rgba(148,163,184,0.2)" stroke-width="1"/>`;
+  }).join("");
+
+  // Polygons للاعبين
+  const polygonsHTML = players.map((p, idx) => {
+    const color = COLORS[idx];
+    const pts = keys.map((k, i) => {
+      const pt = point(i, p[k] || 0);
+      return `${pt.x},${pt.y}`;
+    }).join(" ");
+    return `<polygon points="${pts}" fill="${color}" fill-opacity="0.15" stroke="${color}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  }).join("");
+
+  // نقاط
+  const dotsHTML = players.map((p, idx) => {
+    const color = COLORS[idx];
+    return keys.map((k, i) => {
+      const pt = point(i, p[k] || 0);
+      return `<circle cx="${pt.x}" cy="${pt.y}" r="3.5" fill="${color}" stroke="#fff" stroke-width="1.5"/>`;
+    }).join("");
+  }).join("");
+
+  // Labels
+  const labelsHTML = keys.map((k, i) => {
+    const p = point(i, 120);
+    return `<text x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="700" fill="#94a3b8" font-family="Cairo">${STAT_LABELS[k]}</text>`;
+  }).join("");
+
+  return `
+    <svg class="radar-svg" viewBox="0 0 ${size} ${size}">
+      ${gridHTML}
+      ${axisHTML}
+      ${polygonsHTML}
+      ${dotsHTML}
+      ${labelsHTML}
+    </svg>
+  `;
+}
+
+// LOAD
+async function loadAll() {
+  try {
+    const [players, events] = await Promise.all([
+      fetchSafe("players", "select=*&order=name.asc"),
+      fetchSafe("events", "select=player_id,event_type")
+    ]);
+    allPlayers = players;
+    allEvents = events;
+    renderSelector();
+  } catch (e) {
+    console.error(e);
+    document.getElementById("playersSelector").innerHTML = '<div class="empty"><h3>خطأ في التحميل</h3></div>';
+  }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await checkAuth();
+  await loadAll();
+});
+</script>
+
+</body>
+</html>
