@@ -1,14 +1,54 @@
 {
-  "name": "Vinlandx — كرة الحومة",
+  "name": "كرة الحومة - Vinlandx",
   "short_name": "Vinlandx",
-  "description": "منصة كرة الحومة الجزائرية",
+  "description": "منصة كرة القدم الجزائرية - تابع لاعبين الحومة",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#0a0f1a",
-  "theme_color": "#0a0f1a",
   "orientation": "portrait",
+  "background_color": "#070b14",
+  "theme_color": "#22c55e",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["sports", "entertainment"],
   "icons": [
-    { "src": "assets/icon.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "assets/icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "اللاعبين",
+      "short_name": "لاعبين",
+      "url": "/players.html",
+      "description": "شوف كل اللاعبين"
+    },
+    {
+      "name": "الترتيب",
+      "short_name": "ترتيب",
+      "url": "/leaderboard.html",
+      "description": "لوحة الترتيب"
+    },
+    {
+      "name": "الماتشات",
+      "short_name": "ماتشات",
+      "url": "/matches.html",
+      "description": "آخر الماتشات"
+    }
   ]
 }
