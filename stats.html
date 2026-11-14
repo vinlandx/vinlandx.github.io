@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0a0f1a" />
+<title>الإحصائيات - Vinlandx</title>
+<link rel="icon" type="image/png" href="icon.png" />
+<link rel="manifest" href="manifest.json" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green-1: #4ade80; --green-2: #22c55e; --green-3: #16a34a; --green-4: #15803d;
+  --red-1: #f87171; --red-2: #ef4444; --red-3: #dc2626;
+  --gold-1: #fde68a; --gold-2: #fbbf24; --gold-3: #f59e0b; --gold-4: #d97706;
+  --blue-2: #60a5fa; --blue-3: #3b82f6;
+  --purple-2: #a78bfa; --purple-3: #8b5cf6;
+
+  --bg: #070b14;
+  --card: rgba(255,255,255,0.05);
+  --card-hover: rgba(255,255,255,0.09);
+  --text: #f1f5f9; --text-muted: #94a3b8;
+  --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.15);
+
+  --radius-lg: 20px; --radius-md: 14px; --radius-sm: 10px;
+
+  --grad-green: linear-gradient(135deg, var(--green-1) 0%, var(--green-3) 100%);
+  --grad-red: linear-gradient(135deg, var(--red-1) 0%, var(--red-3) 100%);
+  --grad-gold: linear-gradient(135deg, var(--gold-2) 0%, var(--gold-4) 100%);
+  --grad-purple: linear-gradient(135deg, var(--purple-2) 0%, var(--purple-3) 100%);
+}
+
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --card: rgba(255,255,255,0.9);
+  --card-hover: rgba(255,255,255,1);
+  --text: #0f172a; --text-muted: #475569;
+  --border: rgba(15,23,42,0.08); --border-strong: rgba(15,23,42,0.15);
+}
+
+html { scroll-behavior: smooth; }
+html, body { height: 100%; overflow-x: hidden; }
+
+body {
+  font-family: 'Cairo', system-ui, sans-serif;
+  color: var(--text); background: var(--bg);
+  min-height: 100vh; direction: rtl;
+  position: relative;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* LOADER */
+#loader {
+  position: fixed; inset: 0; background: var(--bg);
+  z-index: 10000; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity 0.3s ease, visibility 0.3s;
+}
+#loader.hidden { opacity: 0; visibility: hidden; }
+.loader-logo { width: 100px; height: 100px; margin-bottom: 16px; object-fit: contain; }
+.loader-text { font-size: 1.4rem; font-weight: 900; color: var(--green-1); letter-spacing: 2px; margin-bottom: 20px; }
+.loader-bar { width: 160px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 999px; overflow: hidden; position: relative; }
+.loader-bar::after { content: ""; position: absolute; inset: 0; background: var(--grad-green); animation: loaderBar 1.2s ease-in-out infinite; }
+@keyframes loaderBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+/* BACKGROUND */
+.bg-layer {
+  position: fixed; inset: 0; z-index: -2;
+  background-size: cover; background-position: center;
+  background-attachment: fixed;
+}
+.bg-overlay {
+  position: fixed; inset: 0; z-index: -1;
+  background: linear-gradient(180deg, rgba(7,11,20,0.8) 0%, rgba(7,11,20,0.95) 100%);
+}
+[data-theme="light"] .bg-overlay {
+  background: linear-gradient(180deg, rgba(248,250,252,0.9) 0%, rgba(248,250,252,0.98) 100%);
+}
+
+.glass {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+/* HEADER */
+header {
+  position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+  width: calc(100% - 24px); max-width: 1300px; z-index: 100;
+  padding: 10px 18px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  transition: all 0.3s;
+  background: var(--card);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
+}
+header.scrolled { top: 6px; padding: 6px 14px; }
+
+.header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
+.header-logo img { height: 40px; width: auto; object-fit: contain; }
+.header-logo-text { display: flex; flex-direction: column; line-height: 1; }
+.header-logo-text .main { font-size: 1rem; font-weight: 900; color: var(--green-1); letter-spacing: 0.5px; }
+.header-logo-text .sub { font-size: 0.62rem; color: var(--text-muted); font-weight: 700; margin-top: 2px; }
+
+nav { display: flex; align-items: center; gap: 4px; }
+nav a {
+  padding: 7px 12px; color: var(--text-muted); text-decoration: none;
+  font-weight: 700; font-size: 0.82rem; border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+nav a:hover { color: var(--text); background: rgba(34,197,94,0.1); }
+nav a.active { color: var(--green-1); background: rgba(34,197,94,0.15); }
+
+.header-actions { display: flex; align-items: center; gap: 8px; }
+.icon-btn {
+  width: 40px; height: 40px; border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  color: var(--text); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; padding: 0;
+}
+.icon-btn:hover { background: rgba(34,197,94,0.15); border-color: var(--green-2); }
+.icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+.user-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 12px 4px 4px; border-radius: 999px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.2s; font-family: inherit; color: var(--text);
+}
+.user-btn:hover { background: rgba(34,197,94,0.15); border-color: var(--green-2); }
+.user-btn img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--green-2); object-fit: cover; }
+.user-btn span { font-size: 0.82rem; font-weight: 700; }
+
+.login-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: var(--radius-sm);
+  background: var(--grad-green); border: none; color: #fff;
+  font-family: inherit; font-weight: 800; font-size: 0.82rem;
+  cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+}
+.login-btn:hover { transform: translateY(-1px); }
+.login-btn svg { width: 16px; height: 16px; fill: #fff; }
+
+.mobile-toggle { display: none; }
+
+@media (max-width: 900px) {
+  nav {
+    display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+    flex-direction: column; padding: 12px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+  nav.open { display: flex; }
+  nav a { width: 100%; text-align: right; padding: 10px 14px; }
+  .mobile-toggle { display: flex; }
+  .user-btn span { display: none; }
+}
+
+main { padding-top: 90px; padding-bottom: 60px; min-height: 100vh; }
+
+.page-header { text-align: center; padding: 30px 0 20px; }
+.page-header h1 {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+.page-header h1 .blue {
+  background: linear-gradient(135deg, var(--blue-2), var(--blue-3));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.page-header p { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; }
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.tab svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.tab:hover { border-color: var(--blue-2); color: var(--text); }
+.tab.active {
+  background: linear-gradient(135deg, var(--blue-2), var(--blue-3));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 16px rgba(59,130,246,0.3);
+}
+
+.panel { display: none; }
+.panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* STATS SUMMARY */
+.stats-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  padding: 20px 16px;
+  text-align: center;
+  border-radius: var(--radius-md);
+  background: var(--card);
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+.stat-card:hover { transform: translateY(-3px); background: var(--card-hover); }
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+}
+.stat-icon svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.stat-icon.green { background: var(--grad-green); }
+.stat-icon.red { background: var(--grad-red); }
+.stat-icon.gold { background: var(--grad-gold); }
+.stat-icon.blue { background: linear-gradient(135deg, var(--blue-2), var(--blue-3)); }
+.stat-icon.purple { background: var(--grad-purple); }
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+/* CHART CARD */
+.chart-card {
+  padding: 22px;
+  margin-bottom: 20px;
+}
+.chart-title {
+  font-size: 1rem;
+  font-weight: 900;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+.chart-title svg { width: 18px; height: 18px; stroke: var(--blue-2); fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.chart-container {
+  position: relative;
+  height: 320px;
+  width: 100%;
+}
+
+/* LIST */
+.list-card {
+  padding: 22px;
+  margin-bottom: 20px;
+}
+.list-title {
+  font-size: 1rem;
+  font-weight: 900;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+.list-title svg { width: 18px; height: 18px; stroke: var(--green-1); fill: none; stroke-width: 2.2; }
+
+.rank-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.03);
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+[data-theme="light"] .rank-row { background: rgba(15,23,42,0.03); }
+.rank-row:hover { background: rgba(34,197,94,0.08); transform: translateX(-3px); }
+
+.rank-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.85rem;
+  background: rgba(255,255,255,0.05);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+[data-theme="light"] .rank-num { background: rgba(15,23,42,0.05); }
+.rank-num.top1 { background: var(--grad-gold); color: #fff; }
+.rank-num.top2 { background: linear-gradient(135deg, #cbd5e1, #94a3b8); color: #fff; }
+.rank-num.top3 { background: linear-gradient(135deg, #fb923c, #c2410c); color: #fff; }
+
+.rank-photo {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid var(--green-2);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+
+.rank-info { flex: 1; min-width: 0; }
+.rank-name {
+  font-size: 0.88rem;
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rank-pos {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.rank-value {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--gold-2);
+  flex-shrink: 0;
+  text-align: left;
+  min-width: 50px;
+}
+.rank-value small {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  display: block;
+  margin-top: 1px;
+}
+
+/* GOAL LOG */
+.filter-chips {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.chip {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--card);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.chip:hover { border-color: var(--green-2); color: var(--text); }
+.chip.active {
+  background: var(--grad-green);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+}
+
+.goal-list { display: flex; flex-direction: column; gap: 8px; }
+
+.goal-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.03);
+  border-right: 4px solid var(--green-2);
+  transition: all 0.2s;
+}
+[data-theme="light"] .goal-item { background: rgba(15,23,42,0.03); }
+.goal-item:hover { background: rgba(34,197,94,0.08); transform: translateX(-3px); }
+.goal-item.assist { border-color: var(--blue-2); }
+.goal-item.yellow { border-color: var(--gold-2); }
+.goal-item.red { border-color: var(--red-2); }
+.goal-item.motm { border-color: var(--gold-2); }
+
+.goal-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(34,197,94,0.15);
+  color: var(--green-1);
+}
+.goal-item.assist .goal-icon { background: rgba(96,165,250,0.15); color: var(--blue-2); }
+.goal-item.yellow .goal-icon { background: rgba(251,191,36,0.15); color: var(--gold-2); }
+.goal-item.red .goal-icon { background: rgba(239,68,68,0.15); color: var(--red-1); }
+.goal-item.motm .goal-icon { background: rgba(251,191,36,0.15); color: var(--gold-2); }
+
+.goal-icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+.goal-info { flex: 1; min-width: 0; }
+.goal-info strong {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+.goal-info span {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.goal-minute {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(34,197,94,0.15);
+  color: var(--green-1);
+  font-weight: 900;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+.goal-item.assist .goal-minute { background: rgba(96,165,250,0.15); color: var(--blue-2); }
+.goal-item.yellow .goal-minute { background: rgba(251,191,36,0.15); color: var(--gold-2); }
+.goal-item.red .goal-minute { background: rgba(239,68,68,0.15); color: var(--red-1); }
+.goal-item.motm .goal-minute { background: rgba(251,191,36,0.15); color: var(--gold-2); }
+
+/* EMPTY */
+.empty {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.empty svg {
+  width: 64px;
+  height: 64px;
+  stroke: var(--blue-2);
+  fill: none;
+  stroke-width: 1.2;
+  margin-bottom: 14px;
+  opacity: 0.5;
+}
+.empty h3 { font-size: 1.1rem; color: var(--text); margin-bottom: 6px; }
+.empty p { font-size: 0.85rem; }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  font-weight: 700;
+  font-size: 0.85rem;
+  z-index: 500;
+  transition: transform 0.3s ease;
+  max-width: 90vw;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--green-2); color: var(--green-1); }
+.toast.error { border-color: var(--red-2); color: var(--red-1); }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--blue-3); border-radius: 999px; }
+
+@media (max-width: 768px) {
+  .container { padding: 0 16px; }
+  main { padding-top: 80px; }
+  .stat-card { padding: 16px 12px; }
+  .stat-value { font-size: 1.4rem; }
+  .chart-container { height: 260px; }
+  .rank-row { padding: 10px; gap: 8px; }
+  .rank-num { width: 28px; height: 28px; font-size: 0.75rem; }
+  .rank-photo { width: 36px; height: 36px; }
+  .rank-name { font-size: 0.8rem; }
+  .rank-value { font-size: 0.95rem; }
+  .goal-item { padding: 10px; gap: 10px; }
+  .goal-icon { width: 34px; height: 34px; }
+  .goal-info strong { font-size: 0.8rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <img src="logo.png" alt="Vinlandx" class="loader-logo" onerror="this.style.display='none'" />
+  <div class="loader-text">VINLANDX</div>
+  <div class="loader-bar"></div>
+</div>
+
+<div class="bg-layer" style="background-image: url('background3.png');"></div>
+<div class="bg-overlay"></div>
+
+<header id="header">
+  <a href="index.html" class="header-logo">
+    <img src="logo.png" alt="Vinlandx" onerror="this.style.display='none'" />
+    <div class="header-logo-text">
+      <span class="main">كرة الحومة - Vinlandx</span>
+      <span class="sub">منصة كرة القدم الجزائرية</span>
+    </div>
+  </a>
+
+  <nav id="nav">
+    <a href="index.html">الرئيسية</a>
+    <a href="players.html">اللاعبين</a>
+    <a href="matches.html">الماتشات</a>
+    <a href="leaderboard.html">الترتيب</a>
+    <a href="compare.html">قارن</a>
+    <a href="teams.html">الفرق</a>
+  </nav>
+
+  <div class="header-actions">
+    <button class="icon-btn mobile-toggle" onclick="toggleMobileNav()" aria-label="القائمة">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" aria-label="الوضع">
+      <svg viewBox="0 0 24 24" id="themeIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <div id="userArea">
+      <button class="login-btn" onclick="signInWithGoogle()">
+        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        دخول
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+
+    <div class="page-header">
+      <h1>الإحصائيات <span class="blue">والأرقام</span> 📊</h1>
+      <p>كل الأرقام والسجلات في مكان واحد</p>
+    </div>
+
+    <div class="stats-summary" id="statsSummary">
+      <div class="stat-card skeleton"></div>
+      <div class="stat-card skeleton"></div>
+      <div class="stat-card skeleton"></div>
+      <div class="stat-card skeleton"></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('overview', this)">
+        <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        نظرة عامة
+      </button>
+      <button class="tab" onclick="switchTab('scorers', this)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20M2 12h20"/></svg>
+        الهدافين
+      </button>
+      <button class="tab" onclick="switchTab('assists', this)">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        صناع الأهداف
+      </button>
+      <button class="tab" onclick="switchTab('goallog', this)">
+        <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>
+        سجل الأحداث
+      </button>
+    </div>
+
+    <!-- OVERVIEW PANEL -->
+    <div class="panel active" id="panel-overview">
+      <div class="chart-card glass">
+        <div class="chart-title">
+          <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          ترتيب الهدافين (Top 10)
+        </div>
+        <div class="chart-container">
+          <canvas id="scorersChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card glass">
+        <div class="chart-title">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20M2 12h20"/></svg>
+          توزيع الأهداف حسب المركز
+        </div>
+        <div class="chart-container" style="height: 280px;">
+          <canvas id="positionsChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCORERS PANEL -->
+    <div class="panel" id="panel-scorers">
+      <div class="list-card glass">
+        <div class="list-title">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20M2 12h20"/></svg>
+          ترتيب الهدافين
+        </div>
+        <div id="scorersList"></div>
+      </div>
+    </div>
+
+    <!-- ASSISTS PANEL -->
+    <div class="panel" id="panel-assists">
+      <div class="list-card glass">
+        <div class="list-title">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          ترتيب صناع الأهداف
+        </div>
+        <div id="assistsList"></div>
+      </div>
+    </div>
+
+    <!-- GOAL LOG PANEL -->
+    <div class="panel" id="panel-goallog">
+      <div class="list-card glass">
+        <div class="list-title">
+          <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>
+          سجل الأحداث
+        </div>
+        <div class="filter-chips" id="logFilters">
+          <button class="chip active" onclick="setLogFilter('all', this)">الكل</button>
+          <button class="chip" onclick="setLogFilter('goal', this)">⚽ أهداف</button>
+          <button class="chip" onclick="setLogFilter('assist', this)">🎯 تمريرات</button>
+          <button class="chip" onclick="setLogFilter('motm', this)">⭐ رجل الماتش</button>
+          <button class="chip" onclick="setLogFilter('yellow', this)">🟨 صفراء</button>
+          <button class="chip" onclick="setLogFilter('red', this)">🟥 حمراء</button>
+        </div>
+        <div class="goal-list" id="goalLog"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = "https://dhvuopnibiwpzuwvxxtv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_sl9It4cgGFwkGCC76X4zHw_Hjx4iELO";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let currentProfile = null;
+let allPlayers = [];
+let allEvents = [];
+let allMatches = [];
+let currentLogFilter = "all";
+let scorersChart = null;
+let positionsChart = null;
+
+window.addEventListener("load", () => {
+  document.getElementById("loader").classList.add("hidden");
+});
+
+function getSavedTheme() { return localStorage.getItem("vinlandx_theme") || "dark"; }
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const icon = document.getElementById("themeIcon");
+  if (theme === "dark") {
+    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  } else {
+    icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  }
+}
+function toggleTheme() {
+  const current = getSavedTheme();
+  const next = current === "dark" ? "light" : "dark";
+  localStorage.setItem("vinlandx_theme", next);
+  applyTheme(next);
+  showToast(next === "dark" ? "🌙 الوضع الداكن" : "☀️ الوضع الفاتح", "success");
+  // إعادة رسم الرسوم البيانية
+  setTimeout(() => {
+    if (scorersChart) scorersChart.destroy();
+    if (positionsChart) positionsChart.destroy();
+    renderCharts();
+  }, 100);
+}
+applyTheme(getSavedTheme());
+
+function toggleMobileNav() { document.getElementById("nav").classList.toggle("open"); }
+
+window.addEventListener("scroll", () => {
+  const header = document.getElementById("header");
+  if (window.scrollY > 50) header.classList.add("scrolled");
+  else header.classList.remove("scrolled");
+});
+
+// AUTH
+async function signInWithGoogle() {
+  try {
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: "https://vinlandx.github.io" }
+    });
+    if (error) throw error;
+  } catch (err) { showToast("خطأ: " + err.message, "error"); }
+}
+
+async function signOut() {
+  await supabaseClient.auth.signOut();
+  currentUser = null;
+  currentProfile = null;
+  renderUserArea();
+}
+
+async function checkAuth() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    const { data: profile } = await supabaseClient.from("profiles").select("*").eq("id", currentUser.id).single();
+    currentProfile = profile;
+  }
+  renderUserArea();
+}
+
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  if (session) {
+    currentUser = session.user;
+    const { data: profile } = await supabaseClient.from("profiles").select("*").eq("id", currentUser.id).single();
+    currentProfile = profile;
+  } else {
+    currentUser = null;
+    currentProfile = null;
+  }
+  renderUserArea();
+});
+
+function renderUserArea() {
+  const area = document.getElementById("userArea");
+  if (currentUser) {
+    const avatar = currentProfile?.avatar_url ||
+      currentUser?.user_metadata?.avatar_url ||
+      currentUser?.user_metadata?.picture ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.email)}&background=22c55e&color=fff`;
+    const name = currentProfile?.full_name || currentUser?.user_metadata?.full_name || currentUser.email;
+    area.innerHTML = `
+      <button class="user-btn" onclick="if(confirm('تسجّل الخروج؟')) signOut()">
+        <img src="${avatar}" alt="${escapeHTML(name)}" />
+        <span>${escapeHTML(name.split("@")[0])}</span>
+      </button>
+    `;
+  } else {
+    area.innerHTML = `
+      <button class="login-btn" onclick="signInWithGoogle()">
+        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        دخول
+      </button>
+    `;
+  }
+}
+
+// HELPERS
+function escapeHTML(s) {
+  if (!s) return "";
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function defaultPhoto() {
+  return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23334"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7" fill="none" stroke="%2322c55e" stroke-width="1.5"/></svg>';
+}
+
+function getPlayerStats(pid) {
+  const ev = allEvents.filter(e => e.player_id === pid);
+  const goals = ev.filter(e => e.event_type === "goal").length;
+  const assists = ev.filter(e => e.event_type === "assist").length;
+  const motm = ev.filter(e => e.event_type === "motm").length;
+  const yellow = ev.filter(e => e.event_type === "yellow").length;
+  const red = ev.filter(e => e.event_type === "red").length;
+  return { goals, assists, motm, yellow, red };
+}
+
+async function fetchSafe(table, query = "") {
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/${table}${query ? "?" + query : ""}`;
+    const res = await fetch(url, {
+      headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (e) { return []; }
+}
+
+let toastTimer;
+function showToast(msg, type = "success") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast " + type;
+  clearTimeout(toastTimer);
+  setTimeout(() => t.classList.add("show"), 10);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+function formatDate(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const days = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+  const months = ["جانفي", "فيفري", "مارس", "أفريل", "ماي", "جوان", "جويلية", "أوت", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+  return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+}
+
+// TAB SWITCH
+function switchTab(name, btn) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  btn.classList.add("active");
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+  document.getElementById("panel-" + name).classList.add("active");
+
+  if (name === "overview") {
+    setTimeout(() => renderCharts(), 100);
+  }
+}
+
+// SET LOG FILTER
+function setLogFilter(f, btn) {
+  currentLogFilter = f;
+  document.querySelectorAll("#logFilters .chip").forEach(c => c.classList.remove("active"));
+  btn.classList.add("active");
+  renderGoalLog();
+}
+
+// LOAD
+async function loadAll() {
+  try {
+    const [players, events, matches] = await Promise.all([
+      fetchSafe("players", "select=*&order=name.asc"),
+      fetchSafe("events", "select=*&order=event_date.desc"),
+      fetchSafe("matches", "select=*&order=match_date.desc")
+    ]);
+    allPlayers = players;
+    allEvents = events;
+    allMatches = matches;
+
+    renderSummary();
+    renderScorers();
+    renderAssists();
+    renderGoalLog();
+    renderCharts();
+    setupRealtime();
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// SUMMARY
+function renderSummary() {
+  const el = document.getElementById("statsSummary");
+  if (!el) return;
+
+  const totalGoals = allEvents.filter(e => e.event_type === "goal").length;
+  const totalAssists = allEvents.filter(e => e.event_type === "assist").length;
+  const totalMotm = allEvents.filter(e => e.event_type === "motm").length;
+  const totalMatches = allMatches.length;
+
+  el.innerHTML = `
+    <div class="stat-card">
+      <div class="stat-icon green"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20M2 12h20"/></svg></div>
+      <div class="stat-value">${totalGoals}</div>
+      <div class="stat-label">هدف</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon blue"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+      <div class="stat-value">${totalAssists}</div>
+      <div class="stat-label">تمريرة</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon gold"><svg viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div>
+      <div class="stat-value">${totalMotm}</div>
+      <div class="stat-label">رجل الماتش</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon purple"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+      <div class="stat-value">${totalMatches}</div>
+      <div class="stat-label">ماتش</div>
+    </div>
+  `;
+}
+
+// CHARTS
+function renderCharts() {
+  const isDark = getSavedTheme() === "dark";
+  const textColor = isDark ? "#94a3b8" : "#475569";
+  const gridColor = isDark ? "rgba(148,163,184,0.1)" : "rgba(15,23,42,0.08)";
+
+  // Scorers chart
+  const scorersCanvas = document.getElementById("scorersChart");
+  if (scorersCanvas) {
+    if (scorersChart) scorersChart.destroy();
+
+    const topScorers = allPlayers
+      .map(p => ({ name: p.name, goals: getPlayerStats(p.id).goals }))
+      .filter(s => s.goals > 0)
+      .sort((a, b) => b.goals - a.goals)
+      .slice(0, 10);
+
+    if (topScorers.length > 0) {
+      scorersChart = new Chart(scorersCanvas, {
+        type: "bar",
+        data: {
+          labels: topScorers.map(s => s.name),
+          datasets: [{
+            label: "الأهداف",
+            data: topScorers.map(s => s.goals),
+            backgroundColor: "rgba(34,197,94,0.7)",
+            borderColor: "#22c55e",
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: isDark ? "#0f172a" : "#fff",
+              titleColor: isDark ? "#f1f5f9" : "#0f172a",
+              bodyColor: isDark ? "#94a3b8" : "#475569",
+              borderColor: "#22c55e",
+              borderWidth: 1,
+              padding: 10,
+              titleFont: { family: "Cairo", weight: "800" },
+              bodyFont: { family: "Cairo", weight: "700" }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: textColor, font: { family: "Cairo", weight: "700" } },
+              grid: { color: gridColor }
+            },
+            x: {
+              ticks: { color: textColor, font: { family: "Cairo", weight: "700" }, maxRotation: 45 },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+  }
+
+  // Positions chart
+  const positionsCanvas = document.getElementById("positionsChart");
+  if (positionsCanvas) {
+    if (positionsChart) positionsChart.destroy();
+
+    const positions = { "حارس": 0, "مدافع": 0, "وسط": 0, "مهاجم": 0 };
+    allPlayers.forEach(p => {
+      const goals = getPlayerStats(p.id).goals;
+      if (positions[p.position] !== undefined) {
+        positions[p.position] += goals;
+      }
+    });
+
+    const dataValues = Object.values(positions);
+    if (dataValues.some(v => v > 0)) {
+      positionsChart = new Chart(positionsCanvas, {
+        type: "doughnut",
+        data: {
+          labels: Object.keys(positions),
+          datasets: [{
+            data: dataValues,
+            backgroundColor: [
+              "rgba(251,191,36,0.8)",
+              "rgba(96,165,250,0.8)",
+              "rgba(34,197,94,0.8)",
+              "rgba(239,68,68,0.8)"
+            ],
+            borderColor: isDark ? "#070b14" : "#f8fafc",
+            borderWidth: 3,
+            hoverOffset: 10
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: {
+                color: textColor,
+                font: { family: "Cairo", weight: "700", size: 13 },
+                padding: 16,
+                usePointStyle: true,
+                pointStyle: "circle"
+              }
+            },
+            tooltip: {
+              backgroundColor: isDark ? "#0f172a" : "#fff",
+              titleColor: isDark ? "#f1f5f9" : "#0f172a",
+              bodyColor: isDark ? "#94a3b8" : "#475569",
+              borderColor: "#22c55e",
+              borderWidth: 1,
+              padding: 10,
+              titleFont: { family: "Cairo", weight: "800" },
+              bodyFont: { family: "Cairo", weight: "700" }
+            }
+          }
+        }
+      });
+    }
+  }
+}
+
+// SCORERS
+function renderScorers() {
+  const el = document.getElementById("scorersList");
+  if (!el) return;
+
+  const scorers = allPlayers
+    .map(p => ({ ...p, stats: getPlayerStats(p.id) }))
+    .filter(p => p.stats.goals > 0)
+    .sort((a, b) => b.stats.goals - a.stats.goals);
+
+  if (scorers.length === 0) {
+    el.innerHTML = '<div class="empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg><h3>ما فيه أهداف بعد</h3></div>';
+    return;
+  }
+
+  el.innerHTML = scorers.map((p, i) => {
+    const rankClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+    return `
+      <div class="rank-row" onclick="location.href='player.html?id=${p.id}'" style="cursor:pointer">
+        <div class="rank-num ${rankClass}">${i + 1}</div>
+        <img class="rank-photo" src="${p.photo || defaultPhoto()}" onerror="this.src='${defaultPhoto()}'" />
+        <div class="rank-info">
+          <div class="rank-name">${escapeHTML(p.name)}</div>
+          <div class="rank-pos">${p.position}</div>
+        </div>
+        <div class="rank-value">
+          ${p.stats.goals}
+          <small>هدف</small>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// ASSISTS
+function renderAssists() {
+  const el = document.getElementById("assistsList");
+  if (!el) return;
+
+  const assists = allPlayers
+    .map(p => ({ ...p, stats: getPlayerStats(p.id) }))
+    .filter(p => p.stats.assists > 0)
+    .sort((a, b) => b.stats.assists - a.stats.assists);
+
+  if (assists.length === 0) {
+    el.innerHTML = '<div class="empty"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><h3>ما فيه تمريرات بعد</h3></div>';
+    return;
+  }
+
+  el.innerHTML = assists.map((p, i) => {
+    const rankClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+    return `
+      <div class="rank-row" onclick="location.href='player.html?id=${p.id}'" style="cursor:pointer">
+        <div class="rank-num ${rankClass}">${i + 1}</div>
+        <img class="rank-photo" src="${p.photo || defaultPhoto()}" onerror="this.src='${defaultPhoto()}'" />
+        <div class="rank-info">
+          <div class="rank-name">${escapeHTML(p.name)}</div>
+          <div class="rank-pos">${p.position}</div>
+        </div>
+        <div class="rank-value">
+          ${p.stats.assists}
+          <small>تمريرة</small>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// GOAL LOG
+function renderGoalLog() {
+  const el = document.getElementById("goalLog");
+  if (!el) return;
+
+  let filtered = allEvents;
+  if (currentLogFilter !== "all") {
+    filtered = filtered.filter(e => e.event_type === currentLogFilter);
+  }
+
+  if (filtered.length === 0) {
+    el.innerHTML = '<div class="empty"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/></svg><h3>ما فيه أحداث</h3></div>';
+    return;
+  }
+
+  const typeInfo = {
+    goal: { label: "هدف", icon: '<circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20M2 12h20"/>' },
+    assist: { label: "تمريرة", icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>' },
+    yellow: { label: "بطاقة صفراء", icon: '<rect x="6" y="3" width="12" height="18" rx="2"/>' },
+    red: { label: "بطاقة حمراء", icon: '<rect x="6" y="3" width="12" height="18" rx="2"/>' },
+    motm: { label: "رجل الماتش", icon: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>' }
+  };
+
+  el.innerHTML = filtered.slice(0, 50).map(ev => {
+    const p = allPlayers.find(x => x.id === ev.player_id);
+    const m = allMatches.find(x => x.id === ev.match_id);
+    const info = typeInfo[ev.event_type] || typeInfo.goal;
+    return `
+      <div class="goal-item ${ev.event_type}">
+        <div class="goal-icon">
+          <svg viewBox="0 0 24 24">${info.icon}</svg>
+        </div>
+        <div class="goal-info">
+          <strong>${p ? escapeHTML(p.name) : 'لاعب محذوف'} — ${info.label}</strong>
+          <span>${formatDate(ev.event_date)}${m ? ' · ' + m.team_a + ' ضد ' + m.team_b : ''}${ev.note ? ' · ' + escapeHTML(ev.note) : ''}</span>
+        </div>
+        ${ev.minute ? `<div class="goal-minute">د ${ev.minute}'</div>` : ''}
+      </div>
+    `;
+  }).join("");
+}
+
+function setupRealtime() {
+  supabaseClient
+    .channel("vinlandx-stats")
+    .on("postgres_changes", { event: "*", schema: "public", table: "players" }, () => loadAll())
+    .on("postgres_changes", { event: "*", schema: "public", table: "events" }, () => loadAll())
+    .on("postgres_changes", { event: "*", schema: "public", table: "matches" }, () => loadAll())
+    .subscribe();
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await checkAuth();
+  await loadAll();
+});
+</script>
+
+</body>
+</html>
