@@ -4,30 +4,30 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#0a0f1a" />
-<title>اللاعبين - Vinlandx</title>
+<title>بطاقة اللاعب - Vinlandx</title>
 <link rel="icon" type="image/png" href="icon.png" />
 <link rel="manifest" href="manifest.json" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --green-1: #4ade80; --green-2: #22c55e; --green-3: #16a34a; --green-4: #15803d; --green-5: #14532d;
-  --red-1: #f87171; --red-2: #ef4444; --red-3: #dc2626; --red-4: #b91c1c;
-  --gold-1: #fde68a; --gold-2: #fbbf24; --gold-3: #f59e0b; --gold-4: #d97706; --gold-5: #92400e;
-  --blue-1: #93c5fd; --blue-2: #60a5fa; --blue-3: #3b82f6;
-  --purple-1: #c4b5fd; --purple-2: #a78bfa; --purple-3: #8b5cf6;
+  --green-1: #4ade80; --green-2: #22c55e; --green-3: #16a34a; --green-4: #15803d;
+  --red-1: #f87171; --red-2: #ef4444; --red-3: #dc2626;
+  --gold-1: #fde68a; --gold-2: #fbbf24; --gold-3: #f59e0b; --gold-4: #d97706;
+  --blue-2: #60a5fa; --blue-3: #3b82f6;
 
-  --bg: #070b14; --bg-2: #0d1424; --bg-3: #141c30;
-  --card: rgba(255,255,255,0.05); --card-hover: rgba(255,255,255,0.09);
-  --text: #f1f5f9; --text-muted: #94a3b8; --text-dim: #64748b;
+  --bg: #070b14;
+  --card: rgba(255,255,255,0.05);
+  --card-hover: rgba(255,255,255,0.09);
+  --text: #f1f5f9; --text-muted: #94a3b8;
   --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.15);
 
-  --glass-blur: 24px;
-  --radius-xl: 28px; --radius-lg: 24px; --radius-md: 16px; --radius-sm: 12px;
+  --radius-lg: 20px; --radius-md: 14px; --radius-sm: 10px;
 
   --grad-green: linear-gradient(135deg, var(--green-1) 0%, var(--green-3) 100%);
   --grad-red: linear-gradient(135deg, var(--red-1) 0%, var(--red-3) 100%);
@@ -36,9 +36,10 @@
 }
 
 [data-theme="light"] {
-  --bg: #f8fafc; --bg-2: #ffffff; --bg-3: #f1f5f9;
-  --card: rgba(255,255,255,0.85); --card-hover: rgba(255,255,255,0.95);
-  --text: #0f172a; --text-muted: #475569; --text-dim: #94a3b8;
+  --bg: #f8fafc;
+  --card: rgba(255,255,255,0.9);
+  --card-hover: rgba(255,255,255,1);
+  --text: #0f172a; --text-muted: #475569;
   --border: rgba(15,23,42,0.08); --border-strong: rgba(15,23,42,0.15);
 }
 
@@ -50,7 +51,7 @@ body {
   color: var(--text); background: var(--bg);
   min-height: 100vh; direction: rtl;
   position: relative;
-  transition: background 0.4s ease, color 0.4s ease;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* LOADER */
@@ -58,439 +59,471 @@ body {
   position: fixed; inset: 0; background: var(--bg);
   z-index: 10000; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  transition: opacity 0.6s ease, visibility 0.6s;
+  transition: opacity 0.3s ease, visibility 0.3s;
 }
 #loader.hidden { opacity: 0; visibility: hidden; }
-.loader-logo {
-  width: 140px; height: 140px; margin-bottom: 24px;
-  animation: loaderPulse 2s ease-in-out infinite;
-  filter: drop-shadow(0 0 50px rgba(34,197,94,0.6));
-  object-fit: contain;
-}
-@keyframes loaderPulse {
-  0%,100% { transform: scale(1); opacity: 0.9; }
-  50% { transform: scale(1.08); opacity: 1; }
-}
-.loader-text {
-  font-size: 1.8rem; font-weight: 900;
-  background: var(--grad-mixed); background-size: 200% 200%;
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: 3px; margin-bottom: 6px;
-  animation: gradientShift 3s ease infinite;
-}
-.loader-sub { font-size: 0.85rem; color: var(--text-muted); font-weight: 700; margin-bottom: 24px; letter-spacing: 1px; }
-@keyframes gradientShift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-.loader-bar { width: 200px; height: 4px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; position: relative; }
-.loader-bar::after { content: ""; position: absolute; inset: 0; background: var(--grad-mixed); background-size: 200% 100%; animation: loaderBar 1.5s ease-in-out infinite; }
+.loader-logo { width: 100px; height: 100px; margin-bottom: 16px; object-fit: contain; }
+.loader-text { font-size: 1.4rem; font-weight: 900; color: var(--green-1); letter-spacing: 2px; margin-bottom: 20px; }
+.loader-bar { width: 160px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 999px; overflow: hidden; position: relative; }
+.loader-bar::after { content: ""; position: absolute; inset: 0; background: var(--grad-green); animation: loaderBar 1.2s ease-in-out infinite; }
 @keyframes loaderBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
 /* BACKGROUND */
 .bg-layer {
-  position: fixed; inset: 0; z-index: -3;
+  position: fixed; inset: 0; z-index: -2;
   background-size: cover; background-position: center;
   background-attachment: fixed;
-  transition: transform 0.1s ease-out; will-change: transform;
 }
 .bg-overlay {
-  position: fixed; inset: 0; z-index: -2;
-  background: linear-gradient(180deg, rgba(7,11,20,0.75) 0%, rgba(7,11,20,0.88) 50%, rgba(7,11,20,0.96) 100%);
-  transition: background 0.4s ease;
+  position: fixed; inset: 0; z-index: -1;
+  background: linear-gradient(180deg, rgba(7,11,20,0.8) 0%, rgba(7,11,20,0.95) 100%);
 }
 [data-theme="light"] .bg-overlay {
-  background: linear-gradient(180deg, rgba(248,250,252,0.88) 0%, rgba(248,250,252,0.94) 50%, rgba(248,250,252,0.98) 100%);
+  background: linear-gradient(180deg, rgba(248,250,252,0.9) 0%, rgba(248,250,252,0.98) 100%);
 }
-.bg-orb {
-  position: fixed; border-radius: 50%; filter: blur(140px);
-  z-index: -1; pointer-events: none;
-}
-.orb-1 {
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(34,197,94,0.35), transparent 70%);
-  top: -180px; right: -180px;
-  animation: float1 16s ease-in-out infinite;
-}
-.orb-2 {
-  width: 600px; height: 600px;
-  background: radial-gradient(circle, rgba(239,68,68,0.22), transparent 70%);
-  bottom: -220px; left: -220px;
-  animation: float2 20s ease-in-out infinite;
-}
-@keyframes float1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-60px,60px) scale(1.15); } }
-@keyframes float2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(80px,-60px) scale(1.1); } }
 
 .glass {
   background: var(--card);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
-}
-[data-theme="light"] .glass {
-  box-shadow: 0 8px 32px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
 }
 
-.container { max-width: 1300px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
 
 /* HEADER */
 header {
-  position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
-  width: calc(100% - 32px); max-width: 1300px; z-index: 100;
-  padding: 12px 20px;
+  position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+  width: calc(100% - 24px); max-width: 1300px; z-index: 100;
+  padding: 10px 18px;
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  transition: all 0.4s cubic-bezier(.4,0,.2,1);
+  transition: all 0.3s;
   background: var(--card);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--border); border-radius: var(--radius-lg);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
 }
-[data-theme="light"] header { box-shadow: 0 8px 32px rgba(15,23,42,0.08); }
-header.scrolled { top: 8px; padding: 8px 16px; }
+header.scrolled { top: 6px; padding: 6px 14px; }
 
-.header-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text); }
-.header-logo img { height: 44px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 16px rgba(34,197,94,0.5)); transition: transform 0.3s; }
-.header-logo:hover img { transform: rotate(-8deg) scale(1.05); }
+.header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
+.header-logo img { height: 40px; width: auto; object-fit: contain; }
 .header-logo-text { display: flex; flex-direction: column; line-height: 1; }
-.header-logo-text .main {
-  font-size: 1.1rem; font-weight: 900;
-  background: var(--grad-mixed); background-size: 200% 200%;
-  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  letter-spacing: 0.5px; animation: gradientShift 4s ease infinite;
-}
-.header-logo-text .sub { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; margin-top: 3px; }
+.header-logo-text .main { font-size: 1rem; font-weight: 900; color: var(--green-1); letter-spacing: 0.5px; }
+.header-logo-text .sub { font-size: 0.62rem; color: var(--text-muted); font-weight: 700; margin-top: 2px; }
 
 nav { display: flex; align-items: center; gap: 4px; }
 nav a {
-  padding: 8px 14px; color: var(--text-muted); text-decoration: none;
-  font-weight: 700; font-size: 0.85rem; border-radius: var(--radius-sm);
-  transition: all 0.25s;
+  padding: 7px 12px; color: var(--text-muted); text-decoration: none;
+  font-weight: 700; font-size: 0.82rem; border-radius: var(--radius-sm);
+  transition: all 0.2s;
 }
 nav a:hover { color: var(--text); background: rgba(34,197,94,0.1); }
 nav a.active { color: var(--green-1); background: rgba(34,197,94,0.15); }
-[data-theme="light"] nav a.active { background: rgba(34,197,94,0.12); color: var(--green-3); }
 
 .header-actions { display: flex; align-items: center; gap: 8px; }
 .icon-btn {
-  width: 42px; height: 42px; border-radius: var(--radius-sm);
+  width: 40px; height: 40px; border-radius: var(--radius-sm);
   background: rgba(255,255,255,0.04); border: 1px solid var(--border);
   color: var(--text); cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.25s; padding: 0;
+  transition: all 0.2s; padding: 0;
 }
-.icon-btn:hover { background: rgba(34,197,94,0.15); border-color: var(--green-2); transform: translateY(-2px); }
-.icon-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.icon-btn:hover { background: rgba(34,197,94,0.15); border-color: var(--green-2); }
+.icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 
 .user-btn {
   display: flex; align-items: center; gap: 8px;
-  padding: 6px 14px 6px 8px; border-radius: 999px;
+  padding: 4px 12px 4px 4px; border-radius: 999px;
   background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-  cursor: pointer; transition: all 0.25s; font-family: inherit; color: var(--text);
+  cursor: pointer; transition: all 0.2s; font-family: inherit; color: var(--text);
 }
 .user-btn:hover { background: rgba(34,197,94,0.15); border-color: var(--green-2); }
-.user-btn img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--green-2); }
-.user-btn span { font-size: 0.85rem; font-weight: 700; }
+.user-btn img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--green-2); object-fit: cover; }
+.user-btn span { font-size: 0.82rem; font-weight: 700; }
 
 .login-btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 10px 18px; border-radius: var(--radius-sm);
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: var(--radius-sm);
   background: var(--grad-green); border: none; color: #fff;
-  font-family: inherit; font-weight: 800; font-size: 0.85rem;
-  cursor: pointer; transition: all 0.3s;
-  box-shadow: 0 4px 16px rgba(34,197,94,0.4);
+  font-family: inherit; font-weight: 800; font-size: 0.82rem;
+  cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(34,197,94,0.3);
 }
-.login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(34,197,94,0.6); }
-.login-btn svg { width: 18px; height: 18px; fill: #fff; }
+.login-btn:hover { transform: translateY(-1px); }
+.login-btn svg { width: 16px; height: 16px; fill: #fff; }
 
 .mobile-toggle { display: none; }
 
 @media (max-width: 900px) {
   nav {
     display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0;
-    flex-direction: column; padding: 16px; background: var(--bg-2);
+    flex-direction: column; padding: 12px; background: var(--bg);
     border: 1px solid var(--border); border-radius: var(--radius-lg);
     box-shadow: 0 20px 60px rgba(0,0,0,0.6);
   }
   nav.open { display: flex; }
-  nav a { width: 100%; text-align: right; padding: 12px 16px; }
+  nav a { width: 100%; text-align: right; padding: 10px 14px; }
   .mobile-toggle { display: flex; }
   .user-btn span { display: none; }
 }
 
 main { padding-top: 100px; padding-bottom: 60px; min-height: 100vh; }
 
-/* PAGE HEADER */
-.page-header {
-  text-align: center;
-  padding: 40px 0 30px;
-}
-.page-header h1 {
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  font-weight: 900;
-  margin-bottom: 12px;
-  letter-spacing: -1px;
-}
-.page-header h1 .green {
-  background: var(--grad-green);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 30px rgba(34,197,94,0.5));
-}
-.page-header h1 .gold {
-  background: var(--grad-gold);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 30px rgba(251,191,36,0.4));
-}
-.page-header p { font-size: 0.95rem; color: var(--text-muted); font-weight: 600; }
-
-/* FILTERS BAR */
-.filters-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 28px;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  padding: 16px 20px;
-}
-
-.search-box {
-  position: relative;
-  flex: 1;
-  min-width: 200px;
-  max-width: 400px;
-}
-.search-box svg {
-  position: absolute;
-  top: 50%;
-  right: 16px;
-  transform: translateY(-50%);
-  width: 20px; height: 20px;
-  stroke: var(--text-muted); fill: none;
-  stroke-width: 2.2; pointer-events: none;
-}
-.search-input {
-  width: 100%;
-  padding: 12px 16px 12px 44px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-strong);
-  background: rgba(255,255,255,0.04);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 0.9rem;
-  font-weight: 600;
-  outline: none;
-  transition: all 0.25s;
-}
-[data-theme="light"] .search-input { background: #fff; }
-.search-input:focus {
-  border-color: var(--green-2);
-  box-shadow: 0 0 0 4px rgba(34,197,94,0.15);
-}
-.search-input::placeholder { color: var(--text-dim); }
-
-.position-tabs {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.pos-tab {
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-strong);
-  background: rgba(255,255,255,0.04);
-  color: var(--text-muted);
-  font-family: inherit;
-  font-weight: 700;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.25s;
-}
-[data-theme="light"] .pos-tab { background: #fff; }
-.pos-tab:hover { border-color: var(--green-2); color: var(--text); }
-.pos-tab.active {
-  background: var(--grad-green);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 4px 16px rgba(34,197,94,0.4);
-}
-
-/* SORT */
-.sort-select {
-  padding: 10px 16px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-strong);
-  background: rgba(255,255,255,0.04);
-  color: var(--text);
-  font-family: inherit;
-  font-weight: 700;
-  font-size: 0.85rem;
-  cursor: pointer;
-  outline: none;
-  transition: all 0.25s;
-}
-[data-theme="light"] .sort-select { background: #fff; }
-.sort-select:focus { border-color: var(--green-2); }
-
-/* RESULTS COUNT */
-.results-count {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  font-weight: 700;
-  margin-bottom: 20px;
-}
-.results-count strong {
-  color: var(--green-1);
-  font-weight: 900;
-}
-
-/* PLAYERS GRID */
-.players-grid {
+/* ===== PLAYER SCENE ===== */
+.player-scene {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 24px;
+  grid-template-columns: 420px 1fr;
+  gap: 40px;
+  align-items: start;
+  margin-bottom: 40px;
+}
+@media (max-width: 900px) {
+  .player-scene { grid-template-columns: 1fr; gap: 24px; }
 }
 
-/* FIFA CARD */
-.fifa-card {
+/* ===== BIG FIFA CARD ===== */
+.big-fifa-card {
   position: relative;
-  border-radius: 20px;
-  padding: 24px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  border-radius: 28px;
+  padding: 32px 28px;
   text-align: center;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.5s cubic-bezier(.4,0,.2,1);
+  transition: all 0.6s cubic-bezier(.4,0,.2,1);
   transform-style: preserve-3d;
-  perspective: 1000px;
-  animation: cardIn 0.5s ease backwards;
+  perspective: 1200px;
 }
-@keyframes cardIn {
-  from { opacity: 0; transform: translateY(20px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-.fifa-card.gold {
+.big-fifa-card.gold {
   background: linear-gradient(160deg, #fef9c3 0%, #fde68a 20%, #fbbf24 50%, #d97706 85%, #92400e 100%);
-  box-shadow: 0 20px 60px rgba(217,119,6,0.4), inset 0 0 0 2px rgba(255,255,255,0.5);
+  box-shadow: 0 30px 80px rgba(217,119,6,0.5), inset 0 0 0 3px rgba(255,255,255,0.5);
 }
-.fifa-card.silver {
+.big-fifa-card.silver {
   background: linear-gradient(160deg, #f8fafc 0%, #e2e8f0 25%, #cbd5e1 55%, #94a3b8 85%, #64748b 100%);
-  box-shadow: 0 20px 60px rgba(100,116,139,0.4), inset 0 0 0 2px rgba(255,255,255,0.6);
+  box-shadow: 0 30px 80px rgba(100,116,139,0.5), inset 0 0 0 3px rgba(255,255,255,0.6);
 }
-.fifa-card.bronze {
+.big-fifa-card.bronze {
   background: linear-gradient(160deg, #fed7aa 0%, #fb923c 25%, #ea580c 55%, #c2410c 85%, #7c2d12 100%);
-  box-shadow: 0 20px 60px rgba(194,65,12,0.4), inset 0 0 0 2px rgba(255,255,255,0.4);
+  box-shadow: 0 30px 80px rgba(194,65,12,0.5), inset 0 0 0 3px rgba(255,255,255,0.4);
 }
-.fifa-card::before {
+.big-fifa-card::before {
   content: "";
-  position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  position: absolute; top: -50%; left: -50%;
+  width: 200%; height: 200%;
   background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%);
-  transform: translateX(-100%); transition: transform 0.8s; pointer-events: none;
+  transform: translateX(-100%);
+  transition: transform 0.9s;
+  pointer-events: none;
 }
-.fifa-card:hover::before { transform: translateX(100%); }
-.fifa-card:hover { transform: translateY(-12px) rotateY(6deg) rotateX(-4deg) scale(1.03); }
+.big-fifa-card:hover::before { transform: translateX(100%); }
+.big-fifa-card:hover { transform: translateY(-12px) rotateY(6deg) rotateX(-4deg) scale(1.02); }
 
-.fifa-rating {
+.big-fifa-rating {
   display: flex; align-items: center; justify-content: center;
-  gap: 8px; margin-bottom: 16px;
+  gap: 12px; margin-bottom: 20px;
   position: relative; z-index: 1;
 }
-.fifa-rating-num {
-  font-size: 2.8rem; font-weight: 900; line-height: 1;
-  color: #422006; text-shadow: 0 2px 4px rgba(255,255,255,0.5);
+.big-fifa-rating-num {
+  font-size: 4rem; font-weight: 900; line-height: 1;
+  color: #422006; text-shadow: 0 3px 6px rgba(255,255,255,0.5);
 }
-.fifa-card.silver .fifa-rating-num { color: #1e293b; text-shadow: 0 2px 4px rgba(255,255,255,0.7); }
-.fifa-card.bronze .fifa-rating-num { color: #431407; text-shadow: 0 2px 4px rgba(255,255,255,0.3); }
+.big-fifa-card.silver .big-fifa-rating-num { color: #1e293b; text-shadow: 0 3px 6px rgba(255,255,255,0.7); }
+.big-fifa-card.bronze .big-fifa-rating-num { color: #431407; text-shadow: 0 3px 6px rgba(255,255,255,0.3); }
 
-.fifa-position {
-  padding: 4px 10px; border-radius: 8px;
-  font-size: 0.7rem; font-weight: 900; letter-spacing: 1px;
+.big-fifa-position {
+  padding: 6px 14px; border-radius: 10px;
+  font-size: 0.85rem; font-weight: 900; letter-spacing: 1.5px;
   background: rgba(66,32,6,0.9); color: #fef3c7;
 }
-.fifa-card.silver .fifa-position { background: rgba(30,41,59,0.9); color: #f1f5f9; }
-.fifa-card.bronze .fifa-position { background: rgba(67,20,7,0.9); color: #fed7aa; }
+.big-fifa-card.silver .big-fifa-position { background: rgba(30,41,59,0.9); color: #f1f5f9; }
+.big-fifa-card.bronze .big-fifa-position { background: rgba(67,20,7,0.9); color: #fed7aa; }
 
-.fifa-photo-wrap {
-  width: 100px; height: 100px;
-  margin: 0 auto 16px; position: relative; z-index: 1;
+.big-fifa-photo-wrap {
+  width: 160px; height: 160px;
+  margin: 0 auto 20px;
+  position: relative; z-index: 1;
 }
-.fifa-photo {
+.big-fifa-photo {
   width: 100%; height: 100%;
   border-radius: 50%; object-fit: cover;
-  border: 4px solid rgba(255,255,255,0.9);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  border: 5px solid rgba(255,255,255,0.9);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.35);
   background: #f1f5f9;
 }
-.fifa-photo-wrap::after {
+.big-fifa-photo-wrap::after {
   content: "";
-  position: absolute; inset: -8px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,0.4), transparent 70%);
-  z-index: -1; animation: pulseGlow 2.5s ease-in-out infinite;
+  position: absolute; inset: -12px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.5), transparent 70%);
+  z-index: -1;
+  animation: pulseGlow 2.5s ease-in-out infinite;
 }
 @keyframes pulseGlow {
   0%,100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.1); }
+  50% { opacity: 0.9; transform: scale(1.1); }
 }
-.fifa-name {
-  font-size: 1.2rem; font-weight: 900; margin-bottom: 12px;
-  color: #422006; text-shadow: 0 2px 4px rgba(255,255,255,0.5);
+.big-fifa-name {
+  font-size: 1.8rem; font-weight: 900; margin-bottom: 20px;
+  color: #422006; text-shadow: 0 3px 6px rgba(255,255,255,0.5);
   position: relative; z-index: 1;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.fifa-card.silver .fifa-name { color: #1e293b; }
-.fifa-card.bronze .fifa-name { color: #431407; }
+.big-fifa-card.silver .big-fifa-name { color: #1e293b; }
+.big-fifa-card.bronze .big-fifa-name { color: #431407; }
 
-.fifa-stats {
+.big-fifa-stats {
   display: grid; grid-template-columns: 1fr 1fr;
-  gap: 6px 16px; padding-top: 12px;
+  gap: 10px 24px; padding-top: 20px;
   border-top: 2px solid rgba(0,0,0,0.15);
   position: relative; z-index: 1;
 }
-.fifa-stat {
-  display: flex; align-items: baseline; gap: 6px;
-  font-size: 0.72rem; font-weight: 800;
+.big-fifa-stat {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 8px; font-size: 0.85rem; font-weight: 800;
   color: #422006;
 }
-.fifa-card.silver .fifa-stat { color: #1e293b; }
-.fifa-card.bronze .fifa-stat { color: #431407; }
-.fifa-stat-val { font-size: 1rem; font-weight: 900; }
+.big-fifa-card.silver .big-fifa-stat { color: #1e293b; }
+.big-fifa-card.bronze .big-fifa-stat { color: #431407; }
+.big-fifa-stat-label { font-size: 0.75rem; opacity: 0.8; }
+.big-fifa-stat-val { font-size: 1.2rem; font-weight: 900; }
 
-/* POINTS BADGE */
-.points-badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: rgba(0,0,0,0.3);
-  backdrop-filter: blur(10px);
-  color: #fff;
+/* ===== PLAYER INFO ===== */
+.player-info-section { padding: 28px; }
+
+.player-name-header {
+  font-size: 2rem;
   font-weight: 900;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  z-index: 2;
-  border: 1px solid rgba(255,255,255,0.2);
+  margin-bottom: 8px;
+  color: var(--text);
 }
-.points-badge svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+.player-name-header .green {
+  background: var(--grad-green);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 
-/* EMPTY */
+.player-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.78rem;
+}
+.meta-tag.green { background: rgba(34,197,94,0.15); color: var(--green-1); border: 1px solid rgba(34,197,94,0.3); }
+.meta-tag.gold { background: rgba(251,191,36,0.15); color: var(--gold-2); border: 1px solid rgba(251,191,36,0.3); }
+.meta-tag.red { background: rgba(239,68,68,0.15); color: var(--red-1); border: 1px solid rgba(239,68,68,0.3); }
+.meta-tag.blue { background: rgba(96,165,250,0.15); color: var(--blue-2); border: 1px solid rgba(96,165,250,0.3); }
+
+.meta-tag svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+
+/* Stats grid */
+.detailed-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-box {
+  padding: 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  text-align: center;
+  transition: all 0.2s;
+}
+[data-theme="light"] .stat-box { background: rgba(15,23,42,0.03); }
+.stat-box:hover {
+  background: rgba(34,197,94,0.08);
+  border-color: var(--green-3);
+  transform: translateY(-2px);
+}
+.stat-box-val {
+  font-size: 1.6rem;
+  font-weight: 900;
+  margin-bottom: 4px;
+  color: var(--green-1);
+}
+.stat-box-lbl {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+/* Progress bars */
+.stats-bars { margin-bottom: 24px; }
+.stat-bar-row {
+  margin-bottom: 16px;
+}
+.stat-bar-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+.stat-bar-header-label { color: var(--text); }
+.stat-bar-header-val { color: var(--green-1); }
+.stat-bar-bg {
+  height: 10px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+[data-theme="light"] .stat-bar-bg { background: rgba(15,23,42,0.1); }
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 1s cubic-bezier(.4,0,.2,1);
+  position: relative;
+  overflow: hidden;
+}
+.stat-bar-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: barShine 2s linear infinite;
+}
+@keyframes barShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.stat-bar-fill.green { background: var(--grad-green); }
+.stat-bar-fill.gold { background: var(--grad-gold); }
+.stat-bar-fill.red { background: var(--grad-red); }
+.stat-bar-fill.blue { background: linear-gradient(135deg, var(--blue-2), var(--blue-3)); }
+
+/* Achievements */
+.achievements-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.achievement-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(217,119,6,0.15));
+  border: 1px solid rgba(251,191,36,0.4);
+  border-radius: var(--radius-sm);
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: var(--gold-2);
+}
+.achievement-badge svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+}
+
+/* Actions */
+.player-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.action-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.action-btn.green {
+  background: var(--grad-green);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.3);
+}
+.action-btn.green:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(34,197,94,0.5);
+}
+.action-btn.gold {
+  background: var(--grad-gold);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(251,191,36,0.3);
+}
+.action-btn.gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(251,191,36,0.5);
+}
+.action-btn.whatsapp {
+  background: linear-gradient(135deg, #25d366, #128c7e);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(37,211,102,0.3);
+}
+.action-btn.whatsapp:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37,211,102,0.5);
+}
+.action-btn.outline {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+}
+.action-btn.outline:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: var(--green-2);
+}
+
+/* Empty / Loading */
 .empty {
-  text-align: center; padding: 80px 20px;
-  grid-column: 1 / -1;
-  color: var(--text-muted); font-weight: 600;
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-muted);
+  font-weight: 600;
 }
 .empty svg {
-  width: 80px; height: 80px;
-  stroke: var(--green-2); fill: none; stroke-width: 1.2;
-  margin-bottom: 20px; opacity: 0.5;
+  width: 80px;
+  height: 80px;
+  stroke: var(--green-2);
+  fill: none;
+  stroke-width: 1.2;
+  margin-bottom: 20px;
+  opacity: 0.5;
 }
-.empty h3 { font-size: 1.3rem; color: var(--text); margin-bottom: 8px; }
-.empty p { font-size: 0.95rem; }
+.empty h2 {
+  font-size: 1.4rem;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.empty p { margin-bottom: 24px; }
+.empty .action-btn { display: inline-flex; }
 
-/* SKELETON */
 .skeleton {
   background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 100%);
   background-size: 200% 100%;
@@ -501,49 +534,52 @@ main { padding-top: 100px; padding-bottom: 60px; min-height: 100vh; }
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
-.skeleton-card { height: 320px; border-radius: 20px; }
 
-/* TOAST */
+/* Toast */
 .toast {
-  position: fixed; bottom: 24px; left: 50%;
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
   transform: translateX(-50%) translateY(120px);
-  padding: 14px 24px; border-radius: var(--radius-md);
-  background: var(--bg-2); border: 1px solid var(--border-strong);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-  font-weight: 700; font-size: 0.9rem; z-index: 500;
-  transition: transform 0.4s cubic-bezier(.4,0,.2,1);
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  font-weight: 700;
+  font-size: 0.85rem;
+  z-index: 500;
+  transition: transform 0.3s ease;
   max-width: 90vw;
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
 .toast.success { border-color: var(--green-2); color: var(--green-1); }
 .toast.error { border-color: var(--red-2); color: var(--red-1); }
 
-/* SCROLLBAR */
-::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--green-2), var(--green-4));
-  border-radius: 999px;
-}
-::-webkit-scrollbar-thumb:hover { background: var(--green-1); }
+::-webkit-scrollbar-thumb { background: var(--green-3); border-radius: 999px; }
 
-/* RESPONSIVE */
 @media (max-width: 768px) {
   .container { padding: 0 16px; }
   main { padding-top: 90px; }
-  .page-header { padding: 30px 0 20px; }
-  .filters-bar { padding: 12px 16px; gap: 10px; }
-  .search-box { max-width: 100%; }
-  .players-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-  .fifa-card { padding: 18px; }
-  .fifa-rating-num { font-size: 2.2rem; }
-  .fifa-photo-wrap { width: 85px; height: 85px; }
-  .fifa-name { font-size: 1rem; }
+  .big-fifa-rating-num { font-size: 3rem; }
+  .big-fifa-photo-wrap { width: 130px; height: 130px; }
+  .big-fifa-name { font-size: 1.5rem; }
+  .player-name-header { font-size: 1.5rem; }
+  .player-info-section { padding: 20px; }
+  .action-btn { padding: 10px 16px; font-size: 0.8rem; }
 }
 @media (max-width: 480px) {
-  .players-grid { grid-template-columns: 1fr; }
-  .page-header h1 { font-size: 1.8rem; }
-  .pos-tab { padding: 6px 12px; font-size: 0.78rem; }
+  .big-fifa-card { padding: 24px 20px; }
+  .big-fifa-rating-num { font-size: 2.5rem; }
+  .big-fifa-photo-wrap { width: 110px; height: 110px; }
+  .big-fifa-name { font-size: 1.3rem; }
+  .big-fifa-stats { gap: 8px 16px; }
+  .big-fifa-stat { font-size: 0.78rem; }
+  .big-fifa-stat-val { font-size: 1rem; }
+  .action-btn { flex: 1; min-width: 130px; }
+  .detailed-stats { grid-template-columns: repeat(2, 1fr); }
 }
 </style>
 </head>
@@ -552,14 +588,11 @@ main { padding-top: 100px; padding-bottom: 60px; min-height: 100vh; }
 <div id="loader">
   <img src="logo.png" alt="Vinlandx" class="loader-logo" onerror="this.style.display='none'" />
   <div class="loader-text">VINLANDX</div>
-  <div class="loader-sub">كرة الحومة 🇩🇿</div>
   <div class="loader-bar"></div>
 </div>
 
 <div class="bg-layer" id="bgLayer" style="background-image: url('background2.png');"></div>
 <div class="bg-overlay"></div>
-<div class="bg-orb orb-1"></div>
-<div class="bg-orb orb-2"></div>
 
 <header id="header">
   <a href="index.html" class="header-logo">
@@ -596,76 +629,34 @@ main { padding-top: 100px; padding-bottom: 60px; min-height: 100vh; }
 </header>
 
 <main>
-  <div class="container">
-
-    <div class="page-header">
-      <h1>
-        لاعبين <span class="green">الحومة</span>
-      </h1>
-      <p>كل نجوم الحومة في مكان واحد ⚽</p>
+  <div class="container" id="content">
+    <div class="empty">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      <h2>جاري التحميل...</h2>
     </div>
-
-    <div class="filters-bar glass">
-      <div class="search-box">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="searchInput" class="search-input" placeholder="قلّب على لاعب..." oninput="applyFilters()" />
-      </div>
-
-      <div class="position-tabs" id="positionTabs">
-        <button class="pos-tab active" onclick="setPosition('all', this)">الكل</button>
-        <button class="pos-tab" onclick="setPosition('حارس', this)">حراس</button>
-        <button class="pos-tab" onclick="setPosition('مدافع', this)">مدافعين</button>
-        <button class="pos-tab" onclick="setPosition('وسط', this)">وسط</button>
-        <button class="pos-tab" onclick="setPosition('مهاجم', this)">مهاجمين</button>
-      </div>
-
-      <select class="sort-select" id="sortSelect" onchange="applyFilters()">
-        <option value="overall">الأعلى تقييم</option>
-        <option value="name">الاسم (أ-ي)</option>
-        <option value="points">النقاط</option>
-        <option value="goals">الأهداف</option>
-        <option value="pace">السرعة</option>
-        <option value="shot">قوة الفراب</option>
-        <option value="passing">التمرير</option>
-        <option value="defense">الدفاع</option>
-      </select>
-    </div>
-
-    <div class="results-count" id="resultsCount"></div>
-
-    <div class="players-grid" id="playersGrid">
-      <div class="skeleton skeleton-card"></div>
-      <div class="skeleton skeleton-card"></div>
-      <div class="skeleton skeleton-card"></div>
-      <div class="skeleton skeleton-card"></div>
-      <div class="skeleton skeleton-card"></div>
-      <div class="skeleton skeleton-card"></div>
-    </div>
-
   </div>
 </main>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ============= CONFIG =============
 const SUPABASE_URL = "https://dhvuopnibiwpzuwvxxtv.supabase.co";
 const SUPABASE_KEY = "sb_publishable_sl9It4cgGFwkGCC76X4zHw_Hjx4iELO";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ============= STATE =============
 let currentUser = null;
 let currentProfile = null;
-let allPlayers = [];
-let allEvents = [];
-let currentPosition = "all";
+let player = null;
+let playerEvents = [];
+let playerAchievements = [];
 
-// ============= LOADER =============
+const params = new URLSearchParams(window.location.search);
+const playerId = params.get("id");
+
 window.addEventListener("load", () => {
-  setTimeout(() => document.getElementById("loader").classList.add("hidden"), 900);
+  document.getElementById("loader").classList.add("hidden");
 });
 
-// ============= THEME =============
 function getSavedTheme() { return localStorage.getItem("vinlandx_theme") || "dark"; }
 function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
@@ -685,34 +676,24 @@ function toggleTheme() {
 }
 applyTheme(getSavedTheme());
 
-// ============= MOBILE NAV =============
 function toggleMobileNav() { document.getElementById("nav").classList.toggle("open"); }
 
-// ============= HEADER SCROLL =============
 window.addEventListener("scroll", () => {
   const header = document.getElementById("header");
   if (window.scrollY > 50) header.classList.add("scrolled");
   else header.classList.remove("scrolled");
 });
 
-// ============= PARALLAX =============
-document.addEventListener("mousemove", (e) => {
-  const bg = document.getElementById("bgLayer");
-  const x = (e.clientX / window.innerWidth - 0.5) * 15;
-  const y = (e.clientY / window.innerHeight - 0.5) * 15;
-  bg.style.transform = `translate(${x}px, ${y}px) scale(1.05)`;
-});
-
-// ============= AUTH =============
+// AUTH
 async function signInWithGoogle() {
   try {
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin + window.location.pathname }
+      options: { redirectTo: "https://vinlandx.github.io" }
     });
     if (error) throw error;
   } catch (err) {
-    showToast("خطأ في تسجيل الدخول: " + err.message, "error");
+    showToast("خطأ: " + err.message, "error");
   }
 }
 
@@ -748,12 +729,23 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
 
 function renderUserArea() {
   const area = document.getElementById("userArea");
-  if (currentUser && currentProfile) {
-    const name = currentProfile.full_name || currentProfile.email?.split("@")[0] || "لاعب";
-    const avatar = currentProfile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=22c55e&color=fff`;
+  if (currentUser) {
+    const avatar =
+      currentProfile?.avatar_url ||
+      currentUser?.user_metadata?.avatar_url ||
+      currentUser?.user_metadata?.picture ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(currentProfile?.full_name || currentUser?.email || "لاعب")}&background=22c55e&color=fff&bold=true`;
+
+    const name =
+      currentProfile?.full_name ||
+      currentUser?.user_metadata?.full_name ||
+      currentUser?.user_metadata?.name ||
+      currentUser?.email?.split("@")[0] ||
+      "لاعب";
+
     area.innerHTML = `
-      <button class="user-btn" onclick="if(confirm('تسجّل الخروج؟')) signOut()">
-        <img src="${avatar}" alt="${escapeHTML(name)}" />
+      <button class="user-btn" onclick="if(confirm('تسجّل الخروج؟')) signOut()" title="${escapeHTML(name)}">
+        <img src="${avatar}" alt="${escapeHTML(name)}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=22c55e&color=fff'" />
         <span>${escapeHTML(name)}</span>
       </button>
     `;
@@ -767,34 +759,35 @@ function renderUserArea() {
   }
 }
 
-// ============= HELPERS =============
+// Helpers
 function escapeHTML(s) {
   if (!s) return "";
   const d = document.createElement("div");
   d.textContent = s;
   return d.innerHTML;
 }
+
 function calcOverall(p) {
   return Math.round((p.strength + p.shot_power + p.pace + p.dribbling + p.passing + p.defense) / 6);
 }
+
 function getCardTier(o) {
   if (o >= 85) return "gold";
   if (o >= 70) return "silver";
   return "bronze";
 }
+
 function defaultPhoto() {
   return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23334"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7" fill="none" stroke="%2322c55e" stroke-width="1.5"/></svg>';
 }
-function playerStats(pid) {
-  const ev = allEvents.filter(e => e.player_id === pid);
-  const goals = ev.filter(e => e.event_type === "goal").length;
-  const assists = ev.filter(e => e.event_type === "assist").length;
-  const motm = ev.filter(e => e.event_type === "motm").length;
-  const yellow = ev.filter(e => e.event_type === "yellow").length;
-  const red = ev.filter(e => e.event_type === "red").length;
-  const points = goals * 3 + assists * 2 + motm * 5 - yellow - red * 3;
-  return { goals, assists, motm, points };
+
+function statColor(v) {
+  if (v >= 85) return "green";
+  if (v >= 70) return "gold";
+  if (v >= 55) return "blue";
+  return "red";
 }
+
 async function fetchSafe(table, query = "") {
   try {
     const url = `${SUPABASE_URL}/rest/v1/${table}${query ? "?" + query : ""}`;
@@ -810,7 +803,6 @@ async function fetchSafe(table, query = "") {
   }
 }
 
-// ============= TOAST =============
 let toastTimer;
 function showToast(msg, type = "success") {
   const t = document.getElementById("toast");
@@ -821,1057 +813,250 @@ function showToast(msg, type = "success") {
   toastTimer = setTimeout(() => t.classList.remove("show"), 3000);
 }
 
-// ============= FILTERS =============
-function setPosition(pos, btn) {
-  currentPosition = pos;
-  document.querySelectorAll(".pos-tab").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-  applyFilters();
-}
+// Load Player
+async function loadPlayer() {
+  const content = document.getElementById("content");
 
-function applyFilters() {
-  const search = document.getElementById("searchInput").value.trim().toLowerCase();
-  const sortBy = document.getElementById("sortSelect").value;
-
-  let filtered = [...allPlayers];
-
-  // فلترة حسب المركز
-  if (currentPosition !== "all") {
-    filtered = filtered.filter(p => p.position === currentPosition);
-  }
-
-  // فلترة حسب البحث
-  if (search) {
-    filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
-  }
-
-  // ترتيب
-  filtered.sort((a, b) => {
-    if (sortBy === "overall") return calcOverall(b) - calcOverall(a);
-    if (sortBy === "name") return a.name.localeCompare(b.name, "ar");
-    if (sortBy === "points") return playerStats(b.id).points - playerStats(a.id).points;
-    if (sortBy === "goals") return playerStats(b.id).goals - playerStats(a.id).goals;
-    if (sortBy === "pace") return (b.pace || 0) - (a.pace || 0);
-    if (sortBy === "shot") return (b.shot_power || 0) - (a.shot_power || 0);
-    if (sortBy === "passing") return (b.passing || 0) - (a.passing || 0);
-    if (sortBy === "defense") return (b.defense || 0) - (a.defense || 0);
-    return 0;
-  });
-
-  renderPlayers(filtered);
-}
-
-function renderPlayers(players) {
-  const grid = document.getElementById("playersGrid");
-  const count = document.getElementById("resultsCount");
-
-  count.innerHTML = `لقينالك <strong>${players.length}</strong> لاعب${players.length !== 1 ? 'ين' : ''}`;
-
-  if (players.length === 0) {
-    grid.innerHTML = `
+  if (!playerId) {
+    content.innerHTML = `
       <div class="empty">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <h3>ما لقيناش لاعبين</h3>
-        <p>جرّب فلتر آخر ولا امسح البحث</p>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <h2>ما فيه لاعب محدد</h2>
+        <p>اختار لاعب من صفحة اللاعبين</p>
+        <a href="players.html" class="action-btn green">
+          <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          شوف اللاعبين
+        </a>
       </div>
     `;
     return;
   }
 
-  grid.innerHTML = players.map((p, i) => {
-    const overall = calcOverall(p);
-    const tier = getCardTier(overall);
-    const photo = p.photo || defaultPhoto();
-    const stats = playerStats(p.id);
-
-    return `
-      <div class="fifa-card ${tier}" style="animation-delay: ${i * 0.05}s" onclick="location.href='player.html?id=${p.id}'">
-        ${stats.points > 0 ? `
-          <div class="points-badge">
-            <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            ${stats.points}
-          </div>
-        ` : ''}
-        <div class="fifa-rating">
-          <span class="fifa-rating-num">${overall}</span>
-          <span class="fifa-position">${p.position}</span>
-        </div>
-        <div class="fifa-photo-wrap">
-          <img class="fifa-photo" src="${photo}" alt="${escapeHTML(p.name)}" onerror="this.src='${defaultPhoto()}'" />
-        </div>
-        <div class="fifa-name">${escapeHTML(p.name)}</div>
-        <div class="fifa-stats">
-          <div class="fifa-stat"><span class="fifa-stat-val">${p.pace||0}</span> سرعة</div>
-          <div class="fifa-stat"><span class="fifa-stat-val">${p.shot_power||0}</span> فراب</div>
-          <div class="fifa-stat"><span class="fifa-stat-val">${p.passing||0}</span> تمرير</div>
-          <div class="fifa-stat"><span class="fifa-stat-val">${p.dribbling||0}</span> مراوغة</div>
-          <div class="fifa-stat"><span class="fifa-stat-val">${p.defense||0}</span> دفاع</div>
-          <div class="fifa-stat"><span class="fifa-stat-val">${p.strength||0}</span> قوة</div>
-        </div>
-      </div>
-    `;
-  }).join("");
-}
-
-// ============= LOAD =============
-async function loadAll() {
   try {
-    const [players, events] = await Promise.all([
-      fetchSafe("players", "select=*&order=created_at.desc"),
-      fetchSafe("events", "select=player_id,event_type")
+    const [players, events, achievements] = await Promise.all([
+      fetchSafe("players", `id=eq.${playerId}&select=*`),
+      fetchSafe("events", `player_id=eq.${playerId}&select=*`),
+      fetchSafe("achievements", `player_id=eq.${playerId}&select=*`)
     ]);
-    allPlayers = players;
-    allEvents = events;
-    applyFilters();
+
+    if (!players || players.length === 0) {
+      content.innerHTML = `
+        <div class="empty">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          <h2>ما لقيناش اللاعب</h2>
+          <p>يمكن تحيّد ولا الرابط غالط</p>
+          <a href="players.html" class="action-btn green">شوف اللاعبين</a>
+        </div>
+      `;
+      return;
+    }
+
+    player = players[0];
+    playerEvents = events || [];
+    playerAchievements = achievements || [];
+
+    renderPlayer();
   } catch (e) {
-    console.error(e);
-    document.getElementById("playersGrid").innerHTML = `<div class="empty"><h3>خطأ في التحميل</h3></div>`;
+    content.innerHTML = `<div class="empty"><h2>خطأ في التحميل</h2><p>${e.message}</p></div>`;
   }
 }
 
-// ============= INIT =============
-document.addEventListener("DOMContentLoaded", async () => {
-  await checkAuth();
-  await loadAll();
-});
-</script>
-
-</body>
-</html><!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="theme-color" content="#0a0f1a" />
-<title>اللاعبين - Vinlandx</title>
-<link rel="icon" type="image/png" href="icon.png" />
-<link rel="manifest" href="manifest.json" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --green-1: #4ade80; --green-2: #22c55e; --green-3: #16a34a; --green-4: #15803d; --green-5: #14532d;
-  --red-1: #f87171; --red-2: #ef4444; --red-3: #dc2626; --red-4: #b91c1c;
-  --gold-1: #fde68a; --gold-2: #fbbf24; --gold-3: #f59e0b; --gold-4: #d97706; --gold-5: #92400e;
-  --blue-1: #93c5fd; --blue-2: #60a5fa; --blue-3: #3b82f6;
-  --purple-1: #c4b5fd; --purple-2: #a78bfa; --purple-3: #8b5cf6;
-
-  --bg: #070b14; --bg-2: #0d1424; --bg-3: #141c30;
-  --card: rgba(255,255,255,0.05); --card-hover: rgba(255,255,255,0.09);
-  --text: #f1f5f9; --text-muted: #94a3b8; --text-dim: #64748b;
-  --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.15);
-
-  --glass-blur: 24px;
-  --radius-xl: 28px; --radius-lg: 24px; --radius-md: 16px; --radius-sm: 12px;
-
-  --grad-green: linear-gradient(135deg, var(--green-1) 0%, var(--green-3) 100%);
-  --grad-red: linear-gradient(135deg, var(--red-1) 0%, var(--red-3) 100%);
-  --grad-gold: linear-gradient(135deg, var(--gold-2) 0%, var(--gold-4) 100%);
-  --grad-mixed: linear-gradient(135deg, var(--green-2) 0%, var(--gold-2) 50%, var(--red-2) 100%);
-}
-
-[data-theme="light"] {
-  --bg: #f8fafc; --bg-2: #ffffff; --bg-3: #f1f5f9;
-  --card: rgba(255,255,255,0.85); --card-hover: rgba(255,255,255,0.95);
-  --text: #0f172a; --text-muted: #475569; --text-dim: #94a3b8;
-  --border: rgba(15,23,42,0.08); --border-strong: rgba(15,23,42,0.15);
-}
-
-html { scroll-behavior: smooth; }
-html, body { height: 100%; overflow-x: hidden; }
-
-body {
-  font-family: 'Cairo', system-ui, sans-serif;
-  color: var(--text); background: var(--bg);
-  min-height: 100vh; direction: rtl;
-  position: relative;
-  transition: background 0.4s ease, color 0.4s ease;
-}
-
-/* LOADER */
-#loader {
-  position: fixed; inset: 0; background: var(--bg);
-  z-index: 10000; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  transition: opacity 0.6s ease, visibility 0.6s;
-}
-#loader.hidden { opacity: 0; visibility: hidden; }
-.loader-logo {
-  width: 140px; height: 140px; margin-bottom: 24px;
-  animation: loaderPulse 2s ease-in-out infinite;
-  filter: drop-shadow(0 0 50px rgba(34,197,94,0.6));
-  object-fit: contain;
-}
-@keyframes loaderPulse {
-  0%,100% { transform: scale(1); opacity: 0.9; }
-  50% { transform: scale(1.08); opacity: 1; }
-}
-.loader-text {
-  font-size: 1.8rem; font-weight: 900;
-  background: var(--grad-mixed); background-size: 200% 200%;
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: 3px; margin-bottom: 6px;
-  animation: gradientShift 3s ease infinite;
-}
-.loader-sub { font-size: 0.85rem; color: var(--text-muted); font-weight: 700; margin-bottom: 24px; letter-spacing: 1px; }
-@keyframes gradientShift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-.loader-bar { width: 200px; height: 4px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; position: relative; }
-.loader-bar::after { content: ""; position: absolute; inset: 0; background: var(--grad-mixed); background-size: 200% 100%; animation: loaderBar 1.5s ease-in-out infinite; }
-@keyframes loaderBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-
-/* BACKGROUND */
-.bg-layer {
-  position: fixed; inset: 0; z-index: -3;
-  background-size: cover; background-position: center;
-  background-attachment: fixed;
-  transition: transform 0.1s ease-out; will-change: transform;
-}
-.bg-overlay {
-  position: fixed; inset: 0; z-index: -2;
-  background: linear-gradient(180deg, rgba(7,11,20,0.75) 0%, rgba(7,11,20,0.88) 50%, rgba(7,11,20,0.96) 100%);
-  transition: background 0.4s ease;
-}
-[data-theme="light"] .bg-overlay {
-  background: linear-gradient(180deg, rgba(248,250,252,0.88) 0%, rgba(248,250,252,0.94) 50%, rgba(248,250,252,0.98) 100%);
-}
-.bg-orb {
-  position: fixed; border-radius: 50%; filter: blur(140px);
-  z-index: -1; pointer-events: none;
-}
-.orb-1 {
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(34,197,94,0.35), transparent 70%);
-  top: -180px; right: -180px;
-  animation: float1 16s ease-in-out infinite;
-}
-.orb-2 {
-  width: 600px; height: 600px;
-  background: radial-gradient(circle, rgba(239,68,68,0.22), transparent 70%);
-  bottom: -220px; left: -220px;
-  animation: float2 20s ease-in-out infinite;
-}
-@keyframes float1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-60px,60px) scale(1.15); } }
-@keyframes float2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(80px,-60px) scale(1.1); } }
-
-.glass {
-  background: var(--card);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
-}
-[data-theme="light"] .glass {
-  box-shadow: 0 8px 32px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
-}
-
-.container { max-width: 1300px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
-
-/* HEADER */
-header {
-  position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
-  width: calc(100% - 32px); max-width: 1300px; z-index: 100;
-  padding: 12px 20px;
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  transition: all 0.4s cubic-bezier(.4,0,.2,1);
-  background: var(--card);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--border); border-radius: var(--radius-lg);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
-}
-[data-theme="light"] header { box-shadow: 0 8px 32px rgba(15,23,42,0.08); }
-header.scrolled { top: 8px; padding: 8px 16px; }
-
-.header-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text); }
-.header-logo img { height: 44px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 16px rgba(34,197,94,0.5)); transition: transform 0.3s; }
-.header-logo:hover img { transform: rotate(-8deg) scale(1.05); }
-.header-logo-text { display: flex; flex-direction: column; line-height: 1; }
-.header-logo-text .main {
-  font-size: 1.1rem; font-weight: 900;
-  background: var(--grad-mixed); background-size: 200% 200%;
-  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  letter-spacing: 0.5px; animation: gradientShift 4s ease infinite;
-}
-.header-logo-text .sub { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; margin-top: 3px; }
-
-nav { display: flex; align-items: center; gap: 4px; }
-nav a {
-  padding: 8px 14px; color: var(--text-muted); text-decoration: none;
-  font-weight: 700; font-size: 0.85rem; border-radius: var(--radius-sm);
-  transition: all 0.25s;
-}
-nav a:hover { color: var(--text); background: rgba(34,197,94,0.1); }
-nav a.active { color: var(--green-1); background: rgba(34,197,94,0.15); }
-[data-theme="light"] nav a.active { background: rgba(34,197,94,0.12); color: var(--green-3); }
-
-.header-actions { display: flex; align-items: center; gap: 8px; }
-.icon-btn {
-  width: 42px; height: 42px; border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-  color: var(--text); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.25s; padding: 0;
-}
-.icon-btn:hover { background: rgba(34,197,94,0.15); border-color: var(--green-2); transform: translateY(-2px); }
-.icon-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-
-.user-btn {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 14px 6px 8px; border-radius: 999px;
-  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-  cursor: pointer; transition: all 0.25s; font-family: inherit; color: var(--text);
-}
-.user-btn:hover { background: rgba(34,197,94,0.15); border-color: var(--green-2); }
-.user-btn img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--green-2); }
-.user-btn span { font-size: 0.85rem; font-weight: 700; }
-
-.login-btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 10px 18px; border-radius: var(--radius-sm);
-  background: var(--grad-green); border: none; color: #fff;
-  font-family: inherit; font-weight: 800; font-size: 0.85rem;
-  cursor: pointer; transition: all 0.3s;
-  box-shadow: 0 4px 16px rgba(34,197,94,0.4);
-}
-.login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(34,197,94,0.6); }
-.login-btn svg { width: 18px; height: 18px; fill: #fff; }
-
-.mobile-toggle { display: none; }
-
-@media (max-width: 900px) {
-  nav {
-    display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0;
-    flex-direction: column; padding: 16px; background: var(--bg-2);
-    border: 1px solid var(--border); border-radius: var(--radius-lg);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-  }
-  nav.open { display: flex; }
-  nav a { width: 100%; text-align: right; padding: 12px 16px; }
-  .mobile-toggle { display: flex; }
-  .user-btn span { display: none; }
-}
-
-main { padding-top: 100px; padding-bottom: 60px; min-height: 100vh; }
-
-/* PAGE HEADER */
-.page-header {
-  text-align: center;
-  padding: 40px 0 30px;
-}
-.page-header h1 {
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  font-weight: 900;
-  margin-bottom: 12px;
-  letter-spacing: -1px;
-}
-.page-header h1 .green {
-  background: var(--grad-green);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 30px rgba(34,197,94,0.5));
-}
-.page-header h1 .gold {
-  background: var(--grad-gold);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 30px rgba(251,191,36,0.4));
-}
-.page-header p { font-size: 0.95rem; color: var(--text-muted); font-weight: 600; }
-
-/* FILTERS BAR */
-.filters-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 28px;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  padding: 16px 20px;
-}
-
-.search-box {
-  position: relative;
-  flex: 1;
-  min-width: 200px;
-  max-width: 400px;
-}
-.search-box svg {
-  position: absolute;
-  top: 50%;
-  right: 16px;
-  transform: translateY(-50%);
-  width: 20px; height: 20px;
-  stroke: var(--text-muted); fill: none;
-  stroke-width: 2.2; pointer-events: none;
-}
-.search-input {
-  width: 100%;
-  padding: 12px 16px 12px 44px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-strong);
-  background: rgba(255,255,255,0.04);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 0.9rem;
-  font-weight: 600;
-  outline: none;
-  transition: all 0.25s;
-}
-[data-theme="light"] .search-input { background: #fff; }
-.search-input:focus {
-  border-color: var(--green-2);
-  box-shadow: 0 0 0 4px rgba(34,197,94,0.15);
-}
-.search-input::placeholder { color: var(--text-dim); }
-
-.position-tabs {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.pos-tab {
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-strong);
-  background: rgba(255,255,255,0.04);
-  color: var(--text-muted);
-  font-family: inherit;
-  font-weight: 700;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.25s;
-}
-[data-theme="light"] .pos-tab { background: #fff; }
-.pos-tab:hover { border-color: var(--green-2); color: var(--text); }
-.pos-tab.active {
-  background: var(--grad-green);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 4px 16px rgba(34,197,94,0.4);
-}
-
-/* SORT */
-.sort-select {
-  padding: 10px 16px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-strong);
-  background: rgba(255,255,255,0.04);
-  color: var(--text);
-  font-family: inherit;
-  font-weight: 700;
-  font-size: 0.85rem;
-  cursor: pointer;
-  outline: none;
-  transition: all 0.25s;
-}
-[data-theme="light"] .sort-select { background: #fff; }
-.sort-select:focus { border-color: var(--green-2); }
-
-/* RESULTS COUNT */
-.results-count {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  font-weight: 700;
-  margin-bottom: 20px;
-}
-.results-count strong {
-  color: var(--green-1);
-  font-weight: 900;
-}
-
-/* PLAYERS GRID */
-.players-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 24px;
-}
-
-/* FIFA CARD */
-.fifa-card {
-  position: relative;
-  border-radius: 20px;
-  padding: 24px;
-  text-align: center;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.5s cubic-bezier(.4,0,.2,1);
-  transform-style: preserve-3d;
-  perspective: 1000px;
-  animation: cardIn 0.5s ease backwards;
-}
-@keyframes cardIn {
-  from { opacity: 0; transform: translateY(20px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-.fifa-card.gold {
-  background: linear-gradient(160deg, #fef9c3 0%, #fde68a 20%, #fbbf24 50%, #d97706 85%, #92400e 100%);
-  box-shadow: 0 20px 60px rgba(217,119,6,0.4), inset 0 0 0 2px rgba(255,255,255,0.5);
-}
-.fifa-card.silver {
-  background: linear-gradient(160deg, #f8fafc 0%, #e2e8f0 25%, #cbd5e1 55%, #94a3b8 85%, #64748b 100%);
-  box-shadow: 0 20px 60px rgba(100,116,139,0.4), inset 0 0 0 2px rgba(255,255,255,0.6);
-}
-.fifa-card.bronze {
-  background: linear-gradient(160deg, #fed7aa 0%, #fb923c 25%, #ea580c 55%, #c2410c 85%, #7c2d12 100%);
-  box-shadow: 0 20px 60px rgba(194,65,12,0.4), inset 0 0 0 2px rgba(255,255,255,0.4);
-}
-.fifa-card::before {
-  content: "";
-  position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-  background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%);
-  transform: translateX(-100%); transition: transform 0.8s; pointer-events: none;
-}
-.fifa-card:hover::before { transform: translateX(100%); }
-.fifa-card:hover { transform: translateY(-12px) rotateY(6deg) rotateX(-4deg) scale(1.03); }
-
-.fifa-rating {
-  display: flex; align-items: center; justify-content: center;
-  gap: 8px; margin-bottom: 16px;
-  position: relative; z-index: 1;
-}
-.fifa-rating-num {
-  font-size: 2.8rem; font-weight: 900; line-height: 1;
-  color: #422006; text-shadow: 0 2px 4px rgba(255,255,255,0.5);
-}
-.fifa-card.silver .fifa-rating-num { color: #1e293b; text-shadow: 0 2px 4px rgba(255,255,255,0.7); }
-.fifa-card.bronze .fifa-rating-num { color: #431407; text-shadow: 0 2px 4px rgba(255,255,255,0.3); }
-
-.fifa-position {
-  padding: 4px 10px; border-radius: 8px;
-  font-size: 0.7rem; font-weight: 900; letter-spacing: 1px;
-  background: rgba(66,32,6,0.9); color: #fef3c7;
-}
-.fifa-card.silver .fifa-position { background: rgba(30,41,59,0.9); color: #f1f5f9; }
-.fifa-card.bronze .fifa-position { background: rgba(67,20,7,0.9); color: #fed7aa; }
-
-.fifa-photo-wrap {
-  width: 100px; height: 100px;
-  margin: 0 auto 16px; position: relative; z-index: 1;
-}
-.fifa-photo {
-  width: 100%; height: 100%;
-  border-radius: 50%; object-fit: cover;
-  border: 4px solid rgba(255,255,255,0.9);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-  background: #f1f5f9;
-}
-.fifa-photo-wrap::after {
-  content: "";
-  position: absolute; inset: -8px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,0.4), transparent 70%);
-  z-index: -1; animation: pulseGlow 2.5s ease-in-out infinite;
-}
-@keyframes pulseGlow {
-  0%,100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.1); }
-}
-.fifa-name {
-  font-size: 1.2rem; font-weight: 900; margin-bottom: 12px;
-  color: #422006; text-shadow: 0 2px 4px rgba(255,255,255,0.5);
-  position: relative; z-index: 1;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.fifa-card.silver .fifa-name { color: #1e293b; }
-.fifa-card.bronze .fifa-name { color: #431407; }
-
-.fifa-stats {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 6px 16px; padding-top: 12px;
-  border-top: 2px solid rgba(0,0,0,0.15);
-  position: relative; z-index: 1;
-}
-.fifa-stat {
-  display: flex; align-items: baseline; gap: 6px;
-  font-size: 0.72rem; font-weight: 800;
-  color: #422006;
-}
-.fifa-card.silver .fifa-stat { color: #1e293b; }
-.fifa-card.bronze .fifa-stat { color: #431407; }
-.fifa-stat-val { font-size: 1rem; font-weight: 900; }
-
-/* POINTS BADGE */
-.points-badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: rgba(0,0,0,0.3);
-  backdrop-filter: blur(10px);
-  color: #fff;
-  font-weight: 900;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  z-index: 2;
-  border: 1px solid rgba(255,255,255,0.2);
-}
-.points-badge svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5; }
-
-/* EMPTY */
-.empty {
-  text-align: center; padding: 80px 20px;
-  grid-column: 1 / -1;
-  color: var(--text-muted); font-weight: 600;
-}
-.empty svg {
-  width: 80px; height: 80px;
-  stroke: var(--green-2); fill: none; stroke-width: 1.2;
-  margin-bottom: 20px; opacity: 0.5;
-}
-.empty h3 { font-size: 1.3rem; color: var(--text); margin-bottom: 8px; }
-.empty p { font-size: 0.95rem; }
-
-/* SKELETON */
-.skeleton {
-  background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 100%);
-  background-size: 200% 100%;
-  animation: skeleton 1.5s linear infinite;
-  border-radius: var(--radius-md);
-}
-@keyframes skeleton {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-.skeleton-card { height: 320px; border-radius: 20px; }
-
-/* TOAST */
-.toast {
-  position: fixed; bottom: 24px; left: 50%;
-  transform: translateX(-50%) translateY(120px);
-  padding: 14px 24px; border-radius: var(--radius-md);
-  background: var(--bg-2); border: 1px solid var(--border-strong);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-  font-weight: 700; font-size: 0.9rem; z-index: 500;
-  transition: transform 0.4s cubic-bezier(.4,0,.2,1);
-  max-width: 90vw;
-}
-.toast.show { transform: translateX(-50%) translateY(0); }
-.toast.success { border-color: var(--green-2); color: var(--green-1); }
-.toast.error { border-color: var(--red-2); color: var(--red-1); }
-
-/* SCROLLBAR */
-::-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--green-2), var(--green-4));
-  border-radius: 999px;
-}
-::-webkit-scrollbar-thumb:hover { background: var(--green-1); }
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  .container { padding: 0 16px; }
-  main { padding-top: 90px; }
-  .page-header { padding: 30px 0 20px; }
-  .filters-bar { padding: 12px 16px; gap: 10px; }
-  .search-box { max-width: 100%; }
-  .players-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-  .fifa-card { padding: 18px; }
-  .fifa-rating-num { font-size: 2.2rem; }
-  .fifa-photo-wrap { width: 85px; height: 85px; }
-  .fifa-name { font-size: 1rem; }
-}
-@media (max-width: 480px) {
-  .players-grid { grid-template-columns: 1fr; }
-  .page-header h1 { font-size: 1.8rem; }
-  .pos-tab { padding: 6px 12px; font-size: 0.78rem; }
-}
-</style>
-</head>
-<body>
-
-<div id="loader">
-  <img src="logo.png" alt="Vinlandx" class="loader-logo" onerror="this.style.display='none'" />
-  <div class="loader-text">VINLANDX</div>
-  <div class="loader-sub">كرة الحومة 🇩🇿</div>
-  <div class="loader-bar"></div>
-</div>
-
-<div class="bg-layer" id="bgLayer" style="background-image: url('background2.png');"></div>
-<div class="bg-overlay"></div>
-<div class="bg-orb orb-1"></div>
-<div class="bg-orb orb-2"></div>
-
-<header id="header">
-  <a href="index.html" class="header-logo">
-    <img src="logo.png" alt="Vinlandx" onerror="this.style.display='none'" />
-    <div class="header-logo-text">
-      <span class="main">كرة الحومة - Vinlandx</span>
-      <span class="sub">منصة كرة القدم الجزائرية</span>
-    </div>
-  </a>
-
-  <nav id="nav">
-    <a href="index.html">الرئيسية</a>
-    <a href="players.html" class="active">اللاعبين</a>
-    <a href="matches.html">الماتشات</a>
-    <a href="leaderboard.html">الترتيب</a>
-    <a href="compare.html">قارن</a>
-    <a href="teams.html">الفرق</a>
-  </nav>
-
-  <div class="header-actions">
-    <button class="icon-btn mobile-toggle" onclick="toggleMobileNav()" aria-label="القائمة">
-      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-    <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" aria-label="الوضع">
-      <svg viewBox="0 0 24 24" id="themeIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
-    <div id="userArea">
-      <button class="login-btn" onclick="signInWithGoogle()">
-        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-        دخول
-      </button>
-    </div>
-  </div>
-</header>
-
-<main>
-  <div class="container">
-
-    <div class="page-header">
-      <h1>
-        لاعبين <span class="green">الحومة</span>
-      </h1>
-      <p>كل نجوم الحومة في مكان واحد ⚽</p>
-    </div>
-
-    <div class="filters-bar glass">
-      <div class="search-box">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="searchInput" class="search-input" placeholder="قلّب على لاعب..." oninput="applyFilters()" />
-      </div>
-
-      <div class="position-tabs" id="positionTabs">
-        <button class="pos-tab active" onclick="setPosition('all', this)">الكل</button>
-        <button class="pos-tab" onclick="setPosition('حارس', this)">حراس</button>
-        <button class="pos-tab" onclick="setPosition('مدافع', this)">مدافعين</button>
-        <button class="pos-tab" onclick="setPosition('وسط', this)">وسط</button>
-        <button class="pos-tab" onclick="setPosition('مهاجم', this)">مهاجمين</button>
-      </div>
-
-      <select class="sort-select" id="sortSelect" onchange="applyFilters()">
-        <option value="overall">الأعلى تقييم</option>
-        <option value="name">الاسم (أ-ي)</option>
-        <option value="points">النقاط</option>
-        <option value="goals">الأهداف</option>
-        <option value="pace">السرعة</option>
-        <option value="shot">قوة الفراب</option>
-        <option value="passing">التمرير</option>
-        <option value="defense">الدفاع</option>
-      </select>
-    </div>
-
-    <div class="results-count" id="resultsCount"></div>
-
-    <div class="players-grid" id="playersGrid">
-      <div class="skeleton skeleton-card"></div>
-      <div class="skeleton skeleton-card"></div>
-      <div class="skeleton skeleton-card"></div>
-      <div class="skeleton skeleton-card"></div>
-      <div class="skeleton skeleton-card"></div>
-      <div class="skeleton skeleton-card"></div>
-    </div>
-
-  </div>
-</main>
-
-<div class="toast" id="toast"></div>
-
-<script>
-// ============= CONFIG =============
-const SUPABASE_URL = "https://dhvuopnibiwpzuwvxxtv.supabase.co";
-const SUPABASE_KEY = "sb_publishable_sl9It4cgGFwkGCC76X4zHw_Hjx4iELO";
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// ============= STATE =============
-let currentUser = null;
-let currentProfile = null;
-let allPlayers = [];
-let allEvents = [];
-let currentPosition = "all";
-
-// ============= LOADER =============
-window.addEventListener("load", () => {
-  setTimeout(() => document.getElementById("loader").classList.add("hidden"), 900);
-});
-
-// ============= THEME =============
-function getSavedTheme() { return localStorage.getItem("vinlandx_theme") || "dark"; }
-function applyTheme(theme) {
-  document.documentElement.setAttribute("data-theme", theme);
-  const icon = document.getElementById("themeIcon");
-  if (theme === "dark") {
-    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-  } else {
-    icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
-  }
-}
-function toggleTheme() {
-  const current = getSavedTheme();
-  const next = current === "dark" ? "light" : "dark";
-  localStorage.setItem("vinlandx_theme", next);
-  applyTheme(next);
-  showToast(next === "dark" ? "🌙 الوضع الداكن" : "☀️ الوضع الفاتح", "success");
-}
-applyTheme(getSavedTheme());
-
-// ============= MOBILE NAV =============
-function toggleMobileNav() { document.getElementById("nav").classList.toggle("open"); }
-
-// ============= HEADER SCROLL =============
-window.addEventListener("scroll", () => {
-  const header = document.getElementById("header");
-  if (window.scrollY > 50) header.classList.add("scrolled");
-  else header.classList.remove("scrolled");
-});
-
-// ============= PARALLAX =============
-document.addEventListener("mousemove", (e) => {
-  const bg = document.getElementById("bgLayer");
-  const x = (e.clientX / window.innerWidth - 0.5) * 15;
-  const y = (e.clientY / window.innerHeight - 0.5) * 15;
-  bg.style.transform = `translate(${x}px, ${y}px) scale(1.05)`;
-});
-
-// ============= AUTH =============
-async function signInWithGoogle() {
-  try {
-    const { error } = await supabaseClient.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin + window.location.pathname }
-    });
-    if (error) throw error;
-  } catch (err) {
-    showToast("خطأ في تسجيل الدخول: " + err.message, "error");
-  }
-}
-
-async function signOut() {
-  await supabaseClient.auth.signOut();
-  currentUser = null;
-  currentProfile = null;
-  renderUserArea();
-  showToast("تسجّل الخروج", "success");
-}
-
-async function checkAuth() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    const { data: profile } = await supabaseClient.from("profiles").select("*").eq("id", currentUser.id).single();
-    currentProfile = profile;
-  }
-  renderUserArea();
-}
-
-supabaseClient.auth.onAuthStateChange(async (event, session) => {
-  if (session) {
-    currentUser = session.user;
-    const { data: profile } = await supabaseClient.from("profiles").select("*").eq("id", currentUser.id).single();
-    currentProfile = profile;
-  } else {
-    currentUser = null;
-    currentProfile = null;
-  }
-  renderUserArea();
-});
-
-function renderUserArea() {
-  const area = document.getElementById("userArea");
-  if (currentUser && currentProfile) {
-    const name = currentProfile.full_name || currentProfile.email?.split("@")[0] || "لاعب";
-    const avatar = currentProfile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=22c55e&color=fff`;
-    area.innerHTML = `
-      <button class="user-btn" onclick="if(confirm('تسجّل الخروج؟')) signOut()">
-        <img src="${avatar}" alt="${escapeHTML(name)}" />
-        <span>${escapeHTML(name)}</span>
-      </button>
-    `;
-  } else {
-    area.innerHTML = `
-      <button class="login-btn" onclick="signInWithGoogle()">
-        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-        دخول
-      </button>
-    `;
-  }
-}
-
-// ============= HELPERS =============
-function escapeHTML(s) {
-  if (!s) return "";
-  const d = document.createElement("div");
-  d.textContent = s;
-  return d.innerHTML;
-}
-function calcOverall(p) {
-  return Math.round((p.strength + p.shot_power + p.pace + p.dribbling + p.passing + p.defense) / 6);
-}
-function getCardTier(o) {
-  if (o >= 85) return "gold";
-  if (o >= 70) return "silver";
-  return "bronze";
-}
-function defaultPhoto() {
-  return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23334"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7" fill="none" stroke="%2322c55e" stroke-width="1.5"/></svg>';
-}
-function playerStats(pid) {
-  const ev = allEvents.filter(e => e.player_id === pid);
-  const goals = ev.filter(e => e.event_type === "goal").length;
-  const assists = ev.filter(e => e.event_type === "assist").length;
-  const motm = ev.filter(e => e.event_type === "motm").length;
-  const yellow = ev.filter(e => e.event_type === "yellow").length;
-  const red = ev.filter(e => e.event_type === "red").length;
+function renderPlayer() {
+  const content = document.getElementById("content");
+  const overall = calcOverall(player);
+  const tier = getCardTier(overall);
+  const photo = player.photo || defaultPhoto();
+
+  // حساب الإحصائيات
+  const goals = playerEvents.filter(e => e.event_type === "goal").length;
+  const assists = playerEvents.filter(e => e.event_type === "assist").length;
+  const motm = playerEvents.filter(e => e.event_type === "motm").length;
+  const yellow = playerEvents.filter(e => e.event_type === "yellow").length;
+  const red = playerEvents.filter(e => e.event_type === "red").length;
+  const ratings = playerEvents.filter(e => e.event_type === "rating").map(e => e.rating);
+  const avgRating = ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : "-";
   const points = goals * 3 + assists * 2 + motm * 5 - yellow - red * 3;
-  return { goals, assists, motm, points };
-}
-async function fetchSafe(table, query = "") {
-  try {
-    const url = `${SUPABASE_URL}/rest/v1/${table}${query ? "?" + query : ""}`;
-    const res = await fetch(url, {
-      headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch (e) {
-    console.error(e);
-    return [];
-  }
-}
 
-// ============= TOAST =============
-let toastTimer;
-function showToast(msg, type = "success") {
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.className = "toast " + type;
-  clearTimeout(toastTimer);
-  setTimeout(() => t.classList.add("show"), 10);
-  toastTimer = setTimeout(() => t.classList.remove("show"), 3000);
-}
+  // الإحصائيات التفصيلية
+  const statsList = [
+    { key: "pace", label: "السرعة", val: player.pace || 0 },
+    { key: "shot_power", label: "قوة الفراب", val: player.shot_power || 0 },
+    { key: "passing", label: "التمرير", val: player.passing || 0 },
+    { key: "dribbling", label: "المراوغة", val: player.dribbling || 0 },
+    { key: "defense", label: "الدفاع", val: player.defense || 0 },
+    { key: "strength", label: "القوة البدنية", val: player.strength || 0 }
+  ];
 
-// ============= FILTERS =============
-function setPosition(pos, btn) {
-  currentPosition = pos;
-  document.querySelectorAll(".pos-tab").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-  applyFilters();
-}
-
-function applyFilters() {
-  const search = document.getElementById("searchInput").value.trim().toLowerCase();
-  const sortBy = document.getElementById("sortSelect").value;
-
-  let filtered = [...allPlayers];
-
-  // فلترة حسب المركز
-  if (currentPosition !== "all") {
-    filtered = filtered.filter(p => p.position === currentPosition);
-  }
-
-  // فلترة حسب البحث
-  if (search) {
-    filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
-  }
-
-  // ترتيب
-  filtered.sort((a, b) => {
-    if (sortBy === "overall") return calcOverall(b) - calcOverall(a);
-    if (sortBy === "name") return a.name.localeCompare(b.name, "ar");
-    if (sortBy === "points") return playerStats(b.id).points - playerStats(a.id).points;
-    if (sortBy === "goals") return playerStats(b.id).goals - playerStats(a.id).goals;
-    if (sortBy === "pace") return (b.pace || 0) - (a.pace || 0);
-    if (sortBy === "shot") return (b.shot_power || 0) - (a.shot_power || 0);
-    if (sortBy === "passing") return (b.passing || 0) - (a.passing || 0);
-    if (sortBy === "defense") return (b.defense || 0) - (a.defense || 0);
-    return 0;
-  });
-
-  renderPlayers(filtered);
-}
-
-function renderPlayers(players) {
-  const grid = document.getElementById("playersGrid");
-  const count = document.getElementById("resultsCount");
-
-  count.innerHTML = `لقينالك <strong>${players.length}</strong> لاعب${players.length !== 1 ? 'ين' : ''}`;
-
-  if (players.length === 0) {
-    grid.innerHTML = `
-      <div class="empty">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <h3>ما لقيناش لاعبين</h3>
-        <p>جرّب فلتر آخر ولا امسح البحث</p>
+  const statsBarsHTML = statsList.map(s => `
+    <div class="stat-bar-row">
+      <div class="stat-bar-header">
+        <span class="stat-bar-header-label">${s.label}</span>
+        <span class="stat-bar-header-val">${s.val}</span>
       </div>
-    `;
-    return;
-  }
+      <div class="stat-bar-bg">
+        <div class="stat-bar-fill ${statColor(s.val)}" style="width:${s.val}%"></div>
+      </div>
+    </div>
+  `).join("");
 
-  grid.innerHTML = players.map((p, i) => {
-    const overall = calcOverall(p);
-    const tier = getCardTier(overall);
-    const photo = p.photo || defaultPhoto();
-    const stats = playerStats(p.id);
+  const achievementsHTML = playerAchievements.length > 0 ? `
+    <div class="achievements-list">
+      ${playerAchievements.map(a => `
+        <div class="achievement-badge">
+          <svg viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          ${escapeHTML(a.title)}
+        </div>
+      `).join("")}
+    </div>
+  ` : `
+    <p style="color:var(--text-muted);font-size:0.85rem;font-weight:600">ما زال ما عندو إنجازات</p>
+  `;
 
-    return `
-      <div class="fifa-card ${tier}" style="animation-delay: ${i * 0.05}s" onclick="location.href='player.html?id=${p.id}'">
-        ${stats.points > 0 ? `
-          <div class="points-badge">
+  document.title = `${player.name} - Vinlandx`;
+
+  content.innerHTML = `
+    <div class="player-scene">
+      <!-- BIG FIFA CARD -->
+      <div class="big-fifa-card ${tier}" id="bigCard">
+        <div class="big-fifa-rating">
+          <span class="big-fifa-rating-num">${overall}</span>
+          <span class="big-fifa-position">${player.position}</span>
+        </div>
+        <div class="big-fifa-photo-wrap">
+          <img class="big-fifa-photo" src="${photo}" alt="${escapeHTML(player.name)}" onerror="this.src='${defaultPhoto()}'" crossorigin="anonymous" />
+        </div>
+        <div class="big-fifa-name">${escapeHTML(player.name)}</div>
+        <div class="big-fifa-stats">
+          ${statsList.map(s => `
+            <div class="big-fifa-stat">
+              <span class="big-fifa-stat-val">${s.val}</span>
+              <span class="big-fifa-stat-label">${s.label}</span>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+
+      <!-- PLAYER INFO -->
+      <div class="player-info-section glass">
+        <h1 class="player-name-header">
+          <span class="green">${escapeHTML(player.name)}</span>
+        </h1>
+        <div class="player-meta">
+          <span class="meta-tag green">
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            ${player.position}
+          </span>
+          <span class="meta-tag gold">
             <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            ${stats.points}
+            ${points} نقطة
+          </span>
+          ${avgRating !== "-" ? `
+            <span class="meta-tag blue">
+              <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+              ${avgRating} / 10
+            </span>
+          ` : ''}
+        </div>
+
+        <!-- Quick stats -->
+        <div class="detailed-stats">
+          <div class="stat-box">
+            <div class="stat-box-val">${goals}</div>
+            <div class="stat-box-lbl">أهداف</div>
           </div>
-        ` : ''}
-        <div class="fifa-rating">
-          <span class="fifa-rating-num">${overall}</span>
-          <span class="fifa-position">${p.position}</span>
+          <div class="stat-box">
+            <div class="stat-box-val">${assists}</div>
+            <div class="stat-box-lbl">تمريرات</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-val">${motm}</div>
+            <div class="stat-box-lbl">رجل الماتش</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-val">${yellow + red}</div>
+            <div class="stat-box-lbl">بطاقات</div>
+          </div>
         </div>
-        <div class="fifa-photo-wrap">
-          <img class="fifa-photo" src="${photo}" alt="${escapeHTML(p.name)}" onerror="this.src='${defaultPhoto()}'" />
+
+        <!-- Progress bars -->
+        <div class="stats-bars">
+          ${statsBarsHTML}
         </div>
-        <div class="fifa-name">${escapeHTML(p.name)}</div>
-        <div class="fifa-stats">
-          <div class="fifa-stat"><span class="fifa-stat-val">${p.pace||0}</span> سرعة</div>
-          <div class="fifa-stat"><span class="fifa-stat-val">${p.shot_power||0}</span> فراب</div>
-          <div class="fifa-stat"><span class="fifa-stat-val">${p.passing||0}</span> تمرير</div>
-          <div class="fifa-stat"><span class="fifa-stat-val">${p.dribbling||0}</span> مراوغة</div>
-          <div class="fifa-stat"><span class="fifa-stat-val">${p.defense||0}</span> دفاع</div>
-          <div class="fifa-stat"><span class="fifa-stat-val">${p.strength||0}</span> قوة</div>
+
+        <!-- Achievements -->
+        <h3 style="font-size:1rem;font-weight:800;margin-bottom:12px;color:var(--text)">🏅 الإنجازات</h3>
+        ${achievementsHTML}
+
+        <!-- Actions -->
+        <div class="player-actions">
+          <button class="action-btn gold" onclick="downloadCard()">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            حمّل البطاقة
+          </button>
+          <button class="action-btn whatsapp" onclick="shareWhatsApp()">
+            <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            شارك على واتساب
+          </button>
+          <a href="compare.html" class="action-btn outline">
+            <svg viewBox="0 0 24 24"><path d="M16 3h5v5"/><path d="M8 21H3v-5"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></svg>
+            قارن مع لاعب
+          </a>
+          <a href="players.html" class="action-btn outline">
+            <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            رجوع
+          </a>
         </div>
       </div>
-    `;
-  }).join("");
+    </div>
+  `;
 }
 
-// ============= LOAD =============
-async function loadAll() {
+// Download Card
+async function downloadCard() {
   try {
-    const [players, events] = await Promise.all([
-      fetchSafe("players", "select=*&order=created_at.desc"),
-      fetchSafe("events", "select=player_id,event_type")
-    ]);
-    allPlayers = players;
-    allEvents = events;
-    applyFilters();
+    const card = document.getElementById("bigCard");
+    if (!card) return;
+
+    showToast("جاري تحميل البطاقة...", "success");
+
+    const originalTransform = card.style.transform;
+    card.style.transform = "none";
+
+    const canvas = await html2canvas(card, {
+      backgroundColor: null,
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      logging: false
+    });
+
+    card.style.transform = originalTransform;
+
+    canvas.toBlob((blob) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `vinlandx-${player.name}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("✅ تحمّلت البطاقة", "success");
+    }, "image/png");
   } catch (e) {
-    console.error(e);
-    document.getElementById("playersGrid").innerHTML = `<div class="empty"><h3>خطأ في التحميل</h3></div>`;
+    showToast("خطأ: " + e.message, "error");
   }
 }
 
-// ============= INIT =============
+// Share WhatsApp
+function shareWhatsApp() {
+  const url = window.location.href;
+  const text = `🔥 شوف بطاقة ${player.name} في كرة الحومة 🇩🇿\n${url}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+}
+
+// Init
 document.addEventListener("DOMContentLoaded", async () => {
   await checkAuth();
-  await loadAll();
+  await loadPlayer();
 });
 </script>
 
