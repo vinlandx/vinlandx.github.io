@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0a0f1a" />
+<title>لوحة التحكم - Vinlandx</title>
+<link rel="icon" type="image/png" href="icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green-1: #4ade80; --green-2: #22c55e; --green-3: #16a34a; --green-4: #15803d;
+  --red-1: #f87171; --red-2: #ef4444; --red-3: #dc2626;
+  --gold-1: #fde68a; --gold-2: #fbbf24; --gold-3: #f59e0b; --gold-4: #d97706;
+  --blue-2: #60a5fa; --blue-3: #3b82f6;
+  --purple-2: #a78bfa; --purple-3: #8b5cf6;
+
+  --bg: #070b14;
+  --card: rgba(255,255,255,0.05);
+  --card-hover: rgba(255,255,255,0.09);
+  --text: #f1f5f9; --text-muted: #94a3b8;
+  --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.15);
+
+  --radius-lg: 20px; --radius-md: 14px; --radius-sm: 10px;
+
+  --grad-green: linear-gradient(135deg, var(--green-1) 0%, var(--green-3) 100%);
+  --grad-red: linear-gradient(135deg, var(--red-1) 0%, var(--red-3) 100%);
+  --grad-gold: linear-gradient(135deg, var(--gold-2) 0%, var(--gold-4) 100%);
+  --grad-purple: linear-gradient(135deg, var(--purple-2) 0%, var(--purple-3) 100%);
+}
+
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --card: rgba(255,255,255,0.9);
+  --card-hover: rgba(255,255,255,1);
+  --text: #0f172a; --text-muted: #475569;
+  --border: rgba(15,23,42,0.08); --border-strong: rgba(15,23,42,0.15);
+}
+
+html, body { height: 100%; overflow-x: hidden; }
+
+body {
+  font-family: 'Cairo', system-ui, sans-serif;
+  color: var(--text); background: var(--bg);
+  min-height: 100vh; direction: rtl;
+  position: relative;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* LOADER */
+#loader {
+  position: fixed; inset: 0; background: var(--bg);
+  z-index: 10000; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity 0.3s ease, visibility 0.3s;
+}
+#loader.hidden { opacity: 0; visibility: hidden; }
+.loader-logo { width: 100px; height: 100px; margin-bottom: 16px; object-fit: contain; }
+.loader-text { font-size: 1.4rem; font-weight: 900; color: var(--green-1); letter-spacing: 2px; margin-bottom: 20px; }
+.loader-bar { width: 160px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 999px; overflow: hidden; position: relative; }
+.loader-bar::after { content: ""; position: absolute; inset: 0; background: var(--grad-green); animation: loaderBar 1.2s ease-in-out infinite; }
+@keyframes loaderBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+/* BACKGROUND */
+.bg-layer {
+  position: fixed; inset: 0; z-index: -2;
+  background-size: cover; background-position: center;
+  background-attachment: fixed;
+  background-image: url('background5.png');
+}
+.bg-overlay {
+  position: fixed; inset: 0; z-index: -1;
+  background: linear-gradient(180deg, rgba(7,11,20,0.85) 0%, rgba(7,11,20,0.97) 100%);
+}
+[data-theme="light"] .bg-overlay {
+  background: linear-gradient(180deg, rgba(248,250,252,0.9) 0%, rgba(248,250,252,0.98) 100%);
+}
+
+.glass {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+.container { max-width: 1300px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+/* HEADER */
+header {
+  position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+  width: calc(100% - 24px); max-width: 1300px; z-index: 100;
+  padding: 10px 18px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  background: var(--card);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
+}
+
+.header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
+.header-logo img { height: 40px; width: auto; object-fit: contain; }
+.header-logo-text { display: flex; flex-direction: column; line-height: 1; }
+.header-logo-text .main { font-size: 1rem; font-weight: 900; color: var(--green-1); letter-spacing: 0.5px; }
+.header-logo-text .sub { font-size: 0.62rem; color: var(--text-muted); font-weight: 700; margin-top: 2px; }
+
+.header-actions { display: flex; align-items: center; gap: 8px; }
+.icon-btn {
+  width: 40px; height: 40px; border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  color: var(--text); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; padding: 0;
+}
+.icon-btn:hover { background: rgba(34,197,94,0.15); border-color: var(--green-2); }
+.icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+.user-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 12px 4px 4px; border-radius: 999px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.2s; font-family: inherit; color: var(--text);
+}
+.user-btn:hover { background: rgba(34,197,94,0.15); border-color: var(--green-2); }
+.user-btn img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--green-2); object-fit: cover; }
+.user-btn span { font-size: 0.82rem; font-weight: 700; }
+
+.login-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: var(--radius-sm);
+  background: var(--grad-green); border: none; color: #fff;
+  font-family: inherit; font-weight: 800; font-size: 0.82rem;
+  cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+}
+.login-btn:hover { transform: translateY(-1px); }
+.login-btn svg { width: 16px; height: 16px; fill: #fff; }
+
+main { padding-top: 90px; padding-bottom: 60px; min-height: 100vh; }
+
+/* LOGIN GATE */
+.gate-screen {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 70vh; text-align: center; padding: 20px;
+}
+.gate-icon {
+  width: 100px; height: 100px; border-radius: 24px;
+  background: var(--grad-red);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 24px;
+  box-shadow: 0 12px 32px rgba(239,68,68,0.4);
+}
+.gate-icon svg { width: 50px; height: 50px; stroke: #fff; fill: none; stroke-width: 2; }
+.gate-screen h1 {
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+.gate-screen p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 32px;
+  max-width: 500px;
+}
+.gate-screen .login-btn {
+  padding: 14px 32px;
+  font-size: 1rem;
+}
+.gate-screen .login-btn svg { width: 20px; height: 20px; }
+
+/* ACCESS DENIED */
+.denied {
+  background: rgba(239,68,68,0.1);
+  border: 2px solid rgba(239,68,68,0.4);
+  border-radius: var(--radius-lg);
+  padding: 40px 30px;
+  max-width: 500px;
+}
+.denied svg { width: 60px; height: 60px; stroke: var(--red-1); fill: none; stroke-width: 2; margin-bottom: 16px; }
+.denied h2 { font-size: 1.3rem; color: var(--red-1); margin-bottom: 8px; }
+.denied p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; }
+.denied strong { color: var(--text); }
+
+/* TABS */
+.tabs {
+  display: flex; gap: 6px; margin-bottom: 24px;
+  overflow-x: auto; padding-bottom: 6px;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.tab svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.tab:hover { border-color: var(--green-2); color: var(--text); }
+.tab.active {
+  background: var(--grad-green);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.3);
+}
+
+.panel { display: none; }
+.panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* CARDS */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.card-title {
+  font-size: 1.15rem;
+  font-weight: 900;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+}
+.card-title svg { width: 22px; height: 22px; stroke: var(--green-1); fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* FORMS */
+.form-group { margin-bottom: 16px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+@media (max-width: 640px) {
+  .form-row, .form-row-3 { grid-template-columns: 1fr; gap: 0; }
+}
+label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+input, select, textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border-strong);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.2s;
+}
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea { background: #fff; }
+input:focus, select:focus, textarea:focus {
+  border-color: var(--green-2);
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
+}
+textarea { min-height: 80px; resize: vertical; }
+input::placeholder, textarea::placeholder { color: var(--text-muted); }
+select option { background: var(--bg); color: var(--text); }
+
+/* SLIDER */
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s;
+}
+.slider-row:hover { background: rgba(34,197,94,0.05); }
+.slider-label {
+  width: 120px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text);
+  flex-shrink: 0;
+}
+input[type="range"] {
+  flex: 1;
+  height: 6px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.3);
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+[data-theme="light"] input[type="range"] { background: rgba(15,23,42,0.1); }
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--grad-green);
+  cursor: pointer;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(34,197,94,0.4);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--grad-green);
+  cursor: pointer;
+  border: 3px solid #fff;
+}
+.slider-value {
+  width: 45px;
+  text-align: center;
+  font-weight: 900;
+  background: rgba(34,197,94,0.15);
+  color: var(--green-1);
+  border-radius: 8px;
+  padding: 4px;
+  font-size: 0.82rem;
+  flex-shrink: 0;
+}
+
+/* PHOTO PREVIEW */
+.photo-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 16px;
+  object-fit: cover;
+  border: 3px solid var(--green-2);
+  margin-top: 10px;
+  display: none;
+}
+.photo-preview.show { display: block; }
+
+input[type="file"] {
+  padding: 10px;
+  cursor: pointer;
+}
+input[type="file"]::file-selector-button {
+  background: var(--grad-green);
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+/* BUTTONS */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.btn.green { background: var(--grad-green); color: #fff; box-shadow: 0 4px 16px rgba(34,197,94,0.3); }
+.btn.green:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(34,197,94,0.5); }
+.btn.red { background: var(--grad-red); color: #fff; box-shadow: 0 4px 16px rgba(239,68,68,0.3); }
+.btn.red:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(239,68,68,0.5); }
+.btn.gold { background: var(--grad-gold); color: #fff; box-shadow: 0 4px 16px rgba(251,191,36,0.3); }
+.btn.gold:hover { transform: translateY(-2px); }
+.btn.purple { background: var(--grad-purple); color: #fff; box-shadow: 0 4px 16px rgba(167,139,250,0.3); }
+.btn.purple:hover { transform: translateY(-2px); }
+.btn.outline { background: rgba(255,255,255,0.05); border: 1px solid var(--border-strong); color: var(--text); }
+.btn.outline:hover { background: rgba(255,255,255,0.1); border-color: var(--green-2); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+.btn-block { width: 100%; padding: 14px; font-size: 0.95rem; }
+.btn-small { padding: 6px 12px; font-size: 0.78rem; }
+
+/* LIST ITEMS */
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+[data-theme="light"] .item-row { background: rgba(15,23,42,0.03); }
+.item-row:hover { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.3); }
+.item-row img {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid var(--green-2);
+  flex-shrink: 0;
+  background: var(--bg);
+}
+.item-info { flex: 1; min-width: 0; }
+.item-info strong { display: block; font-size: 0.92rem; font-weight: 800; color: var(--text); margin-bottom: 2px; }
+.item-info span { font-size: 0.72rem; color: var(--text-muted); font-weight: 700; }
+
+/* STATS SUMMARY */
+.stats-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-mini-card {
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+.stat-mini-val {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--green-1);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-mini-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+/* ALERTS */
+.alert {
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: none;
+}
+.alert.show { display: block; animation: slideDown 0.3s ease; }
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.alert.success {
+  background: rgba(34,197,94,0.15);
+  border: 1px solid rgba(34,197,94,0.4);
+  color: var(--green-1);
+}
+.alert.error {
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.4);
+  color: var(--red-1);
+}
+
+/* EMPTY */
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  font-weight: 700;
+  font-size: 0.85rem;
+  z-index: 500;
+  transition: transform 0.3s ease;
+  max-width: 90vw;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--green-2); color: var(--green-1); }
+.toast.error { border-color: var(--red-2); color: var(--red-1); }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--green-3); border-radius: 999px; }
+
+@media (max-width: 768px) {
+  .container { padding: 0 16px; }
+  main { padding-top: 80px; }
+  .card { padding: 18px; }
+  .card-title { font-size: 1rem; }
+  .tab { padding: 8px 14px; font-size: 0.78rem; }
+  .slider-label { width: 90px; font-size: 0.78rem; }
+}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <img src="logo.png" alt="Vinlandx" class="loader-logo" onerror="this.style.display='none'" />
+  <div class="loader-text">VINLANDX</div>
+  <div class="loader-bar"></div>
+</div>
+
+<div class="bg-layer"></div>
+<div class="bg-overlay"></div>
+
+<header id="header">
+  <a href="index.html" class="header-logo">
+    <img src="logo.png" alt="Vinlandx" onerror="this.style.display='none'" />
+    <div class="header-logo-text">
+      <span class="main">لوحة التحكم - Vinlandx</span>
+      <span class="sub">إدارة كرة الحومة</span>
+    </div>
+  </a>
+
+  <div class="header-actions">
+    <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" aria-label="الوضع">
+      <svg viewBox="0 0 24 24" id="themeIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <div id="userArea"></div>
+  </div>
+</header>
+
+<main>
+  <div class="container" id="content"></div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = "https://dhvuopnibiwpzuwvxxtv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_sl9It4cgGFwkGCC76X4zHw_Hjx4iELO";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ⚠️ الإيميل الوحيد المسموح
+const ADMIN_EMAIL = "mohamedln8231@gmail.com";
+
+let currentUser = null;
+let currentProfile = null;
+let allPlayers = [];
+let allMatches = [];
+let allEvents = [];
+let allAchievements = [];
+
+window.addEventListener("load", () => {
+  document.getElementById("loader").classList.add("hidden");
+});
+
+// THEME
+function getSavedTheme() { return localStorage.getItem("vinlandx_theme") || "dark"; }
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const icon = document.getElementById("themeIcon");
+  if (theme === "dark") {
+    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  } else {
+    icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  }
+}
+function toggleTheme() {
+  const current = getSavedTheme();
+  const next = current === "dark" ? "light" : "dark";
+  localStorage.setItem("vinlandx_theme", next);
+  applyTheme(next);
+}
+applyTheme(getSavedTheme());
+
+// AUTH
+async function signInWithGoogle() {
+  try {
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: "https://vinlandx.github.io" }
+    });
+    if (error) throw error;
+  } catch (err) {
+    showToast("خطأ: " + err.message, "error");
+  }
+}
+
+async function signOut() {
+  await supabaseClient.auth.signOut();
+  currentUser = null;
+  currentProfile = null;
+  renderApp();
+  showToast("تسجّل الخروج", "success");
+}
+
+async function checkAuth() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    const { data: profile } = await supabaseClient.from("profiles").select("*").eq("id", currentUser.id).single();
+    currentProfile = profile;
+  }
+  renderUserArea();
+  renderApp();
+}
+
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  if (session) {
+    currentUser = session.user;
+    const { data: profile } = await supabaseClient.from("profiles").select("*").eq("id", currentUser.id).single();
+    currentProfile = profile;
+  } else {
+    currentUser = null;
+    currentProfile = null;
+  }
+  renderUserArea();
+  renderApp();
+});
+
+function renderUserArea() {
+  const area = document.getElementById("userArea");
+  if (currentUser) {
+    const avatar = currentProfile?.avatar_url ||
+      currentUser?.user_metadata?.avatar_url ||
+      currentUser?.user_metadata?.picture ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.email)}&background=22c55e&color=fff`;
+    const name = currentProfile?.full_name || currentUser?.user_metadata?.full_name || currentUser.email;
+    area.innerHTML = `
+      <button class="user-btn" onclick="if(confirm('تسجّل الخروج؟')) signOut()">
+        <img src="${avatar}" alt="${escapeHTML(name)}" />
+        <span>${escapeHTML(name.split("@")[0])}</span>
+      </button>
+    `;
+  } else {
+    area.innerHTML = '';
+  }
+}
+
+// RENDER APP
+function renderApp() {
+  const content = document.getElementById("content");
+
+  // 1. مش مسجل دخول
+  if (!currentUser) {
+    content.innerHTML = `
+      <div class="gate-screen">
+        <div class="gate-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h1>لوحة التحكم</h1>
+        <p>سجّل دخول بحساب Google باش تدخل للوحة التحكم</p>
+        <button class="login-btn" onclick="signInWithGoogle()">
+          <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          دخول بـ Google
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  // 2. مسجل دخول بس مش الأدمن
+  if (currentUser.email !== ADMIN_EMAIL) {
+    content.innerHTML = `
+      <div class="gate-screen">
+        <div class="denied">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+          <h2>ممنوع الدخول</h2>
+          <p>هاد الصفحة مخصصة للأدمن فقط.<br>الحساب <strong>${escapeHTML(currentUser.email)}</strong> ما عندوش صلاحيات.</p>
+          <button class="btn outline" onclick="signOut()">
+            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            سجّل الخروج
+          </button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // 3. الأدمن — عرض اللوحة
+  content.innerHTML = `
+    <div class="stats-summary" id="statsSummary"></div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('players', this)">
+        <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        اللاعبين
+      </button>
+      <button class="tab" onclick="switchTab('matches', this)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20M2 12h20"/></svg>
+        الماتشات
+      </button>
+      <button class="tab" onclick="switchTab('events', this)">
+        <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        الأحداث
+      </button>
+      <button class="tab" onclick="switchTab('achievements', this)">
+        <svg viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        الإنجازات
+      </button>
+    </div>
+
+    <div id="alert" class="alert"></div>
+
+    <!-- PLAYERS PANEL -->
+    <div class="panel active" id="panel-players">
+      <div class="card">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          زيد لاعب جديد
+        </h2>
+        <form id="playerForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>اسم اللاعب</label>
+              <input type="text" id="pName" placeholder="مثال: محمد" required />
+            </div>
+            <div class="form-group">
+              <label>المركز</label>
+              <select id="pPosition" required>
+                <option value="حارس">حارس</option>
+                <option value="مدافع">مدافع</option>
+                <option value="وسط" selected>وسط</option>
+                <option value="مهاجم">مهاجم</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>صورة اللاعب</label>
+            <input type="file" id="pPhoto" accept="image/*" />
+            <img id="pPreview" class="photo-preview" alt="" />
+          </div>
+          <h3 style="font-size:0.95rem;font-weight:800;margin:20px 0 12px;color:var(--green-1)">الإحصائيات</h3>
+          <div id="sliders"></div>
+          <button type="submit" class="btn green btn-block" id="pSubmit" style="margin-top:16px">
+            <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+            سجّل اللاعب
+          </button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          اللاعبين المسجلين
+        </h2>
+        <div id="playersList"></div>
+      </div>
+    </div>
+
+    <!-- MATCHES PANEL -->
+    <div class="panel" id="panel-matches">
+      <div class="card">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          زيد ماتش جديد
+        </h2>
+        <form id="matchForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>التاريخ</label>
+              <input type="datetime-local" id="mDate" required />
+            </div>
+            <div class="form-group">
+              <label>نوع الماتش</label>
+              <select id="mType">
+                <option value="friendly">ودّي</option>
+                <option value="league">دوري</option>
+                <option value="cup">كأس</option>
+                <option value="champion">شامبيون</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>الفريق الأول</label>
+              <input type="text" id="mTeamA" placeholder="مثال: الفريق الأخضر" required />
+            </div>
+            <div class="form-group">
+              <label>الفريق الثاني</label>
+              <input type="text" id="mTeamB" placeholder="مثال: الفريق الأحمر" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>هدف الأول</label>
+              <input type="number" id="mScoreA" min="0" value="0" required />
+            </div>
+            <div class="form-group">
+              <label>هدف الثاني</label>
+              <input type="number" id="mScoreB" min="0" value="0" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>المكان (اختياري)</label>
+              <input type="text" id="mLocation" placeholder="ملعب الحومة" />
+            </div>
+            <div class="form-group">
+              <label>المنافسة (اختياري)</label>
+              <input type="text" id="mCompetition" placeholder="بطولة رمضان" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>ملاحظات</label>
+            <textarea id="mNotes" placeholder="ملاحظات على الماتش..."></textarea>
+          </div>
+          <button type="submit" class="btn green btn-block" id="mSubmit" style="margin-top:16px">
+            <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+            سجّل الماتش
+          </button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>
+          الماتشات المسجلة
+        </h2>
+        <div id="matchesList"></div>
+      </div>
+    </div>
+
+    <!-- EVENTS PANEL -->
+    <div class="panel" id="panel-events">
+      <div class="card">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          زيد حدث (هدف / تمريرة / بطاقة / تقييم)
+        </h2>
+        <form id="eventForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>اللاعب</label>
+              <select id="ePlayer" required>
+                <option value="">اختار اللاعب...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>نوع الحدث</label>
+              <select id="eType" required>
+                <option value="goal">هدف</option>
+                <option value="assist">تمريرة حاسمة</option>
+                <option value="yellow">بطاقة صفراء</option>
+                <option value="red">بطاقة حمراء</option>
+                <option value="motm">رجل الماتش</option>
+                <option value="rating">تقييم أداء</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>الماتش (اختياري)</label>
+              <select id="eMatch">
+                <option value="">بلا ماتش</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>الدقيقة (اختياري)</label>
+              <input type="number" id="eMinute" min="1" max="120" placeholder="45" />
+            </div>
+          </div>
+          <div class="form-group" id="ratingGroup" style="display:none">
+            <label>التقييم (من 1 إلى 10)</label>
+            <div class="slider-row">
+              <input type="range" id="eRating" min="1" max="10" value="7" />
+              <div class="slider-value" id="eRatingVal">7</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>ملاحظة</label>
+            <input type="text" id="eNote" placeholder="مثال: هدف رائع من بعيد" />
+          </div>
+          <button type="submit" class="btn green btn-block" id="eSubmit" style="margin-top:16px">
+            <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+            سجّل الحدث
+          </button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>
+          سجل الأحداث
+        </h2>
+        <div id="eventsList"></div>
+      </div>
+    </div>
+
+    <!-- ACHIEVEMENTS PANEL -->
+    <div class="panel" id="panel-achievements">
+      <div class="card">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          زيد إنجاز
+        </h2>
+        <form id="achForm">
+          <div class="form-group">
+            <label>اللاعب</label>
+            <select id="aPlayer" required>
+              <option value="">اختار اللاعب...</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>نوع الإنجاز</label>
+              <select id="aType" required>
+                <option value="top_scorer">هداف الشهر</option>
+                <option value="top_assist">أفضل صانع أهداف</option>
+                <option value="best_defender">أفضل مدافع</option>
+                <option value="best_goalkeeper">أفضل حارس</option>
+                <option value="mvp_month">أفضل لاعب في الشهر</option>
+                <option value="most_improved">أكثر لاعب تطور</option>
+                <option value="iron_man">الرجل الحديدي</option>
+                <option value="captain">القائد</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>العنوان</label>
+              <input type="text" id="aTitle" placeholder="هداف شهر مارس" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>الوصف (اختياري)</label>
+            <input type="text" id="aDesc" placeholder="سجل 12 هدف في شهر" />
+          </div>
+          <button type="submit" class="btn gold btn-block" id="aSubmit" style="margin-top:16px">
+            <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+            زيد الإنجاز
+          </button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          الإنجازات المسجلة
+        </h2>
+        <div id="achievementsList"></div>
+      </div>
+    </div>
+  `;
+
+  setupForms();
+  loadAllData();
+}
+
+// SETUP FORMS
+function setupForms() {
+  // Sliders للاعب
+  const STATS = [
+    { key: "strength", label: "القوة البدنية" },
+    { key: "shot_power", label: "قوة الفراب" },
+    { key: "pace", label: "السرعة" },
+    { key: "dribbling", label: "المراوغة" },
+    { key: "passing", label: "التمرير" },
+    { key: "defense", label: "الدفاع" }
+  ];
+
+  const slidersEl = document.getElementById("sliders");
+  if (slidersEl) {
+    slidersEl.innerHTML = "";
+    STATS.forEach(s => {
+      const row = document.createElement("div");
+      row.className = "slider-row";
+      row.innerHTML = `
+        <div class="slider-label">${s.label}</div>
+        <input type="range" min="1" max="100" value="70" id="stat-${s.key}" />
+        <div class="slider-value" id="val-${s.key}">70</div>
+      `;
+      slidersEl.appendChild(row);
+      const input = row.querySelector("input");
+      const val = row.querySelector(".slider-value");
+      input.addEventListener("input", () => val.textContent = input.value);
+    });
+  }
+
+  // Photo preview
+  const photoInput = document.getElementById("pPhoto");
+  const preview = document.getElementById("pPreview");
+  let photoData = "";
+
+  if (photoInput) {
+    photoInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        showToast("الصورة كبيرة! أقل من 5MB", "error");
+        photoInput.value = "";
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = ev => {
+        compressImage(ev.target.result, compressed => {
+          photoData = compressed;
+          preview.src = compressed;
+          preview.classList.add("show");
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Player form
+  const playerForm = document.getElementById("playerForm");
+  if (playerForm) {
+    playerForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      const btn = document.getElementById("pSubmit");
+      btn.disabled = true;
+      btn.innerHTML = "جاري التسجيل...";
+
+      const name = document.getElementById("pName").value.trim();
+      const position = document.getElementById("pPosition").value;
+
+      const player = {
+        name, position,
+        photo: photoData || "",
+        strength: parseInt(document.getElementById("stat-strength").value),
+        shot_power: parseInt(document.getElementById("stat-shot_power").value),
+        pace: parseInt(document.getElementById("stat-pace").value),
+        dribbling: parseInt(document.getElementById("stat-dribbling").value),
+        passing: parseInt(document.getElementById("stat-passing").value),
+        defense: parseInt(document.getElementById("stat-defense").value)
+      };
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/players`, {
+          method: "POST",
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            "Prefer": "return=minimal"
+          },
+          body: JSON.stringify([player])
+        });
+        if (!res.ok) throw new Error(await res.text());
+
+        showAlert("✅ تسجّل اللاعب " + name, "success");
+        playerForm.reset();
+        photoData = "";
+        preview.classList.remove("show");
+        STATS.forEach(s => {
+          document.getElementById("stat-" + s.key).value = 70;
+          document.getElementById("val-" + s.key).textContent = 70;
+        });
+        loadAllData();
+      } catch (err) {
+        showAlert("❌ " + err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2"><path d="M20 6 9 17l-5-5"/></svg> سجّل اللاعب';
+      }
+    });
+  }
+
+  // Match form
+  const matchForm = document.getElementById("matchForm");
+  if (matchForm) {
+    document.getElementById("mDate").value = new Date().toISOString().slice(0, 16);
+    matchForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      const btn = document.getElementById("mSubmit");
+      btn.disabled = true;
+      btn.innerHTML = "جاري التسجيل...";
+
+      const match = {
+        match_date: document.getElementById("mDate").value || new Date().toISOString(),
+        match_type: document.getElementById("mType").value,
+        team_a: document.getElementById("mTeamA").value.trim(),
+        team_b: document.getElementById("mTeamB").value.trim(),
+        score_a: parseInt(document.getElementById("mScoreA").value),
+        score_b: parseInt(document.getElementById("mScoreB").value),
+        location: document.getElementById("mLocation").value.trim() || null,
+        competition: document.getElementById("mCompetition").value.trim() || null,
+        notes: document.getElementById("mNotes").value.trim() || null
+      };
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/matches`, {
+          method: "POST",
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            "Prefer": "return=minimal"
+          },
+          body: JSON.stringify([match])
+        });
+        if (!res.ok) throw new Error(await res.text());
+
+        showAlert("✅ تسجّل الماتش", "success");
+        matchForm.reset();
+        document.getElementById("mDate").value = new Date().toISOString().slice(0, 16);
+        loadAllData();
+      } catch (err) {
+        showAlert("❌ " + err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2"><path d="M20 6 9 17l-5-5"/></svg> سجّل الماتش';
+      }
+    });
+  }
+
+  // Event form
+  const eventForm = document.getElementById("eventForm");
+  if (eventForm) {
+    const eType = document.getElementById("eType");
+    const ratingGroup = document.getElementById("ratingGroup");
+    if (eType) {
+      eType.addEventListener("change", () => {
+        ratingGroup.style.display = eType.value === "rating" ? "block" : "none";
+      });
+    }
+
+    const eRating = document.getElementById("eRating");
+    const eRatingVal = document.getElementById("eRatingVal");
+    if (eRating) {
+      eRating.addEventListener("input", () => eRatingVal.textContent = eRating.value);
+    }
+
+    eventForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      const btn = document.getElementById("eSubmit");
+      btn.disabled = true;
+      btn.innerHTML = "جاري التسجيل...";
+
+      const type = document.getElementById("eType").value;
+      const eventData = {
+        player_id: document.getElementById("ePlayer").value,
+        match_id: document.getElementById("eMatch").value || null,
+        event_type: type,
+        minute: parseInt(document.getElementById("eMinute").value) || null,
+        note: document.getElementById("eNote").value.trim() || null
+      };
+
+      if (type === "rating") {
+        eventData.rating = parseInt(document.getElementById("eRating").value);
+      }
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/events`, {
+          method: "POST",
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            "Prefer": "return=minimal"
+          },
+          body: JSON.stringify([eventData])
+        });
+        if (!res.ok) throw new Error(await res.text());
+
+        showAlert("✅ تسجّل الحدث", "success");
+        eventForm.reset();
+        ratingGroup.style.display = "none";
+        loadAllData();
+      } catch (err) {
+        showAlert("❌ " + err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2"><path d="M20 6 9 17l-5-5"/></svg> سجّل الحدث';
+      }
+    });
+  }
+
+  // Achievement form
+  const achForm = document.getElementById("achForm");
+  if (achForm) {
+    achForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      const btn = document.getElementById("aSubmit");
+      btn.disabled = true;
+      btn.innerHTML = "جاري التسجيل...";
+
+      const ach = {
+        player_id: document.getElementById("aPlayer").value,
+        type: document.getElementById("aType").value,
+        title: document.getElementById("aTitle").value.trim(),
+        description: document.getElementById("aDesc").value.trim() || null
+      };
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/achievements`, {
+          method: "POST",
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            "Prefer": "return=minimal"
+          },
+          body: JSON.stringify([ach])
+        });
+        if (!res.ok) throw new Error(await res.text());
+
+        showAlert("✅ تزاد الإنجاز", "success");
+        achForm.reset();
+        loadAllData();
+      } catch (err) {
+        showAlert("❌ " + err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2"><path d="M20 6 9 17l-5-5"/></svg> زيد الإنجاز';
+      }
+    });
+  }
+}
+
+// COMPRESS IMAGE
+function compressImage(base64, callback) {
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement("canvas");
+    const MAX = 300;
+    let w = img.width, h = img.height;
+    if (w > h) { if (w > MAX) { h = (h * MAX) / w; w = MAX; } }
+    else { if (h > MAX) { w = (w * MAX) / h; h = MAX; } }
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, w, h);
+    callback(canvas.toDataURL("image/jpeg", 0.7));
+  };
+  img.src = base64;
+}
+
+// TAB SWITCH
+function switchTab(name, btn) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  btn.classList.add("active");
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+  document.getElementById("panel-" + name).classList.add("active");
+}
+
+// HELPERS
+function escapeHTML(s) {
+  if (!s) return "";
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+function defaultPhoto() {
+  return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23334"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7" fill="none" stroke="%2322c55e" stroke-width="1.5"/></svg>';
+}
+async function fetchSafe(table, query = "") {
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/${table}${query ? "?" + query : ""}`;
+    const res = await fetch(url, {
+      headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (e) { return []; }
+}
+function showAlert(msg, type = "success") {
+  const el = document.getElementById("alert");
+  if (!el) return;
+  el.textContent = msg;
+  el.className = "alert show " + type;
+  setTimeout(() => el.classList.remove("show"), 4000);
+}
+let toastTimer;
+function showToast(msg, type = "success") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast " + type;
+  clearTimeout(toastTimer);
+  setTimeout(() => t.classList.add("show"), 10);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+// LOAD DATA
+async function loadAllData() {
+  try {
+    const [players, matches, events, achievements] = await Promise.all([
+      fetchSafe("players", "select=*&order=created_at.desc"),
+      fetchSafe("matches", "select=*&order=match_date.desc"),
+      fetchSafe("events", "select=*&order=event_date.desc&limit=100"),
+      fetchSafe("achievements", "select=*&order=earned_at.desc")
+    ]);
+
+    allPlayers = players;
+    allMatches = matches;
+    allEvents = events;
+    allAchievements = achievements;
+
+    renderStatsSummary();
+    renderPlayersList();
+    renderMatchesList();
+    renderEventsList();
+    renderAchievementsList();
+    fillSelects();
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function fillSelects() {
+  const playerOpts = allPlayers.map(p => `<option value="${p.id}">${escapeHTML(p.name)} (${p.position})</option>`).join("");
+  const matchOpts = allMatches.map(m => `<option value="${m.id}">${escapeHTML(m.team_a)} ${m.score_a}-${m.score_b} ${escapeHTML(m.team_b)}</option>`).join("");
+
+  ["ePlayer", "aPlayer"].forEach(id => {
+    const sel = document.getElementById(id);
+    if (sel) {
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">اختار اللاعب...</option>' + playerOpts;
+      sel.value = cur;
+    }
+  });
+
+  const eMatch = document.getElementById("eMatch");
+  if (eMatch) {
+    const cur = eMatch.value;
+    eMatch.innerHTML = '<option value="">بلا ماتش</option>' + matchOpts;
+    eMatch.value = cur;
+  }
+}
+
+function renderStatsSummary() {
+  const el = document.getElementById("statsSummary");
+  if (!el) return;
+  const goals = allEvents.filter(e => e.event_type === "goal").length;
+  const assists = allEvents.filter(e => e.event_type === "assist").length;
+  const motm = allEvents.filter(e => e.event_type === "motm").length;
+  el.innerHTML = `
+    <div class="stat-mini-card">
+      <div class="stat-mini-val">${allPlayers.length}</div>
+      <div class="stat-mini-label">لاعب</div>
+    </div>
+    <div class="stat-mini-card">
+      <div class="stat-mini-val">${allMatches.length}</div>
+      <div class="stat-mini-label">ماتش</div>
+    </div>
+    <div class="stat-mini-card">
+      <div class="stat-mini-val">${goals}</div>
+      <div class="stat-mini-label">هدف</div>
+    </div>
+    <div class="stat-mini-card">
+      <div class="stat-mini-val">${assists}</div>
+      <div class="stat-mini-label">تمريرة</div>
+    </div>
+    <div class="stat-mini-card">
+      <div class="stat-mini-val">${motm}</div>
+      <div class="stat-mini-label">رجل الماتش</div>
+    </div>
+    <div class="stat-mini-card">
+      <div class="stat-mini-val">${allAchievements.length}</div>
+      <div class="stat-mini-label">إنجاز</div>
+    </div>
+  `;
+}
+
+function renderPlayersList() {
+  const el = document.getElementById("playersList");
+  if (!el) return;
+  if (allPlayers.length === 0) {
+    el.innerHTML = '<div class="empty">ما فيه لاعبين مسجلين</div>';
+    return;
+  }
+  el.innerHTML = allPlayers.map(p => `
+    <div class="item-row">
+      <img src="${p.photo || defaultPhoto()}" onerror="this.src='${defaultPhoto()}'" />
+      <div class="item-info">
+        <strong>${escapeHTML(p.name)}</strong>
+        <span>${p.position}</span>
+      </div>
+      <button class="btn red btn-small" onclick="deleteItem('players', '${p.id}')">حيّد</button>
+    </div>
+  `).join("");
+}
+
+function renderMatchesList() {
+  const el = document.getElementById("matchesList");
+  if (!el) return;
+  if (allMatches.length === 0) {
+    el.innerHTML = '<div class="empty">ما فيه ماتشات</div>';
+    return;
+  }
+  el.innerHTML = allMatches.map(m => `
+    <div class="item-row">
+      <div class="item-info">
+        <strong>${escapeHTML(m.team_a)} ${m.score_a} - ${m.score_b} ${escapeHTML(m.team_b)}</strong>
+        <span>${new Date(m.match_date).toLocaleDateString("ar-DZ")} · ${m.match_type || "ودّي"}</span>
+      </div>
+      <button class="btn red btn-small" onclick="deleteItem('matches', '${m.id}')">حيّد</button>
+    </div>
+  `).join("");
+}
+
+function renderEventsList() {
+  const el = document.getElementById("eventsList");
+  if (!el) return;
+  if (allEvents.length === 0) {
+    el.innerHTML = '<div class="empty">ما فيه أحداث</div>';
+    return;
+  }
+  const typeLabels = {
+    goal: "⚽ هدف",
+    assist: "🎯 تمريرة",
+    yellow: "🟨 بطاقة صفراء",
+    red: "🟥 بطاقة حمراء",
+    motm: "⭐ رجل الماتش",
+    rating: "📊 تقييم"
+  };
+  el.innerHTML = allEvents.slice(0, 30).map(ev => {
+    const p = allPlayers.find(x => x.id === ev.player_id);
+    const label = typeLabels[ev.event_type] || ev.event_type;
+    const val = ev.event_type === "rating" ? ` · ${ev.rating}/10` : "";
+    return `
+      <div class="item-row">
+        <div class="item-info">
+          <strong>${p ? escapeHTML(p.name) : "لاعب محذوف"} — ${label}${val}</strong>
+          <span>${new Date(ev.event_date).toLocaleDateString("ar-DZ")}${ev.minute ? ' · د' + ev.minute : ''}${ev.note ? ' · ' + escapeHTML(ev.note) : ''}</span>
+        </div>
+        <button class="btn red btn-small" onclick="deleteItem('events', '${ev.id}')">حيّد</button>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderAchievementsList() {
+  const el = document.getElementById("achievementsList");
+  if (!el) return;
+  if (allAchievements.length === 0) {
+    el.innerHTML = '<div class="empty">ما فيه إنجازات</div>';
+    return;
+  }
+  el.innerHTML = allAchievements.map(a => {
+    const p = allPlayers.find(x => x.id === a.player_id);
+    return `
+      <div class="item-row">
+        <div class="item-info">
+          <strong>🏅 ${escapeHTML(a.title)}</strong>
+          <span>${p ? escapeHTML(p.name) : "لاعب محذوف"} · ${new Date(a.earned_at).toLocaleDateString("ar-DZ")}</span>
+        </div>
+        <button class="btn red btn-small" onclick="deleteItem('achievements', '${a.id}')">حيّد</button>
+      </div>
+    `;
+  }).join("");
+}
+
+// DELETE
+async function deleteItem(table, id) {
+  if (!confirm("متأكد تحيّد؟")) return;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+      method: "DELETE",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`
+      }
+    });
+    if (!res.ok) throw new Error("فشل الحذف");
+    showToast("✅ تحيّد", "success");
+    loadAllData();
+  } catch (err) {
+    showToast("❌ " + err.message, "error");
+  }
+}
+
+// INIT
+document.addEventListener("DOMContentLoaded", async () => {
+  await checkAuth();
+});
+</script>
+
+</body>
+</html>
