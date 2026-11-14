@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0a0f1a" />
+<title>الترتيب - Vinlandx</title>
+<link rel="icon" type="image/png" href="icon.png" />
+<link rel="manifest" href="manifest.json" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green-1: #4ade80; --green-2: #22c55e; --green-3: #16a34a; --green-4: #15803d;
+  --red-1: #f87171; --red-2: #ef4444; --red-3: #dc2626;
+  --gold-1: #fde68a; --gold-2: #fbbf24; --gold-3: #f59e0b; --gold-4: #d97706;
+  --blue-2: #60a5fa; --blue-3: #3b82f6;
+  --silver-1: #f1f5f9; --silver-2: #cbd5e1; --silver-3: #94a3b8;
+  --bronze-1: #fed7aa; --bronze-2: #fb923c; --bronze-3: #c2410c;
+
+  --bg: #070b14;
+  --card: rgba(255,255,255,0.05);
+  --card-hover: rgba(255,255,255,0.09);
+  --text: #f1f5f9; --text-muted: #94a3b8;
+  --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.15);
+
+  --radius-lg: 20px; --radius-md: 14px; --radius-sm: 10px;
+
+  --grad-green: linear-gradient(135deg, var(--green-1) 0%, var(--green-3) 100%);
+  --grad-red: linear-gradient(135deg, var(--red-1) 0%, var(--red-3) 100%);
+  --grad-gold: linear-gradient(135deg, var(--gold-2) 0%, var(--gold-4) 100%);
+  --grad-silver: linear-gradient(135deg, var(--silver-2) 0%, var(--silver-3) 100%);
+  --grad-bronze: linear-gradient(135deg, var(--bronze-2) 0%, var(--bronze-3) 100%);
+}
+
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --card: rgba(255,255,255,0.9);
+  --card-hover: rgba(255,255,255,1);
+  --text: #0f172a; --text-muted: #475569;
+  --border: rgba(15,23,42,0.08); --border-strong: rgba(15,23,42,0.15);
+}
+
+html { scroll-behavior: smooth; }
+html, body { height: 100%; overflow-x: hidden; }
+
+body {
+  font-family: 'Cairo', system-ui, sans-serif;
+  color: var(--text); background: var(--bg);
+  min-height: 100vh; direction: rtl;
+  position: relative;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* LOADER */
+#loader {
+  position: fixed; inset: 0; background: var(--bg);
+  z-index: 10000; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity 0.3s ease, visibility 0.3s;
+}
+#loader.hidden { opacity: 0; visibility: hidden; }
+.loader-logo { width: 100px; height: 100px; margin-bottom: 16px; object-fit: contain; }
+.loader-text { font-size: 1.4rem; font-weight: 900; color: var(--green-1); letter-spacing: 2px; margin-bottom: 20px; }
+.loader-bar { width: 160px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 999px; overflow: hidden; position: relative; }
+.loader-bar::after { content: ""; position: absolute; inset: 0; background: var(--grad-green); animation: loaderBar 1.2s ease-in-out infinite; }
+@keyframes loaderBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+/* BACKGROUND */
+.bg-layer {
+  position: fixed; inset: 0; z-index: -2;
+  background-size: cover; background-position: center;
+  background-attachment: fixed;
+}
+.bg-overlay {
+  position: fixed; inset: 0; z-index: -1;
+  background: linear-gradient(180deg, rgba(7,11,20,0.8) 0%, rgba(7,11,20,0.95) 100%);
+}
+[data-theme="light"] .bg-overlay {
+  background: linear-gradient(180deg, rgba(248,250,252,0.9) 0%, rgba(248,250,252,0.98) 100%);
+}
+
+.glass {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+/* HEADER */
+header {
+  position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+  width: calc(100% - 24px); max-width: 1300px; z-index: 100;
+  padding: 10px 18px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  transition: all 0.3s;
+  background: var(--card);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
+}
+header.scrolled { top: 6px; padding: 6px 14px; }
+
+.header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
+.header-logo img { height: 40px; width: auto; object-fit: contain; }
+.header-logo-text { display: flex; flex-direction: column; line-height: 1; }
+.header-logo-text .main { font-size: 1rem; font-weight: 900; color: var(--green-1); letter-spacing: 0.5px; }
+.header-logo-text .sub { font-size: 0.62rem; color: var(--text-muted); font-weight: 700; margin-top: 2px; }
+
+nav { display: flex; align-items: center; gap: 4px; }
+nav a {
+  padding: 7px 12px; color: var(--text-muted); text-decoration: none;
+  font-weight: 700; font-size: 0.82rem; border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+nav a:hover { color: var(--text); background: rgba(34,197,94,0.1); }
+nav a.active { color: var(--green-1); background: rgba(34,197,94,0.15); }
+
+.header-actions { display: flex; align-items: center; gap: 8px; }
+.icon-btn {
+  width: 40px; height: 40px; border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  color: var(--text); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; padding: 0;
+}
+.icon-btn:hover { background: rgba(34,197,94,0.15); border-color: var(--green-2); }
+.icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+.user-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 12px 4px 4px; border-radius: 999px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.2s; font-family: inherit; color: var(--text);
+}
+.user-btn:hover { background: rgba(34,197,94,0.15); border-color: var(--green-2); }
+.user-btn img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--green-2); object-fit: cover; }
+.user-btn span { font-size: 0.82rem; font-weight: 700; }
+
+.login-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: var(--radius-sm);
+  background: var(--grad-green); border: none; color: #fff;
+  font-family: inherit; font-weight: 800; font-size: 0.82rem;
+  cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+}
+.login-btn:hover { transform: translateY(-1px); }
+.login-btn svg { width: 16px; height: 16px; fill: #fff; }
+
+.mobile-toggle { display: none; }
+
+@media (max-width: 900px) {
+  nav {
+    display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+    flex-direction: column; padding: 12px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+  nav.open { display: flex; }
+  nav a { width: 100%; text-align: right; padding: 10px 14px; }
+  .mobile-toggle { display: flex; }
+  .user-btn span { display: none; }
+}
+
+main { padding-top: 90px; padding-bottom: 60px; min-height: 100vh; }
+
+.page-header { text-align: center; padding: 30px 0 20px; }
+.page-header h1 {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+.page-header h1 .gold {
+  background: var(--grad-gold);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.page-header p { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; }
+
+/* CATEGORY TABS */
+.category-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+}
+.category-tabs::-webkit-scrollbar { display: none; }
+.cat-tab {
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cat-tab svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.cat-tab:hover { border-color: var(--gold-2); color: var(--text); }
+.cat-tab.active {
+  background: var(--grad-gold);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 16px rgba(251,191,36,0.4);
+}
+
+/* PODIUM */
+.podium {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  gap: 14px;
+  align-items: end;
+  margin-bottom: 24px;
+}
+@media (max-width: 640px) { .podium { grid-template-columns: 1fr; } }
+
+.podium-item {
+  padding: 20px 16px;
+  text-align: center;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border);
+  background: var(--card);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.podium-item:hover { transform: translateY(-6px); }
+.podium-item.first {
+  background: linear-gradient(160deg, rgba(251,191,36,0.15), rgba(217,119,6,0.15));
+  border-color: var(--gold-2);
+  padding: 30px 16px;
+  box-shadow: 0 10px 40px rgba(251,191,36,0.2);
+}
+.podium-item.second {
+  background: linear-gradient(160deg, rgba(203,213,225,0.1), rgba(148,163,184,0.1));
+  border-color: var(--silver-2);
+}
+.podium-item.third {
+  background: linear-gradient(160deg, rgba(251,146,60,0.1), rgba(194,65,12,0.1));
+  border-color: var(--bronze-2);
+}
+@media (max-width: 640px) { .podium-item.first { order: -1; } }
+
+.podium-crown {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+.podium-item.first .podium-crown { background: var(--grad-gold); box-shadow: 0 8px 20px rgba(251,191,36,0.5); }
+.podium-item.second .podium-crown { background: var(--grad-silver); }
+.podium-item.third .podium-crown { background: var(--grad-bronze); }
+.podium-crown svg { width: 24px; height: 24px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+.podium-photo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  margin: 0 auto 12px;
+  display: block;
+  background: var(--bg);
+}
+.podium-item.first .podium-photo {
+  width: 100px;
+  height: 100px;
+  border-color: var(--gold-2);
+}
+
+.podium-name {
+  font-size: 1rem;
+  font-weight: 900;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.podium-item.first .podium-name { font-size: 1.15rem; color: var(--gold-2); }
+.podium-pos {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.podium-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--grad-gold);
+  color: #fff;
+  font-weight: 900;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 12px rgba(251,191,36,0.3);
+}
+.podium-item.second .podium-value { background: var(--grad-silver); box-shadow: 0 4px 12px rgba(148,163,184,0.3); }
+.podium-item.third .podium-value { background: var(--grad-bronze); box-shadow: 0 4px 12px rgba(194,65,12,0.3); }
+
+/* RANK LIST */
+.rank-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rank-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  background: var(--card);
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.rank-row:hover {
+  background: var(--card-hover);
+  transform: translateX(-4px);
+  border-color: var(--green-3);
+}
+.rank-row.top-1 { background: linear-gradient(90deg, rgba(251,191,36,0.1), transparent); border-color: rgba(251,191,36,0.3); }
+.rank-row.top-2 { background: linear-gradient(90deg, rgba(203,213,225,0.08), transparent); border-color: rgba(203,213,225,0.3); }
+.rank-row.top-3 { background: linear-gradient(90deg, rgba(251,146,60,0.08), transparent); border-color: rgba(251,146,60,0.3); }
+
+.rank-num {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1rem;
+  background: rgba(255,255,255,0.05);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+[data-theme="light"] .rank-num { background: rgba(15,23,42,0.05); }
+.rank-num.gold { background: var(--grad-gold); color: #fff; box-shadow: 0 4px 12px rgba(251,191,36,0.4); }
+.rank-num.silver { background: var(--grad-silver); color: #fff; }
+.rank-num.bronze { background: var(--grad-bronze); color: #fff; }
+
+.rank-photo {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 2px solid var(--green-2);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+
+.rank-info { flex: 1; min-width: 0; }
+.rank-info-name {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rank-info-pos {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.rank-value {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--gold-2);
+  flex-shrink: 0;
+  text-align: left;
+  min-width: 60px;
+}
+.rank-value small {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  display: block;
+  margin-top: 2px;
+}
+
+/* STATS SUMMARY */
+.stats-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.stat-mini-card {
+  padding: 14px;
+  text-align: center;
+  border-radius: var(--radius-md);
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+.stat-mini-val {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--green-1);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-mini-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+/* EMPTY */
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.empty svg {
+  width: 70px;
+  height: 70px;
+  stroke: var(--gold-2);
+  fill: none;
+  stroke-width: 1.2;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+.empty h3 { font-size: 1.2rem; color: var(--text); margin-bottom: 6px; }
+.empty p { font-size: 0.9rem; }
+
+/* SKELETON */
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 100%);
+  background-size: 200% 100%;
+  animation: skeleton 1.5s linear infinite;
+  border-radius: var(--radius-md);
+}
+@keyframes skeleton {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  font-weight: 700;
+  font-size: 0.85rem;
+  z-index: 500;
+  transition: transform 0.3s ease;
+  max-width: 90vw;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--green-2); color: var(--green-1); }
+.toast.error { border-color: var(--red-2); color: var(--red-1); }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--gold-3); border-radius: 999px; }
+
+@media (max-width: 768px) {
+  .container { padding: 0 16px; }
+  main { padding-top: 80px; }
+  .cat-tab { padding: 8px 14px; font-size: 0.78rem; }
+  .rank-row { padding: 12px 14px; gap: 10px; }
+  .rank-num { width: 36px; height: 36px; font-size: 0.85rem; }
+  .rank-photo { width: 42px; height: 42px; }
+  .rank-info-name { font-size: 0.85rem; }
+  .rank-value { font-size: 1.1rem; }
+  .podium-item.first { padding: 20px 12px; }
+  .podium-photo { width: 65px; height: 65px; }
+  .podium-item.first .podium-photo { width: 80px; height: 80px; }
+}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <img src="logo.png" alt="Vinlandx" class="loader-logo" onerror="this.style.display='none'" />
+  <div class="loader-text">VINLANDX</div>
+  <div class="loader-bar"></div>
+</div>
+
+<div class="bg-layer" style="background-image: url('background4.png');"></div>
+<div class="bg-overlay"></div>
+
+<header id="header">
+  <a href="index.html" class="header-logo">
+    <img src="logo.png" alt="Vinlandx" onerror="this.style.display='none'" />
+    <div class="header-logo-text">
+      <span class="main">كرة الحومة - Vinlandx</span>
+      <span class="sub">منصة كرة القدم الجزائرية</span>
+    </div>
+  </a>
+
+  <nav id="nav">
+    <a href="index.html">الرئيسية</a>
+    <a href="players.html">اللاعبين</a>
+    <a href="matches.html">الماتشات</a>
+    <a href="leaderboard.html" class="active">الترتيب</a>
+    <a href="compare.html">قارن</a>
+    <a href="teams.html">الفرق</a>
+  </nav>
+
+  <div class="header-actions">
+    <button class="icon-btn mobile-toggle" onclick="toggleMobileNav()" aria-label="القائمة">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" aria-label="الوضع">
+      <svg viewBox="0 0 24 24" id="themeIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <div id="userArea">
+      <button class="login-btn" onclick="signInWithGoogle()">
+        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        دخول
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+
+    <div class="page-header">
+      <h1>لوحة <span class="gold">الترتيب</span> 🏆</h1>
+      <p>أفضل لاعبين الحومة في كل خانة</p>
+    </div>
+
+    <div class="category-tabs" id="categoryTabs"></div>
+
+    <div id="statsSummary" class="stats-summary"></div>
+
+    <div id="rankContent">
+      <div class="skeleton" style="height: 300px; margin-bottom: 14px;"></div>
+      <div class="skeleton" style="height: 70px; margin-bottom: 10px;"></div>
+      <div class="skeleton" style="height: 70px; margin-bottom: 10px;"></div>
+      <div class="skeleton" style="height: 70px;"></div>
+    </div>
+
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = "https://dhvuopnibiwpzuwvxxtv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_sl9It4cgGFwkGCC76X4zHw_Hjx4iELO";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let currentProfile = null;
+let allPlayers = [];
+let allEvents = [];
+let allAchievements = [];
+let currentCategory = "overall";
+
+const CATEGORIES = {
+  overall: {
+    label: "التقييم الكلي",
+    icon: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+    getValue: p => calcOverall(p),
+    unit: ""
+  },
+  points: {
+    label: "النقاط",
+    icon: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+    getValue: p => getPlayerStats(p.id).points,
+    unit: "نقطة"
+  },
+  goals: {
+    label: "الأهداف",
+    icon: '<circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20M2 12h20"/>',
+    getValue: p => getPlayerStats(p.id).goals,
+    unit: "هدف"
+  },
+  assists: {
+    label: "التمريرات",
+    icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>',
+    getValue: p => getPlayerStats(p.id).assists,
+    unit: "تمريرة"
+  },
+  motm: {
+    label: "رجل الماتش",
+    icon: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+    getValue: p => getPlayerStats(p.id).motm,
+    unit: "مرة"
+  },
+  pace: {
+    label: "السرعة",
+    icon: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+    getValue: p => p.pace || 0,
+    unit: ""
+  },
+  shot: {
+    label: "قوة الفراب",
+    icon: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+    getValue: p => p.shot_power || 0,
+    unit: ""
+  },
+  passing: {
+    label: "التمرير",
+    icon: '<circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/>',
+    getValue: p => p.passing || 0,
+    unit: ""
+  },
+  dribbling: {
+    label: "المراوغة",
+    icon: '<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/>',
+    getValue: p => p.dribbling || 0,
+    unit: ""
+  },
+  defense: {
+    label: "الدفاع",
+    icon: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    getValue: p => p.defense || 0,
+    unit: ""
+  },
+  rating: {
+    label: "متوسط التقييم",
+    icon: '<path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>',
+    getValue: p => getPlayerStats(p.id).avgRating,
+    unit: "/10"
+  }
+};
+
+window.addEventListener("load", () => {
+  document.getElementById("loader").classList.add("hidden");
+});
+
+function getSavedTheme() { return localStorage.getItem("vinlandx_theme") || "dark"; }
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const icon = document.getElementById("themeIcon");
+  if (theme === "dark") {
+    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  } else {
+    icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  }
+}
+function toggleTheme() {
+  const current = getSavedTheme();
+  const next = current === "dark" ? "light" : "dark";
+  localStorage.setItem("vinlandx_theme", next);
+  applyTheme(next);
+  showToast(next === "dark" ? "🌙 الوضع الداكن" : "☀️ الوضع الفاتح", "success");
+}
+applyTheme(getSavedTheme());
+
+function toggleMobileNav() { document.getElementById("nav").classList.toggle("open"); }
+
+window.addEventListener("scroll", () => {
+  const header = document.getElementById("header");
+  if (window.scrollY > 50) header.classList.add("scrolled");
+  else header.classList.remove("scrolled");
+});
+
+// AUTH
+async function signInWithGoogle() {
+  try {
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: "https://vinlandx.github.io" }
+    });
+    if (error) throw error;
+  } catch (err) { showToast("خطأ: " + err.message, "error"); }
+}
+
+async function signOut() {
+  await supabaseClient.auth.signOut();
+  currentUser = null;
+  currentProfile = null;
+  renderUserArea();
+}
+
+async function checkAuth() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    const { data: profile } = await supabaseClient.from("profiles").select("*").eq("id", currentUser.id).single();
+    currentProfile = profile;
+  }
+  renderUserArea();
+}
+
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  if (session) {
+    currentUser = session.user;
+    const { data: profile } = await supabaseClient.from("profiles").select("*").eq("id", currentUser.id).single();
+    currentProfile = profile;
+  } else {
+    currentUser = null;
+    currentProfile = null;
+  }
+  renderUserArea();
+});
+
+function renderUserArea() {
+  const area = document.getElementById("userArea");
+  if (currentUser) {
+    const avatar = currentProfile?.avatar_url ||
+      currentUser?.user_metadata?.avatar_url ||
+      currentUser?.user_metadata?.picture ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.email)}&background=22c55e&color=fff`;
+    const name = currentProfile?.full_name || currentUser?.user_metadata?.full_name || currentUser.email;
+    area.innerHTML = `
+      <button class="user-btn" onclick="if(confirm('تسجّل الخروج؟')) signOut()">
+        <img src="${avatar}" alt="${escapeHTML(name)}" />
+        <span>${escapeHTML(name.split("@")[0])}</span>
+      </button>
+    `;
+  } else {
+    area.innerHTML = `
+      <button class="login-btn" onclick="signInWithGoogle()">
+        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        دخول
+      </button>
+    `;
+  }
+}
+
+// HELPERS
+function escapeHTML(s) {
+  if (!s) return "";
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function calcOverall(p) {
+  return Math.round((p.strength + p.shot_power + p.pace + p.dribbling + p.passing + p.defense) / 6);
+}
+
+function getPlayerStats(pid) {
+  const ev = allEvents.filter(e => e.player_id === pid);
+  const goals = ev.filter(e => e.event_type === "goal").length;
+  const assists = ev.filter(e => e.event_type === "assist").length;
+  const motm = ev.filter(e => e.event_type === "motm").length;
+  const yellow = ev.filter(e => e.event_type === "yellow").length;
+  const red = ev.filter(e => e.event_type === "red").length;
+  const ratings = ev.filter(e => e.event_type === "rating").map(e => e.rating);
+  const avgRating = ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) / ratings.length) : 0;
+  const points = goals * 3 + assists * 2 + motm * 5 - yellow - red * 3;
+  return { goals, assists, motm, yellow, red, points, avgRating };
+}
+
+function defaultPhoto() {
+  return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23334"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7" fill="none" stroke="%2322c55e" stroke-width="1.5"/></svg>';
+}
+
+async function fetchSafe(table, query = "") {
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/${table}${query ? "?" + query : ""}`;
+    const res = await fetch(url, {
+      headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (e) { return []; }
+}
+
+let toastTimer;
+function showToast(msg, type = "success") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast " + type;
+  clearTimeout(toastTimer);
+  setTimeout(() => t.classList.add("show"), 10);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+// RENDER CATEGORIES
+function renderCategories() {
+  const el = document.getElementById("categoryTabs");
+  if (!el) return;
+  el.innerHTML = Object.entries(CATEGORIES).map(([key, cat]) => `
+    <button class="cat-tab ${key === currentCategory ? 'active' : ''}" onclick="setCategory('${key}')">
+      <svg viewBox="0 0 24 24">${cat.icon}</svg>
+      ${cat.label}
+    </button>
+  `).join("");
+}
+
+function setCategory(key) {
+  currentCategory = key;
+  renderCategories();
+  renderRank();
+}
+
+// RENDER STATS SUMMARY
+function renderStatsSummary() {
+  const el = document.getElementById("statsSummary");
+  if (!el) return;
+
+  const totalGoals = allEvents.filter(e => e.event_type === "goal").length;
+  const totalAssists = allEvents.filter(e => e.event_type === "assist").length;
+  const totalMotm = allEvents.filter(e => e.event_type === "motm").length;
+
+  el.innerHTML = `
+    <div class="stat-mini-card">
+      <div class="stat-mini-val">${allPlayers.length}</div>
+      <div class="stat-mini-label">لاعب</div>
+    </div>
+    <div class="stat-mini-card">
+      <div class="stat-mini-val">${totalGoals}</div>
+      <div class="stat-mini-label">هدف</div>
+    </div>
+    <div class="stat-mini-card">
+      <div class="stat-mini-val">${totalAssists}</div>
+      <div class="stat-mini-label">تمريرة</div>
+    </div>
+    <div class="stat-mini-card">
+      <div class="stat-mini-val">${totalMotm}</div>
+      <div class="stat-mini-label">رجل الماتش</div>
+    </div>
+  `;
+}
+
+// RENDER RANK
+function renderRank() {
+  const content = document.getElementById("rankContent");
+  const cat = CATEGORIES[currentCategory];
+
+  if (allPlayers.length === 0) {
+    content.innerHTML = `
+      <div class="empty">
+        <svg viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        <h3>ما فيه لاعبين</h3>
+        <p>الأدمن يزيد اللاعبين</p>
+      </div>
+    `;
+    return;
+  }
+
+  // رتب اللاعبين
+  const ranked = [...allPlayers]
+    .map(p => ({ ...p, _value: cat.getValue(p) }))
+    .sort((a, b) => b._value - a._value);
+
+  const top3 = ranked.slice(0, 3);
+  const rest = ranked.slice(3);
+
+  // podium
+  let podiumHTML = '';
+  if (top3.length >= 3) {
+    const order = [top3[1], top3[0], top3[2]];
+    const ranks = [2, 1, 3];
+    podiumHTML = `<div class="podium">
+      ${order.map((p, i) => {
+        if (!p) return '';
+        const rank = ranks[i];
+        const cls = rank === 1 ? 'first' : rank === 2 ? 'second' : 'third';
+        const crown = rank === 1 ? '<path d="M2 18h20l-2-10-5 4-3-6-3 6-5-4z"/><path d="M4 22h16"/>' :
+                     '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>';
+        return `
+          <div class="podium-item ${cls}" onclick="location.href='player.html?id=${p.id}'" style="cursor:pointer">
+            <div class="podium-crown">
+              <svg viewBox="0 0 24 24">${crown}</svg>
+            </div>
+            <img class="podium-photo" src="${p.photo || defaultPhoto()}" onerror="this.src='${defaultPhoto()}'" />
+            <div class="podium-name">${escapeHTML(p.name)}</div>
+            <div class="podium-pos">${p.position}</div>
+            <div class="podium-value">${typeof p._value === 'number' ? p._value.toFixed(p._value % 1 === 0 ? 0 : 1) : p._value} ${cat.unit}</div>
+          </div>
+        `;
+      }).join("")}
+    </div>`;
+  } else {
+    podiumHTML = `<div class="podium" style="grid-template-columns:1fr">
+      ${top3.map(p => `
+        <div class="podium-item first" onclick="location.href='player.html?id=${p.id}'" style="cursor:pointer">
+          <div class="podium-crown"><svg viewBox="0 0 24 24"><path d="M2 18h20l-2-10-5 4-3-6-3 6-5-4z"/><path d="M4 22h16"/></svg></div>
+          <img class="podium-photo" src="${p.photo || defaultPhoto()}" onerror="this.src='${defaultPhoto()}'" />
+          <div class="podium-name">${escapeHTML(p.name)}</div>
+          <div class="podium-pos">${p.position}</div>
+          <div class="podium-value">${typeof p._value === 'number' ? p._value.toFixed(p._value % 1 === 0 ? 0 : 1) : p._value} ${cat.unit}</div>
+        </div>
+      `).join("")}
+    </div>`;
+  }
+
+  // rest
+  const restHTML = rest.length > 0 ? `
+    <div class="rank-list">
+      ${rest.map((p, i) => {
+        const rank = i + 4;
+        const rankClass = rank === 4 ? '' : '';
+        return `
+          <div class="rank-row ${rankClass}" onclick="location.href='player.html?id=${p.id}'">
+            <div class="rank-num">${rank}</div>
+            <img class="rank-photo" src="${p.photo || defaultPhoto()}" onerror="this.src='${defaultPhoto()}'" />
+            <div class="rank-info">
+              <div class="rank-info-name">${escapeHTML(p.name)}</div>
+              <div class="rank-info-pos">${p.position}</div>
+            </div>
+            <div class="rank-value">
+              ${typeof p._value === 'number' ? p._value.toFixed(p._value % 1 === 0 ? 0 : 1) : p._value}
+              <small>${cat.unit}</small>
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  ` : '';
+
+  content.innerHTML = podiumHTML + restHTML;
+}
+
+// LOAD
+async function loadAll() {
+  try {
+    const [players, events, achievements] = await Promise.all([
+      fetchSafe("players", "select=*&order=created_at.desc"),
+      fetchSafe("events", "select=*"),
+      fetchSafe("achievements", "select=*")
+    ]);
+    allPlayers = players;
+    allEvents = events;
+    allAchievements = achievements;
+    renderCategories();
+    renderStatsSummary();
+    renderRank();
+    setupRealtime();
+  } catch (e) {
+    console.error(e);
+    document.getElementById("rankContent").innerHTML = '<div class="empty"><h3>خطأ في التحميل</h3></div>';
+  }
+}
+
+function setupRealtime() {
+  supabaseClient
+    .channel("vinlandx-leaderboard")
+    .on("postgres_changes", { event: "*", schema: "public", table: "players" }, () => loadAll())
+    .on("postgres_changes", { event: "*", schema: "public", table: "events" }, () => loadAll())
+    .subscribe();
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await checkAuth();
+  await loadAll();
+});
+</script>
+
+</body>
+</html>
